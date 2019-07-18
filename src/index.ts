@@ -1,5 +1,5 @@
-import {EmptyCache, IpregistryCache} from './cache';
 import {DefaultRequestHandler, IpregistryRequestHandler} from './request';
+import {EmptyCache, IpregistryCache} from './cache';
 import {IpregistryOption} from './options';
 import {IpInfo, RequesterIpInfo} from './model';
 
@@ -106,3 +106,4 @@ export * from './errors';
 export * from './model';
 export * from './options';
 export * from './request';
+export {UserAgent} from './util';
