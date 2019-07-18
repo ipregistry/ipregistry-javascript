@@ -1,8 +1,8 @@
 export class IpregistryOption {
 
-    protected name: string;
+    public readonly name: string;
 
-    protected value: string;
+    public readonly value: string;
 
     constructor(name: string, value: string) {
         this.name = name;

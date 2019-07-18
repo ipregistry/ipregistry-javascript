@@ -29,7 +29,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         try {
             const response =
                 await axios.get(
-                    `${this.config.apiUrl}/${ip}?key=${this.config.apiKey}`,
+                    this.buildApiUrl(ip, options),
                     this.getAxiosConfig()
                 );
             return response.data as IpInfo;
@@ -55,7 +55,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         try {
             const response =
                 await axios.get(
-                    `${this.config.apiUrl}/?key=${this.config.apiKey}`,
+                    this.buildApiUrl('', options),
                     this.getAxiosConfig()
                 );
             return response.data as RequesterIpInfo;
@@ -73,11 +73,23 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    private getAxiosConfig() {
+    protected getAxiosConfig() {
         return {
             headers: {'User-Agent': DefaultRequestHandler.USER_AGENT},
             timeout: this.config.timeout
         };
+    }
+
+    protected buildApiUrl(ip: string, options: IpregistryOption[]) {
+        let result = `${this.config.apiUrl}/${ip ? ip : ''}?key=${this.config.apiKey}`;
+
+        if (options) {
+            for (let option of options) {
+                result += `&${option.name}=${encodeURIComponent(option.value)}`;
+            }
+        }
+
+        return result;
     }
 
 }
