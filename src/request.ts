@@ -34,16 +34,12 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 );
             return response.data as IpInfo;
         } catch (error) {
-            if (error.isAxiosError) {
-                if (error.response) {
-                    const data = error.response.data;
-                    throw new ApiError(data.code, data.message, data.resolution);
-                }
-
-                throw new ClientError(error.message);
-            } else {
-                throw new ClientError(error.message);
+            if (error.isAxiosError && error.response) {
+                const data = error.response.data;
+                throw new ApiError(data.code, data.message, data.resolution);
             }
+
+            throw new ClientError(error.message);
         }
     }
 
@@ -60,16 +56,12 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 );
             return response.data as RequesterIpInfo;
         } catch (error) {
-            if (error.isAxiosError) {
-                if (error.response) {
-                    const data = error.response.data;
-                    throw new ApiError(data.code, data.message, data.resolution);
-                }
-
-                throw new ClientError(error.message);
-            } else {
-                throw new ClientError(error.message);
+            if (error.isAxiosError && error.response) {
+                const data = error.response.data;
+                throw new ApiError(data.code, data.message, data.resolution);
             }
+
+            throw new ClientError(error.message);
         }
     }
 
