@@ -1,6 +1,10 @@
 {
   "name": "@ipregistry/client",
   "description": "Official Ipregistry Javascript Library (ES5, ES6+, TypeScript)",
+  "version": "0.9.0",
+  "main": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
   "homepage": "https://ipregistry.co",
   "license": "Apache-2.0",
   "keywords": [
@@ -37,8 +41,6 @@
     "pretest": "yarn run clean && yarn run build",
     "test:integration": "mocha -r ts-node/register integration_test/**/*.ts"
   },
-  "version": "0.9.0",
-  "main": "src/ipregistry.ts",
   "author": "Laurent Pellegrino <laurent.pellegrino@ipregistry.co>",
   "devDependencies": {
     "@types/axios": "^0.14.0",
