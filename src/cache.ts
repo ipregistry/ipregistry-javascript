@@ -1,16 +1,15 @@
 import {IpInfo} from './model';
-import {Options} from 'lru-cache';
 
 import * as LRUCache from 'lru-cache';
 
 
 export interface IpregistryCache {
 
-    get(ip: string): IpInfo | undefined;
+    get(key: string): IpInfo | undefined;
 
-    put(ip: string, data: IpInfo): void;
+    put(key: string, data: IpInfo): void;
 
-    invalidate(ip: string): void;
+    invalidate(key: string): void;
 
     invalidateAll(): void;
 
@@ -24,11 +23,11 @@ export class DefaultCache implements IpregistryCache {
 
     private readonly cache: LRUCache<string, IpInfo>;
 
-    constructor(maximumSize: number = 8096, expireAfter: number = 86400 * 1000) {
+    constructor(maximumSize: number = typeof window !== 'undefined' ? 16 : 2048, expireAfter: number = 86400 * 1000) {
         this.maximumSize = maximumSize;
         this.expireAfter = expireAfter;
 
-        const options : Options<string, IpInfo> = {
+        const options : LRUCache.Options<string, IpInfo> = {
             max: maximumSize,
             maxAge: expireAfter
         };
@@ -36,37 +35,40 @@ export class DefaultCache implements IpregistryCache {
         this.cache = new LRUCache(options);
     }
 
-    get(ip: string): IpInfo | undefined {
-        return this.cache.get(ip);
+    get(key: string): IpInfo | undefined {
+        return this.cache.get(key);
     }
 
-    invalidate(ip: string): void {
-        this.cache.del(ip);
+    invalidate(key: string): void {
+        this.cache.del(key);
     }
 
     invalidateAll(): void {
         this.cache.reset();
     }
 
-    put(ip: string, data: IpInfo): void {
-        this.cache.set(ip, data);
+    put(key: string, data: IpInfo): void {
+        this.cache.set(key, data);
     }
 
 }
 
-export class EmptyCache implements IpregistryCache {
+export class NoCache implements IpregistryCache {
 
-    get(ip: string): IpInfo | undefined {
+    get(key: string): IpInfo | undefined {
         return undefined;
     }
 
-    invalidate(ip: string): void {
+    invalidate(key: string): void {
+        // do nothing
     }
 
     invalidateAll(): void {
+        // do nothing
     }
 
-    put(ip: string, data: IpInfo): void {
+    put(key: string, data: IpInfo): void {
+        // do nothing
     }
 
 }
