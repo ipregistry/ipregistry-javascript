@@ -1,5 +1,5 @@
 {
-  "name": "ipregistry-javascript",
+  "name": "ipregistry-client",
   "description": "Official Ipregistry Javascript Library (ES5, ES6, TypeScript compatible)",
   "homepage": "https://ipregistry.co",
   "license": "Apache-2.0",
