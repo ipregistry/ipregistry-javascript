@@ -1,7 +1,58 @@
+import {DefaultCache, IpregistryCache} from './cache';
 import {DefaultRequestHandler, IpregistryRequestHandler} from './request';
-import {EmptyCache, IpregistryCache} from './cache';
 import {IpregistryOption} from './options';
 import {IpInfo, RequesterIpInfo} from './model';
+import {LookupError, isApiError} from './errors';
+
+export class IpregistryConfig {
+
+    public readonly apiKey: string;
+
+    public readonly apiUrl: string = 'https://api.ipregistry.co';
+
+    public readonly timeout: number = 3000;
+
+    constructor(apiKey: string, apiUrl: string, timeout: number) {
+        this.apiKey = apiKey;
+
+        if (apiUrl) {
+            this.apiUrl = apiUrl;
+        }
+
+        if (timeout) {
+            this.timeout = timeout;
+        }
+    }
+
+}
+
+export class IpregistryConfigBuilder {
+
+    private apiKey: string;
+
+    private apiUrl: string = 'https://api.ipregistry.co';
+
+    private timeout: number = 3000;
+
+    constructor(apiKey: string) {
+        this.apiKey = apiKey;
+    }
+
+    public withApiUrl(apiUrl: string): IpregistryConfigBuilder {
+        this.apiUrl = apiUrl;
+        return this;
+    }
+
+    public withTimeout(timeout: number): IpregistryConfigBuilder {
+        this.timeout = timeout;
+        return this;
+    }
+
+    public build(): IpregistryConfig {
+        return new IpregistryConfig(this.apiKey, this.apiUrl, this.timeout);
+    }
+
+}
 
 export class IpregistryClient {
 
@@ -27,7 +78,7 @@ export class IpregistryClient {
         if (cache) {
             this.cache = cache;
         } else {
-            this.cache = new EmptyCache();
+            this.cache = new DefaultCache();
         }
 
         if (requestHandler) {
@@ -37,66 +88,88 @@ export class IpregistryClient {
         }
     }
 
-    lookup(ip: string, ...options: IpregistryOption[]): Promise<IpInfo> {
-        return this.requestHandler.lookup(ip, options);
-    }
+    async lookup(ip: string, ...options: IpregistryOption[]): Promise<IpInfo> {
+        const cacheKey = this.buildCacheKey(ip, options);
+        let cacheValue = this.cache.get(cacheKey);
 
-    batchLookup(ip: string, ...options: IpregistryOption[]): Promise<IpInfo[]> {
-        return this.requestHandler.batchLookup(ip, options);
-    }
-
-    originLookup(...options: IpregistryOption[]): Promise<RequesterIpInfo> {
-        return this.requestHandler.originLookup(options);
-    }
-
-}
-
-export class IpregistryConfig {
-
-    public readonly apiKey: string;
-
-    public readonly apiUrl: string = 'https://api.ipregistry.co';
-
-    public readonly timeout: number = 1000;
-
-    constructor(apiKey: string, apiUrl: string, timeout: number) {
-        this.apiKey = apiKey;
-
-        if (apiUrl) {
-            this.apiUrl = apiUrl;
+        if (!cacheValue) {
+            cacheValue = await this.requestHandler.lookup(ip, options);
+            this.cache.put(cacheKey, cacheValue);
         }
 
-        if (timeout) {
-            this.timeout = timeout;
+        return cacheValue;
+    }
+
+    async batchLookup(ips: string[], ...options: IpregistryOption[]): Promise<(IpInfo | LookupError)[]> {
+        const sparseCache: Array<(IpInfo | null)> = new Array<IpInfo | null>(ips.length);
+        const cacheMisses: Array<string> = [];
+
+        for (let i = 0; i < ips.length; i++) {
+            const ip = ips[i];
+            const cacheKey = this.buildCacheKey(ip, options);
+            const cacheValue = this.cache.get(cacheKey);
+
+            if (cacheValue) {
+                sparseCache[i] = cacheValue;
+            } else {
+                cacheMisses.push(ip);
+            }
         }
+
+        const result: Array<(IpInfo | LookupError)> = new Array<IpInfo | LookupError>(ips.length);
+        const freshIpInfo = await this.requestHandler.batchLookup(cacheMisses, options);
+
+        let j = 0;
+        let k = 0;
+
+        for (const cachedIpInfo of sparseCache) {
+            if (!cachedIpInfo) {
+                if (isApiError(freshIpInfo[k])) {
+                    const lookupError = freshIpInfo[k];
+                    result[j] = new LookupError(lookupError['code'], lookupError['message'], lookupError['resolution']);
+                } else {
+                    const ipInfo = freshIpInfo[k];
+                    this.cache.put(this.buildCacheKey(ipInfo.ip, options), ipInfo);
+                    result[j] = freshIpInfo[k];
+                }
+
+                k++;
+            } else {
+                result[j] = cachedIpInfo;
+            }
+
+            j++;
+        }
+
+        return result;
     }
 
-}
+    async originLookup(...options: IpregistryOption[]): Promise<RequesterIpInfo> {
+        const cacheKey = this.buildCacheKey('', options);
+        let cacheValue = this.cache.get(cacheKey) as RequesterIpInfo;
 
-export class IpregistryConfigBuilder {
+        if (!cacheValue) {
+            cacheValue = await this.requestHandler.originLookup(options);
+            this.cache.put(cacheKey, cacheValue);
+        }
 
-    private apiKey: string;
-
-    private apiUrl: string = 'https://api.ipregistry.co';
-
-    private timeout: number = 1000;
-
-    constructor(apiKey: string) {
-        this.apiKey = apiKey;
+        return cacheValue;
     }
 
-    public withApiUrl(apiUrl: string): IpregistryConfigBuilder {
-        this.apiUrl = apiUrl;
-        return this;
+    public getCache(): IpregistryCache {
+        return this.cache;
     }
 
-    public withTimeout(timeout: number): IpregistryConfigBuilder {
-        this.timeout = timeout;
-        return this;
-    }
+    private buildCacheKey(ip: string, options: IpregistryOption[]): string {
+        let result = ip ? ip : '';
 
-    public build(): IpregistryConfig {
-        return new IpregistryConfig(this.apiKey, this.apiUrl, this.timeout);
+        if (options) {
+            for (const option of options) {
+                result += `;${option.name}=${option.value}`;
+            }
+        }
+
+        return result;
     }
 
 }

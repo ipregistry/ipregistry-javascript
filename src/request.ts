@@ -9,7 +9,7 @@ export interface IpregistryRequestHandler {
 
     lookup(ip: string, options: IpregistryOption[]): Promise<IpInfo>;
 
-    batchLookup(ip: string, options: IpregistryOption[]): Promise<IpInfo[]>;
+    batchLookup(ips: string[], options: IpregistryOption[]): Promise<IpInfo[]>;
 
     originLookup(options: IpregistryOption[]): Promise<RequesterIpInfo>;
 
@@ -43,8 +43,23 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    async batchLookup(ip: string, options: IpregistryOption[]): Promise<IpInfo[]> {
-        return Promise.resolve({} as IpInfo[]);
+    async batchLookup(ips: string[], options: IpregistryOption[]): Promise<IpInfo[]> {
+        try {
+            const response =
+                await axios.post(
+                    this.buildApiUrl('', options),
+                    JSON.stringify(ips),
+                    this.getAxiosConfig()
+                );
+            return response.data.results;
+        } catch (error) {
+            if (error.isAxiosError && error.response) {
+                const data = error.response.data;
+                throw new ApiError(data.code, data.message, data.resolution);
+            }
+
+            throw new ClientError(error.message);
+        }
     }
 
     async originLookup(options: IpregistryOption[]): Promise<RequesterIpInfo> {
@@ -67,7 +82,10 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
     protected getAxiosConfig() {
         return {
-            headers: {'User-Agent': DefaultRequestHandler.USER_AGENT},
+            headers: {
+                'content-type': 'application/json',
+                'user-agent': DefaultRequestHandler.USER_AGENT
+            },
             timeout: this.config.timeout
         };
     }
@@ -76,7 +94,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         let result = `${this.config.apiUrl}/${ip ? ip : ''}?key=${this.config.apiKey}`;
 
         if (options) {
-            for (let option of options) {
+            for (const option of options) {
                 result += `&${option.name}=${encodeURIComponent(option.value)}`;
             }
         }

@@ -14,7 +14,7 @@ export interface IpInfo {
 
     security: Security;
 
-    timezone: TimeZone;
+    time_zone: TimeZone;
 
 }
 

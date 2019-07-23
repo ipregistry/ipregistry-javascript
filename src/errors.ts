@@ -16,17 +16,6 @@ export class ApiError extends Error {
 
 }
 
-// export class LookupError extends ApiError {
-//
-//     public readonly ip: string;
-//
-//     constructor(ip: string) {
-//         super(`Invalid IP address: ${ip}`);
-//         this.ip = ip;
-//     }
-//
-// }
-
 export class ClientError extends Error {
 
     constructor(message: string) {
@@ -36,13 +25,11 @@ export class ClientError extends Error {
 
 }
 
-export interface LookupError {
+export class LookupError extends ApiError {
 
-    code: string;
-
-    message: string;
-
-    resolution: string;
+    constructor(code: string, message: string, resolution: string) {
+        super(code, message, resolution);
+    }
 
 }
 
@@ -61,4 +48,12 @@ export enum ErrorCode {
     TOO_MANY_IPS,
     TOO_MANY_REQUESTS
 
+}
+
+export function isError(object: any): boolean {
+    return object && 'message' in object;
+}
+
+export function isApiError(object: any): boolean {
+    return isError(object) && 'code' in object;
 }
