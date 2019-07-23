@@ -19,6 +19,9 @@
     "type": "git",
     "url": "https://github.com/ipregistry/ipregistry-javascript.git"
   },
+  "bugs": {
+    "url": "https://github.com/ipregistry/ipregistry-javascript/issues"
+  },
   "scripts": {
     "build:cjs": "./node_modules/.bin/tsc -m commonjs",
     "build:mjs": "./node_modules/.bin/tsc -d --outDir dist/esm",
