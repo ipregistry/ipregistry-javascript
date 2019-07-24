@@ -2,10 +2,8 @@
 # Ipregistry Javascript Client Library
 
 [![License](http://img.shields.io/:license-apache-blue.svg)](LICENSE)
-[![Travis](https://travis-ci.com/ipregistry/ipregistry-java.svg?branch=master&style=flat-square)](https://travis-ci.com/ipregistry/ipregistry-java)
-[![Maven Central](https://img.shields.io/maven-central/v/co.ipregistry/ipregistry-client.svg)](https://search.maven.org/search?q=g:co.ipregistry%20AND%20a:ipregistry-client)
-[![Javadocs](https://www.javadoc.io/badge/co.ipregistry/ipregistry-client.svg)](https://www.javadoc.io/doc/co.ipregistry/ipregistry-client)
-
+[![Travis](https://travis-ci.com/ipregistry/ipregistry-javascript.svg?branch=master&style=flat-square)](https://travis-ci.com/ipregistry/ipregistry-javascript)
+[![npm](https://img.shields.io/npm/v/@ipregistry/client.svg)](https://www.npmjs.com/package/@ipregistry/client)
 
 This is the official Java client library for the [Ipregistry](https://ipregistry.co) IP geolocation and threat data API, 
 allowing you to lookup your own IP address or specified ones. Responses include more than 50 data points including 
@@ -89,30 +87,54 @@ async function main() {
 main().then(() => 0).catch(() => 1);
 ```
 
+Browser support:
+
+```
+<script src="https://unpkg.com/@ipregistry/client/dist/browser/index.js"></script>
+<script>
+    const client = new ipregistry.IpregistryClient('tryout');
+    
+    client.lookup('73.2.2.2').then(ipInfo => {
+        console.log(ipInfo);
+    }).catch(error => {
+        console.err(error);
+    });
+</script>
+```
+
+More samples are available in the [samples](https://github.com/ipregistry/ipregistry-javascript/tree/master/samples) 
+folder.
+
 ## Caching
 
-The Ipregistry client library has built-in support for in-memory caching.
+The Ipregistry client library has built-in support for in-memory caching. 
+By default caching is enabled and the default policy memoizes for 24h the most 2048 used lookups 
+on server side (16 when used in a browser).
 
 
 ## Errors
 
-All Ipregistry exceptions inherit the _IpregistryException_ class.
+All Ipregistry errors inherit _IpregistryError_ class.
 
-Main subtypes are _ApiException_ and _ClientException_.
+Main subtypes are _ApiError_ and _ClientError_.
 
-Exceptions of type _ApiException_ include a code field that maps to the one described in the [Ipregistry documentation](https://ipregistry.co/docs/errors).
+Errors of type _ApiError_ include a code field that maps to the one described in the [Ipregistry documentation](https://ipregistry.co/docs/errors).
 
 ## Filtering bots
 
+You might want to prevent Ipregistry API requests for crawlers or bots browsing your pages.
 
+A manner to proceed is to identify bots using `User-Agent` header. To ease this process, the library includes a utility function:
+
+```
+UserAgent.isBot('TO_REPLACE_BY_USER_AGENT_RETRIEVED_FROM_REQUEST_HEADER')
 ```
 
 # Other Libraries
 
 There are official Ipregistry client libraries available for many languages including 
 [Java](https://github.com/ipregistry/ipregistry-java), 
-[Python](https://github.com/ipregistry/ipregistry-python), 
-[Typescript](https://github.com/ipregistry/ipregistry-javascript) and more.
+[Python](https://github.com/ipregistry/ipregistry-python), and more.
 
 Are you looking for an official client with a programming language or framework we do not support yet? 
 [let us know](mailto:support@ipregistry.co).
