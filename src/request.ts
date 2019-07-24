@@ -81,11 +81,20 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     }
 
     protected getAxiosConfig() {
+        const headers = {
+            'content-type': 'application/json',
+        };
+
+        try {
+            if (window === undefined) {
+                headers['user-agent'] = DefaultRequestHandler.USER_AGENT;
+            }
+        } catch(error) {
+            // ignore
+        }
+
         return {
-            headers: {
-                'content-type': 'application/json',
-                'user-agent': DefaultRequestHandler.USER_AGENT
-            },
+            headers: headers,
             timeout: this.config.timeout
         };
     }
