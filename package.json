@@ -43,7 +43,7 @@
     "pretest": "yarn run clean && yarn run build",
     "test:integration": "mocha -r ts-node/register integration_test/**/*.ts"
   },
-  "author": "Laurent Pellegrino <laurent.pellegrino@ipregistry.co>",
+  "author": "Ipregistry <support@ipregistry.co>",
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/chai": "^4.1.7",
