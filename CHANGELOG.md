@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] - 2019-07-24
+
+- Fix deployment to NPM. No code change.
+
 ## [0.10.0] - 2019-07-24
 
 ### Changed
@@ -21,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/0.10.0...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/0.10.1...HEAD
+[0.10.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.1
 [0.10.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.0
 [0.9.2]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.2
 [0.9.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.1
