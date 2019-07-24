@@ -1,4 +1,13 @@
-export class ApiError extends Error {
+export class IpregistryError extends Error {
+
+    constructor(message: string) {
+        super(message);
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+
+}
+
+export class ApiError extends IpregistryError {
 
     public readonly code: string;
 
@@ -16,7 +25,7 @@ export class ApiError extends Error {
 
 }
 
-export class ClientError extends Error {
+export class ClientError extends IpregistryError {
 
     constructor(message: string) {
         super(message);
