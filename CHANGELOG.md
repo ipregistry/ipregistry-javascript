@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - All custom errors extend IpregistryError.
+### Fixed
+- Ignore case when checking if User-Agent is spider/bot.
 
 ## [0.10.1] - 2019-07-24
 
