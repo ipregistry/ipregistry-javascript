@@ -3,6 +3,7 @@
   "description": "Official Ipregistry Javascript Library (ES5, ES6+, TypeScript).",
   "version": "0.9.1",
   "main": "./dist/index.js",
+  "browser": "./dist/browser/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "https://ipregistry.co",
@@ -32,9 +33,10 @@
     "url": "https://github.com/ipregistry/ipregistry-javascript/issues"
   },
   "scripts": {
+    "build:browser": "./node_modules/webpack-cli/bin/cli.js ",
     "build:cjs": "./node_modules/.bin/tsc -m commonjs",
     "build:mjs": "./node_modules/.bin/tsc -d --outDir dist/esm",
-    "build": "yarn run lint && yarn run build:mjs && yarn run build:cjs",
+    "build": "yarn run lint && yarn run build:mjs && yarn run build:cjs && yarn run build:browser",
     "clean": "rm -rf dist/",
     "lint": "./node_modules/.bin/tslint -p tsconfig.json",
     "prepublish": "yarn run test:integration",
@@ -52,7 +54,9 @@
     "mocha": "^6.1.4",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "webpack": "^4.37.0",
+    "webpack-cli": "^3.3.6"
   },
   "dependencies": {
     "axios": "^0.19.0",
