@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2019-07-24
+
+### Changed
+- Rename browser file to `index.js` from `index.browser.js`.
+
 ## [0.9.2] - 2019-07-24
 
 ### Added
@@ -16,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/0.9.2...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/0.10.0...HEAD
+[0.10.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.0
 [0.9.2]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.2
 [0.9.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.1
