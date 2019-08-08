@@ -22,6 +22,8 @@ export interface IpInfo {
 
     hostname: string | null;
 
+    carrier: Carrier;
+
     connection: Connection;
 
     currency: Currency;
@@ -92,11 +94,25 @@ export interface UserAgentOperatingSystem {
 
 }
 
+export interface Carrier {
+
+    name: string | null;
+
+    mcc: string | null;
+
+    mnc: string | null;
+
+}
+
 export interface Connection {
 
-    asn: number;
+    asn: number | null;
+
+    domain: string | null;
 
     organization: string | null;
+
+    type: 'business' | 'education' | 'isp' | 'hosting' | null;
 
 }
 
@@ -225,6 +241,8 @@ export interface Language {
 export interface Security {
 
     is_bogon: boolean;
+
+    is_cloud_provider: boolean;
 
     is_tor: boolean;
 

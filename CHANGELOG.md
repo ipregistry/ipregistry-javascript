@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.1.0] - 2019-08-08
 ### Added
 - License headers.
+- Types for new fields returned by the Ipregistry API.
 
 ## [1.0.0] - 2019-07-24
 ### Changed
@@ -33,9 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/1.0.0...HEAD
-[1.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.0.0
-[0.10.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.1
-[0.10.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.0
-[0.9.2]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.2
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.0.0...1.1.0
+[1.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.1...1.0.0
+[0.10.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.0...0.10.1
+[0.10.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.2...0.10.0
+[0.9.2]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.1...0.9.2
 [0.9.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.1
