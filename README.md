@@ -161,6 +161,14 @@ A manner to proceed is to identify bots using `User-Agent` header. To ease this 
 UserAgent.isBot('TO_REPLACE_BY_USER_AGENT_RETRIEVED_FROM_REQUEST_HEADER')
 ```
 
+## Selecting fields
+
+To save bandwidth and speed up response times, the API allows selecting fields to return:
+
+```typescript
+const ipInfo = await client.lookup('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
+```
+
 # Other Libraries
 
 There are official Ipregistry client libraries available for many languages including 
