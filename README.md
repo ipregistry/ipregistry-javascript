@@ -40,7 +40,8 @@ client.lookup('73.2.2.2').then(ipInfo => {
     console.log(ipInfo);
 }).catch(error => {
     console.err(error);
-});
+})
+
 ```
 
 Instead of using promises, you can also use async/await:
@@ -50,7 +51,7 @@ const {IpregistryClient} = require('@ipregistry/client');
 
 const client = new IpregistryClient('tryout');
 
-async function lookupIpInfo(ip) {
+async; function lookupIpInfo(ip) {
     try {
         const ipInfo = await client.lookup('73.2.2.2');
         console.log(ipInfo);
@@ -111,6 +112,27 @@ The Ipregistry client library has built-in support for in-memory caching.
 By default caching is enabled and the default policy memoizes for 24h the most 2048 used lookups 
 on server side (16 when used in a browser).
 
+### Configuring cache size
+
+Caching up to 16384 entries:
+
+```typescript
+const client = new IpregistryClient('tryout', new DefaultCache(16384));
+```
+
+### Configuring cache max age
+
+Caching up to 16384 entries for at most 6 hours:
+
+```typescript
+const client = new IpregistryClient('tryout', new DefaultCache(16384, 3600 * 6 * 1000));
+```
+
+### Disabling caching
+
+```typescript
+const client = new IpregistryClient('tryout', new NoCache());
+```
 
 ## Errors
 

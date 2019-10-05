@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Add `BAD_REQUEST` and `FORBIDDEN_IP_ORIGIN` error codes.
+- Add examples about how to configure caching in README.
 
 ## [1.1.0] - 2019-08-08
 ### Added
