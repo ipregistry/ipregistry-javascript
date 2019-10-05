@@ -60,9 +60,11 @@ export class LookupError extends ApiError {
 
 export enum ErrorCode {
 
+    BAD_REQUEST,
     DISABLED_API_KEY,
     FORBIDDEN_IP,
     FORBIDDEN_ORIGIN,
+    FORBIDDEN_IP_ORIGIN,
     INTERNAL,
     INSUFFICIENT_CREDITS,
     INVALID_API_KEY,
