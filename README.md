@@ -134,6 +134,15 @@ const client = new IpregistryClient('tryout', new DefaultCache(16384, 3600 * 6 *
 const client = new IpregistryClient('tryout', new NoCache());
 ```
 
+## Enabling hostname lookup
+
+By default, the Ipregistry API does not return information about the hostname a given IP address resolves to. 
+In order to include the hostname value in your API result, you need to enable the feature explicitly:
+
+```typescript
+const ipInfo = await client.lookup('73.2.2.2', IpregistryOptions.hostname(true));
+```
+
 ## Errors
 
 All Ipregistry errors inherit _IpregistryError_ class.
