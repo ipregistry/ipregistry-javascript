@@ -7,9 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Export ipregistry as default in client side module.
-- Add example about fields selection.
-- Add example about how to enable hostname lookup.
-- Add examples about how to configure caching.
+- Add examples for cache configuration, hostname lookup and fields selection.
 - Add `BAD_REQUEST` and `FORBIDDEN_IP_ORIGIN` error codes.
 
 ## [1.1.0] - 2019-08-08
