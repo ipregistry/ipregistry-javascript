@@ -1,7 +1,7 @@
 {
   "name": "@ipregistry/client",
   "description": "Official Ipregistry Javascript Library (ES5, ES6+, TypeScript).",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "./dist/index.js",
   "browser": "./dist/browser/index.js",
   "module": "./dist/esm/index.js",
@@ -39,7 +39,7 @@
     "build": "yarn run lint && yarn run build:mjs && yarn run build:cjs && yarn run build:browser",
     "clean": "rm -rf dist/",
     "lint": "./node_modules/.bin/tslint -p tsconfig.json",
-    "prepublish": "yarn run test:integration",
+    "prepublish": "yarn run clean && yarn run build && yarn run test:integration",
     "pretest": "yarn run clean && yarn run build",
     "test:integration": "mocha -r ts-node/register integration_test/**/*.ts"
   },

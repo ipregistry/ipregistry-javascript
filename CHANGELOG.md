@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2019-10-08
+### Fixed
+- Fix a packaging issue.
+
 ## [1.2.0] - 2019-10-08
 ### Added
 - Add examples for cache configuration, hostname lookup and fields selection.
