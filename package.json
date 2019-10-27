@@ -10,6 +10,7 @@
   "license": "Apache-2.0",
   "keywords": [
     "ipregistry",
+    "ipdata",
     "ipgeo",
     "ip2location",
     "ipinfo",
@@ -21,6 +22,7 @@
     "country",
     "currency",
     "ipaddress",
+    "threat-data",
     "es5",
     "nodejs",
     "typescript"
