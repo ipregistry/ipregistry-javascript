@@ -39,7 +39,7 @@ export class DefaultCache implements IpregistryCache {
 
     private readonly cache: LRUCache<string, IpInfo>;
 
-    constructor(maximumSize: number = typeof window !== 'undefined' ? 16 : 2048, expireAfter: number = 86400 * 1000) {
+    constructor(maximumSize: number = typeof window !== 'undefined' ? 16 : 2048, expireAfter: number = 600 * 1000) {
         this.maximumSize = maximumSize;
         this.expireAfter = expireAfter;
 

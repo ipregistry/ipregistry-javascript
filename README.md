@@ -109,7 +109,7 @@ folder.
 ## Caching
 
 The Ipregistry client library has built-in support for in-memory caching. 
-By default caching is enabled and the default policy memoizes for 24h the most 2048 used lookups 
+By default caching is enabled and the default policy memoizes for 10min the most 2048 recently used lookups 
 on server side (16 when used in a browser).
 
 ### Configuring cache size
