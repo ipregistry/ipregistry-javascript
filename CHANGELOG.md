@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.3.0] - 2019-10-27
 ### Added
 - New currency fields `name_native` and `plural_native`.
 ### Changed
@@ -55,7 +57,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/1.2.0...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/1.3.0...HEAD
+[1.2.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.2.0...1.3.0
 [1.2.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.1.0...1.2.0
 [1.1.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.0.0...1.1.0
 [1.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.1...1.0.0
