@@ -38,6 +38,9 @@ describe('lookup', () => {
         expect(ipInfo.location.country.flag).not.null;
         expect(ipInfo.connection).not.null;
         expect(ipInfo.currency).not.null;
+        expect(ipInfo.currency.name_native).not.null;
+        expect(ipInfo.currency.plural_native).not.null;
+        expect(ipInfo.currency.symbol_native).not.null;
         expect(ipInfo.hostname).null;
         expect(ipInfo.location).not.null;
         expect(ipInfo.security).not.null;

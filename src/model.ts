@@ -122,7 +122,11 @@ export interface Currency {
 
     name: string;
 
+    name_native: string;
+
     plural: string;
+
+    plural_native: string;
 
     symbol: string;
 
