@@ -9,22 +9,24 @@
   "homepage": "https://ipregistry.co",
   "license": "Apache-2.0",
   "keywords": [
-    "ipregistry",
-    "ipdata",
-    "ipgeo",
+    "country",
+    "currency",
+    "es5",
+    "esm",
+    "ip",
     "ip2location",
+    "ipaddress",
+    "ipdata",
     "ipinfo",
     "ipinfodb",
+    "ipgeo",
+    "ipregistry",
     "ipthreat",
     "ipv4",
     "ipv6",
-    "ip",
-    "country",
-    "currency",
-    "ipaddress",
-    "threat-data",
-    "es5",
+    "maxmind",
     "nodejs",
+    "threat-data",
     "typescript"
   ],
   "repository": {
@@ -38,30 +40,33 @@
     "build:browser": "./node_modules/webpack-cli/bin/cli.js ",
     "build:cjs": "./node_modules/.bin/tsc -m commonjs",
     "build:mjs": "./node_modules/.bin/tsc -d --outDir dist/esm",
-    "build": "yarn run lint && yarn run build:mjs && yarn run build:cjs && yarn run build:browser",
+    "build": "npm run lint && npm run build:mjs && npm run build:cjs && npm run build:browser",
     "clean": "rm -rf dist/",
     "lint": "./node_modules/.bin/tslint -p tsconfig.json",
-    "prepublish": "yarn run clean && yarn run build && yarn run test:integration",
-    "pretest": "yarn run clean && yarn run build",
+    "prepublish": "npm run clean && npm run build && npm run test:integration",
+    "pretest": "npm run clean && npm run build",
     "test:integration": "mocha -r ts-node/register integration_test/**/*.ts"
   },
   "author": "Ipregistry <support@ipregistry.co>",
   "devDependencies": {
-    "@types/chai": "^4.2.4",
+    "@types/chai": "^4.2.7",
     "@types/lru-cache": "^5.1.0",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.11.7",
+    "@types/node": "^12.12.17",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
-    "ts-node": "^8.4.1",
-    "tslint": "^5.20.0",
-    "typescript": "^3.6.4",
+    "ts-node": "^8.5.4",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.3",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.9"
+    "webpack-cli": "^3.3.10"
   },
   "dependencies": {
     "axios": "^0.19.0",
     "lru-cache": "^5.1.1"
   },
+  "files": [
+    "dist/**"
+  ],
   "private": false
 }

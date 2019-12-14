@@ -1,9 +1,0 @@
-node_modules/
-samples/
-spec/
-src/
-
-tsconfig.json
-tslint.json
-
-*.iml
