@@ -51,13 +51,13 @@
     "@types/chai": "^4.2.7",
     "@types/lru-cache": "^5.1.0",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.12.17",
+    "@types/node": "^13.1.2",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
-    "typescript": "^3.7.3",
-    "webpack": "^4.41.2",
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
