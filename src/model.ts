@@ -112,7 +112,7 @@ export interface Connection {
 
     organization: string | null;
 
-    type: 'business' | 'education' | 'isp' | 'hosting' | null;
+    type: 'business' | 'cdn' | 'education' | 'isp' | 'hosting' | null;
 
 }
 

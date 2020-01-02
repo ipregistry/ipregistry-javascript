@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Introduce new value `cdn` for field `connection.type`.
+
 ## [1.3.0] - 2019-10-27
 ### Added
 - New currency fields `name_native` and `plural_native`.
@@ -16,6 +18,8 @@ This is to better handle use cases that require fresh [security data](https://ip
 Indeed, such data is updated multiple times each hour. 
 You can still configure the cache period to a higher value:
 https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
+
+## Unreleased
 
 ## [1.2.1] - 2019-10-08
 ### Fixed
