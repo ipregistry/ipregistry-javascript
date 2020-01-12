@@ -6,7 +6,7 @@
 [![npm](https://img.shields.io/npm/v/@ipregistry/client.svg)](https://www.npmjs.com/package/@ipregistry/client)
 
 This is the official Java client library for the [Ipregistry](https://ipregistry.co) IP geolocation and threat data API, 
-allowing you to lookup your own IP address or specified ones. Responses include more than 50 data points including 
+allowing you to lookup your own IP address or specified ones. Responses return up to 65 data points including 
 location, currency, timezone, threat information, and more.
 
 ## Getting Started
@@ -51,7 +51,7 @@ const {IpregistryClient} = require('@ipregistry/client');
 
 const client = new IpregistryClient('tryout');
 
-async; function lookupIpInfo(ip) {
+async function lookupIpInfo(ip) {
     try {
         const ipInfo = await client.lookup('73.2.2.2');
         console.log(ipInfo);
