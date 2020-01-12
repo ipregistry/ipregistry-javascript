@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2020-01-12
 ### Added
-- New field `connection.route`.
+- New field `connection.route` in response model.
 - Introduce new value `cdn` for field `connection.type`.
 ### Fixed
 - Define a null union type for all fields that can have a `null` value.
@@ -48,25 +49,23 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 - Ignore case when checking if User-Agent is spider/bot.
 
 ## [0.10.1] - 2019-07-24
-
 - Fix deployment to NPM. No code change.
 
 ## [0.10.0] - 2019-07-24
-
 ### Changed
 - Rename browser file to `index.js` from `index.browser.js`.
 
 ## [0.9.2] - 2019-07-24
-
 ### Added
 - Browser support.
 
 ## [0.9.1] - 2019-07-23
-
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/1.3.0...HEAD
-[1.2.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.2.0...1.3.0
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/1.4.0...HEAD
+[1.4.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.3.0...1.4.0
+[1.3.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.2.1...1.3.0
+[1.2.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.2.0...1.2.1
 [1.2.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.1.0...1.2.0
 [1.1.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.0.0...1.1.0
 [1.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.1...1.0.0
