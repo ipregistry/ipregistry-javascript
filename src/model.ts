@@ -112,6 +112,8 @@ export interface Connection {
 
     organization: string | null;
 
+    route: string | null;
+
     type: 'business' | 'cdn' | 'education' | 'isp' | 'hosting' | null;
 
 }

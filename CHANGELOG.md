@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New field `connection.route`.
 - Introduce new value `cdn` for field `connection.type`.
 
 ## [1.3.0] - 2019-10-27
