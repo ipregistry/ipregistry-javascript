@@ -120,19 +120,19 @@ export interface Connection {
 
 export interface Currency {
 
-    code: string;
+    code: string | null;
 
-    name: string;
+    name: string | null;
 
-    name_native: string;
+    name_native: string | null;
 
-    plural: string;
+    plural: string | null;
 
-    plural_native: string;
+    plural_native: string | null;
 
-    symbol: string;
+    symbol: string | null;
 
-    symbol_native: string;
+    symbol_native: string | null;
 
     format: CurrencyFormat;
 
@@ -148,9 +148,9 @@ export interface CurrencyFormat {
 
 export interface CurrencyFormatPrefixSuffix {
 
-    prefix: string;
+    prefix: string | null;
 
-    suffix: string;
+    suffix: string | null;
 
 }
 
@@ -166,9 +166,9 @@ export interface Location {
 
     postal: string | null;
 
-    latitude: number;
+    latitude: number | null;
 
-    longitude: number;
+    longitude: number | null;
 
     language: Language;
 
@@ -188,7 +188,7 @@ export interface Country {
 
     area: number;
 
-    borders: string[] | null;
+    borders: string[];
 
     calling_code: string | null;
 

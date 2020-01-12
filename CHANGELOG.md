@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - New field `connection.route`.
 - Introduce new value `cdn` for field `connection.type`.
+### Fixed
+- Define a null union type for all fields that can have a `null` value.
 
 ## [1.3.0] - 2019-10-27
 ### Added
