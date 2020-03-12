@@ -110,7 +110,9 @@ export class IpregistryClient {
 
         if (!cacheValue) {
             cacheValue = await this.requestHandler.lookup(ip, options);
-            this.cache.put(cacheKey, cacheValue);
+            const clone = {...cacheValue}
+            delete clone.account
+            this.cache.put(cacheKey, clone);
         }
 
         return cacheValue;

@@ -34,6 +34,8 @@ export interface IpInfo {
 
     time_zone: TimeZone;
 
+    account: Account;
+
 }
 
 export interface RequesterIpInfo extends IpInfo {
@@ -279,5 +281,15 @@ export interface TimeZone {
     offset: number;
 
     daylight_saving: boolean;
+
+}
+
+export interface Account {
+
+    remaining_credits: number;
+
+    rate_limit: number;
+
+    rate_limit_remaining: number;
 
 }
