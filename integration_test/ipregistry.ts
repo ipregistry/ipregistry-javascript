@@ -45,6 +45,10 @@ describe('lookup', () => {
         expect(ipInfo.location).not.null;
         expect(ipInfo.security).not.null;
         expect(ipInfo.time_zone).not.null;
+        expect(ipInfo.account).not.null;
+        expect(ipInfo.account.remaining_credits).to.exist;
+        expect(ipInfo.account.rate_limit).to.exist;
+        expect(ipInfo.account.rate_limit_remaining).to.exist;
     });
 
     it('should return valid information when IPv6 address is known', async () => {
@@ -59,6 +63,10 @@ describe('lookup', () => {
         expect(ipInfo.location).not.null;
         expect(ipInfo.security).not.null;
         expect(ipInfo.time_zone).not.null;
+        expect(ipInfo.account).not.null;
+        expect(ipInfo.account.remaining_credits).to.exist;
+        expect(ipInfo.account.rate_limit).to.exist;
+        expect(ipInfo.account.rate_limit_remaining).to.exist;
     });
 
     it('should return hostname value when option is enabled', async () => {
@@ -67,6 +75,10 @@ describe('lookup', () => {
         expect(ipInfo.type).equal('IPv4');
         expect(ipInfo.location.country.code).equal('US');
         expect(ipInfo.hostname).not.null;
+        expect(ipInfo.account).not.null;
+        expect(ipInfo.account.remaining_credits).to.exist;
+        expect(ipInfo.account.rate_limit).to.exist;
+        expect(ipInfo.account.rate_limit_remaining).to.exist;
     });
 
     it('should return cached value if available', async () => {
@@ -75,7 +87,11 @@ describe('lookup', () => {
         ipInfo.time_zone.current_time = 'cached';
 
         const ipInfo2 = await client.lookup('66.165.2.7');
-        expect(ipInfo2).equal(ipInfo);
+        // don't want cached value of rate limit remaining etc
+        expect(ipInfo2.account).to.not.exist;
+        const ipInfoWithoutAccount = {...ipInfo}
+        delete ipInfoWithoutAccount.account
+        expect(ipInfo2).deep.equal(ipInfoWithoutAccount);
     });
 
     it('should throw ApiError when input IP is invalid', async () => {

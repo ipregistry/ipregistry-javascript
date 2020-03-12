@@ -15,7 +15,7 @@
  */
 
 import {ApiError, ClientError} from './errors';
-import {IpInfo, RequesterIpInfo} from './model';
+import {IpInfo, Account, RequesterIpInfo} from './model';
 import {IpregistryConfig} from './index';
 import {IpregistryOption} from './options';
 
@@ -48,7 +48,13 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                     this.buildApiUrl(ip, options),
                     this.getAxiosConfig()
                 );
-            return response.data as IpInfo;
+            const ipData = response.data as IpInfo;
+            ipData.account = {
+                remaining_credits: response.headers['ipregistry-credits'],
+                rate_limit: response.headers['x-rate-limit-limit'],
+                rate_limit_remaining: response.headers['x-rate-limit-remaining']
+            } as Account;
+            return ipData
         } catch (error) {
             if (error.isAxiosError && error.response) {
                 const data = error.response.data;
