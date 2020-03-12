@@ -20,7 +20,8 @@ async function main() {
     const client = new IpregistryClient('tryout');
 
     try {
-        const batchResults = await client.batchLookup(['73.2.2.2a', '8.8.8.8', '2001:67c:2e8:22::c100:68b']);
+        const response = await client.batchLookup(['73.2.2.2a', '8.8.8.8', '2001:67c:2e8:22::c100:68b']);
+        const batchResults = response.data;
 
         for (const batchResult of batchResults) {
             if (batchResult instanceof LookupError) {

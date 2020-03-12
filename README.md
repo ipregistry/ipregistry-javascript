@@ -36,8 +36,8 @@ const {IpregistryClient} = require('@ipregistry/client');
 
 const client = new IpregistryClient('tryout');
 
-client.lookup('73.2.2.2').then(ipInfo => {
-    console.log(ipInfo);
+client.lookup('73.2.2.2').then(response => {
+    console.log(response.data);
 }).catch(error => {
     console.err(error);
 })
@@ -53,8 +53,11 @@ const client = new IpregistryClient('tryout');
 
 async function lookupIpInfo(ip) {
     try {
-        const ipInfo = await client.lookup('73.2.2.2');
-        console.log(ipInfo);
+        const response = await client.lookup('73.2.2.2');
+        // Get location, threat data and more
+        console.log(response.data.location.country.code);
+        console.log(response.data.currency.code);
+        console.log(response.data.security.is_threat);
     } catch(error) {
         console.err(error);
     }
@@ -72,8 +75,11 @@ async function main() {
     const client = new IpregistryClient('tryout');
 
     try {
-        const ipInfo = await client.lookup('73.2.2.2');
-        console.log(ipInfo);
+        const response = await client.lookup('73.2.2.2');
+        // Get location, threat data and more
+        console.log(response.data.location.country.code);
+        console.log(response.data.currency.code);
+        console.log(response.data.security.is_threat);
     } catch (error) {
         if (error instanceof ApiError) {
             console.error('API error', error);
@@ -95,8 +101,8 @@ Browser support:
 <script>
     const client = new ipregistry.IpregistryClient('tryout');
     
-    client.lookup('73.2.2.2').then(ipInfo => {
-        console.log(ipInfo);
+    client.lookup('73.2.2.2').then(response => {
+        console.log(response.data);
     }).catch(error => {
         console.err(error);
     });
@@ -166,7 +172,7 @@ UserAgent.isBot('TO_REPLACE_BY_USER_AGENT_RETRIEVED_FROM_REQUEST_HEADER')
 To save bandwidth and speed up response times, the API allows selecting fields to return:
 
 ```typescript
-const ipInfo = await client.lookup('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
+const response = await client.lookup('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
 ```
 
 # Other Libraries

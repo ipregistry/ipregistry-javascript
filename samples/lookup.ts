@@ -20,8 +20,12 @@ async function main() {
     const client = new IpregistryClient('tryout');
 
     try {
-        const ipInfo = await client.lookup('54.85.132.205');
-        console.log(ipInfo);
+        const response = await client.lookup('54.85.132.205');
+
+        // Get location, threat data and more
+        console.log(response.data.location.country.code);
+        console.log(response.data.currency.code);
+        console.log(response.data.security.is_threat);
     } catch (error) {
         if (error instanceof ApiError) {
             // Handle API error here (e.g. Invalid API key or IP address)
