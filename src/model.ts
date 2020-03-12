@@ -34,8 +34,6 @@ export interface IpInfo {
 
     time_zone: TimeZone;
 
-    account: Account;
-
 }
 
 export interface RequesterIpInfo extends IpInfo {

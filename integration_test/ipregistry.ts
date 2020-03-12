@@ -27,12 +27,14 @@ import {
 
 import {expect} from 'chai';
 
-const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryout';
+const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryou';
+const API_KEY_THROTTLED = process.env.IPREGISTRY_API_KEY_THROTTLED || 'tryout';
 
 describe('lookup', () => {
     it('should return valid information when IPv4 address is known', async () => {
         const client = new IpregistryClient(API_KEY);
-        const ipInfo = await client.lookup('8.8.8.8');
+        const response = await client.lookup('8.8.8.8');
+        const ipInfo = response.data;
         expect(ipInfo.type).equal('IPv4');
         expect(ipInfo.location.country.code).equal('US');
         expect(ipInfo.location.country.flag).not.null;
@@ -45,15 +47,12 @@ describe('lookup', () => {
         expect(ipInfo.location).not.null;
         expect(ipInfo.security).not.null;
         expect(ipInfo.time_zone).not.null;
-        expect(ipInfo.account).not.null;
-        expect(ipInfo.account.remaining_credits).to.exist;
-        expect(ipInfo.account.rate_limit).to.exist;
-        expect(ipInfo.account.rate_limit_remaining).to.exist;
     });
 
     it('should return valid information when IPv6 address is known', async () => {
         const client = new IpregistryClient(API_KEY);
-        const ipInfo = await client.lookup('2001:4860:4860::8844');
+        const response = await client.lookup('2001:4860:4860::8844');
+        const ipInfo = response.data;
         expect(ipInfo.type).equal('IPv6');
         expect(ipInfo.location.country.code).equal('US');
         expect(ipInfo.location.country.flag).not.null;
@@ -63,35 +62,26 @@ describe('lookup', () => {
         expect(ipInfo.location).not.null;
         expect(ipInfo.security).not.null;
         expect(ipInfo.time_zone).not.null;
-        expect(ipInfo.account).not.null;
-        expect(ipInfo.account.remaining_credits).to.exist;
-        expect(ipInfo.account.rate_limit).to.exist;
-        expect(ipInfo.account.rate_limit_remaining).to.exist;
     });
 
     it('should return hostname value when option is enabled', async () => {
         const client = new IpregistryClient(API_KEY);
-        const ipInfo = await client.lookup('8.8.8.8', IpregistryOptions.hostname(true));
+        const response = await client.lookup('8.8.8.8', IpregistryOptions.hostname(true));
+        const ipInfo = response.data;
         expect(ipInfo.type).equal('IPv4');
         expect(ipInfo.location.country.code).equal('US');
         expect(ipInfo.hostname).not.null;
-        expect(ipInfo.account).not.null;
-        expect(ipInfo.account.remaining_credits).to.exist;
-        expect(ipInfo.account.rate_limit).to.exist;
-        expect(ipInfo.account.rate_limit_remaining).to.exist;
     });
 
     it('should return cached value if available', async () => {
         const client = new IpregistryClient(API_KEY);
-        const ipInfo = await client.lookup('66.165.2.7');
+        const response = await client.lookup('66.165.2.7');
+        const ipInfo = response.data;
         ipInfo.time_zone.current_time = 'cached';
 
-        const ipInfo2 = await client.lookup('66.165.2.7');
-        // don't want cached value of rate limit remaining etc
-        expect(ipInfo2.account).to.not.exist;
-        const ipInfoWithoutAccount = {...ipInfo}
-        delete ipInfoWithoutAccount.account
-        expect(ipInfo2).deep.equal(ipInfoWithoutAccount);
+        const response2 = await client.lookup('66.165.2.7');
+        const ipInfo2 = response2.data;
+        expect(ipInfo2).equal(ipInfo);
     });
 
     it('should throw ApiError when input IP is invalid', async () => {
@@ -113,6 +103,36 @@ describe('lookup', () => {
             expect(error).to.be.instanceOf(ClientError);
         }
     });
+
+    it('should consume 1 credit for a simple lookup with no cache', async () => {
+        const client = new IpregistryClient(API_KEY, new NoCache());
+        const response = await client.lookup('8.8.4.4');
+
+        expect(response.credits.consumed).equal(1);
+        expect(response.credits.remaining).greaterThan(0);
+        expect(response.throttling).null;
+    });
+
+    it('should consume 0 credit for a simple cached lookup', async () => {
+        const client = new IpregistryClient(API_KEY);
+        await client.lookup('8.8.4.4');
+
+        const response = await client.lookup('8.8.4.4');
+
+        expect(response.credits.consumed).equal(0);
+        expect(response.credits.remaining).null;
+        expect(response.throttling).null;
+    });
+
+    it('should return throttling data if API key is rate limited', async () => {
+        const client = new IpregistryClient(API_KEY_THROTTLED);
+        const response = await client.lookup('8.8.4.4');
+
+        expect(response.throttling).not.null;
+        expect(response?.throttling?.limit).greaterThan(-1);
+        expect(response?.throttling?.remaining).greaterThan(-1);
+        expect(response?.throttling?.reset).greaterThan(-1);
+    });
 });
 
 describe('batchLookup', () => {
@@ -122,7 +142,8 @@ describe('batchLookup', () => {
         expect(client.getCache()).instanceOf(NoCache);
 
         const ips = ['66.165.2.7', '2001:4860:4860::8844', '8.8.4.4'];
-        const ipInfoList = await client.batchLookup(ips);
+        const response = await client.batchLookup(ips);
+        const ipInfoList = response.data;
         for (let i = 0; i < ipInfoList.length; i++) {
             const ipInfo = ipInfoList[i] as IpInfo;
             expect(ipInfo.ip).equal(ips[i]);
@@ -136,11 +157,13 @@ describe('batchLookup', () => {
     it('should return cached value if available', async () => {
         const client = new IpregistryClient(API_KEY);
 
-        const ipInfo = await client.lookup('66.165.2.7');
+        const response = await client.lookup('66.165.2.7');
+        const ipInfo = response.data;
         ipInfo.time_zone.current_time = 'cachedTime';
 
         const ips = ['66.165.2.7', '1.1.1.1', '8.8.4.4'];
-        const ipInfoList = await client.batchLookup(ips);
+        const response2 = await client.batchLookup(ips);
+        const ipInfoList = response2.data;
 
         for (let i = 0; i < ipInfoList.length; i++) {
             const ipInfo = ipInfoList[i] as IpInfo;
@@ -153,18 +176,62 @@ describe('batchLookup', () => {
     it('should handle invalid input with no error', async () => {
         const client = new IpregistryClient(API_KEY);
         const ips = ['66.165.2.7a', '1.1.1.1', '8.8.4.4c'];
-        const ipInfoList = await client.batchLookup(ips);
+        const response = await client.batchLookup(ips);
+        const ipInfoList = response.data;
 
         expect(ipInfoList[0]).to.be.instanceOf(LookupError);
         expect(ipInfoList[1]).not.to.be.instanceOf(LookupError);
         expect(ipInfoList[2]).to.be.instanceOf(LookupError);
+    });
+
+    it('should consume credits for a batch lookup with no cache', async () => {
+        const client = new IpregistryClient(API_KEY, new NoCache());
+        const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2']);
+
+        expect(response.credits.consumed).equal(3);
+        expect(response.credits.remaining).greaterThan(0);
+        expect(response.throttling).null;
+    });
+
+    it('should consume some credits for a batch lookup with partial results from cache', async () => {
+        const client = new IpregistryClient(API_KEY);
+        await client.lookup('8.8.4.4');
+        await client.lookup('1.2.3.2');
+        const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2']);
+
+        expect(response.credits.consumed).equal(1);
+        expect(response.credits.remaining).greaterThan(0);
+        expect(response.throttling).null;
+    });
+
+    it('should consume no credit for a batch lookup with all data returned from cache', async () => {
+        const client = new IpregistryClient(API_KEY);
+        await client.lookup('8.8.4.4');
+        await client.lookup('1.2.3.4');
+        await client.lookup('1.2.3.2');
+        const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2']);
+
+        expect(response.credits.consumed).equal(0);
+        expect(response.credits.remaining).null;
+        expect(response.throttling).null;
+    });
+
+    it('should return throttling data if API key is rate limited', async () => {
+        const client = new IpregistryClient(API_KEY_THROTTLED);
+        const response = await client.batchLookup(['8.8.4.4', '9.9.9.9']);
+
+        expect(response.throttling).not.null;
+        expect(response?.throttling?.limit).greaterThan(-1);
+        expect(response?.throttling?.remaining).greaterThan(-1);
+        expect(response?.throttling?.reset).greaterThan(-1);
     });
 });
 
 describe('originLookup', () => {
     it('should return fresh info with no cache', async () => {
         const client = new IpregistryClient(API_KEY);
-        const requesterIpInfo = await client.originLookup();
+        const response = await client.originLookup();
+        const requesterIpInfo = response.data;
 
         expect(requesterIpInfo.ip).not.null;
         expect(requesterIpInfo.type).not.null;
@@ -180,7 +247,8 @@ describe('originLookup', () => {
 
     it('should return cached value if available', async () => {
         const client = new IpregistryClient(API_KEY);
-        const requesterIpInfo = await client.originLookup();
+        const response = await client.originLookup();
+        const requesterIpInfo = response.data;
         requesterIpInfo.time_zone.current_time = 'cached';
 
         expect(requesterIpInfo.ip).not.null;
@@ -194,8 +262,39 @@ describe('originLookup', () => {
         expect(requesterIpInfo.time_zone).not.null;
         expect(requesterIpInfo.user_agent).not.null;
 
-        const requesterIpInfo2 = await client.originLookup();
+        const response2 = await client.originLookup();
+        const requesterIpInfo2 = response2.data;
 
         expect(requesterIpInfo2).equals(requesterIpInfo);
+    });
+
+    it('should consume 1 credit for a simple lookup with no cache', async () => {
+        const client = new IpregistryClient(API_KEY, new NoCache());
+        const response = await client.originLookup();
+
+        expect(response.credits.consumed).equal(1);
+        expect(response.credits.remaining).greaterThan(0);
+        expect(response.throttling).null;
+    });
+
+    it('should consume 0 credit for a simple cached lookup', async () => {
+        const client = new IpregistryClient(API_KEY);
+        await client.originLookup();
+
+        const response = await client.originLookup();
+
+        expect(response.credits.consumed).equal(0);
+        expect(response.credits.remaining).null;
+        expect(response.throttling).null;
+    });
+
+    it('should return throttling data if API key is rate limited', async () => {
+        const client = new IpregistryClient(API_KEY_THROTTLED);
+        const response = await client.originLookup();
+
+        expect(response.throttling).not.null;
+        expect(response?.throttling?.limit).greaterThan(-1);
+        expect(response?.throttling?.remaining).greaterThan(-1);
+        expect(response?.throttling?.reset).greaterThan(-1);
     });
 });

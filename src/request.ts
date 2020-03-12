@@ -15,19 +15,64 @@
  */
 
 import {ApiError, ClientError} from './errors';
-import {IpInfo, Account, RequesterIpInfo} from './model';
+import {IpInfo, RequesterIpInfo} from './model';
 import {IpregistryConfig} from './index';
 import {IpregistryOption} from './options';
 
-import axios from 'axios';
+import axios, {AxiosResponse} from 'axios';
+
+
+export interface ApiResponse<T> {
+
+    credits: ApiResponseCredits;
+
+    data: T;
+
+    throttling: ApiResponseThrottling | null;
+
+}
+
+export interface ApiResponseCredits {
+
+    /**
+     * The number of credits consumed to produce this response.
+     */
+    consumed: number;
+
+    /**
+     * The estimated number of credits remaining on the account associated with
+     * the API key that was used to make the request.
+     */
+    remaining: number | null;
+
+}
+
+export interface ApiResponseThrottling {
+
+    /**
+     * Indicates how many requests is allowed per hour (time window).
+     */
+    limit: number | null;
+
+    /**
+     * Indicates how many requests are remaining for the current window.
+     */
+    remaining: number | null;
+
+    /**
+     * Indicates when the current window ends, in seconds from the current time.
+     */
+    reset: number | null;
+
+}
 
 export interface IpregistryRequestHandler {
 
-    lookup(ip: string, options: IpregistryOption[]): Promise<IpInfo>;
+    lookup(ip: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>>;
 
-    batchLookup(ips: string[], options: IpregistryOption[]): Promise<IpInfo[]>;
+    batchLookup(ips: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>>;
 
-    originLookup(options: IpregistryOption[]): Promise<RequesterIpInfo>;
+    originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>>;
 
 }
 
@@ -41,20 +86,22 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         this.config = config;
     }
 
-    async lookup(ip: string, options: IpregistryOption[]): Promise<IpInfo> {
+    async lookup(ip: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>> {
         try {
             const response =
                 await axios.get(
                     this.buildApiUrl(ip, options),
                     this.getAxiosConfig()
                 );
-            const ipData = response.data as IpInfo;
-            ipData.account = {
-                remaining_credits: response.headers['ipregistry-credits'],
-                rate_limit: response.headers['x-rate-limit-limit'],
-                rate_limit_remaining: response.headers['x-rate-limit-remaining']
-            } as Account;
-            return ipData
+
+            return {
+                credits: {
+                    consumed: 1,
+                    remaining: this.getRemainingCredits(response)
+                },
+                data: response.data as IpInfo,
+                throttling: this.getThrottlingData(response)
+            };
         } catch (error) {
             if (error.isAxiosError && error.response) {
                 const data = error.response.data;
@@ -65,7 +112,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    async batchLookup(ips: string[], options: IpregistryOption[]): Promise<IpInfo[]> {
+    async batchLookup(ips: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>> {
         try {
             const response =
                 await axios.post(
@@ -73,7 +120,15 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                     JSON.stringify(ips),
                     this.getAxiosConfig()
                 );
-            return response.data.results;
+
+            return {
+                credits: {
+                    consumed: ips.length,
+                    remaining: this.getRemainingCredits(response)
+                },
+                data: response.data.results,
+                throttling: this.getThrottlingData(response)
+            };
         } catch (error) {
             if (error.isAxiosError && error.response) {
                 const data = error.response.data;
@@ -84,14 +139,22 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    async originLookup(options: IpregistryOption[]): Promise<RequesterIpInfo> {
+    async originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>> {
         try {
             const response =
                 await axios.get(
                     this.buildApiUrl('', options),
                     this.getAxiosConfig()
                 );
-            return response.data as RequesterIpInfo;
+
+            return {
+                credits: {
+                    consumed: 1,
+                    remaining: this.getRemainingCredits(response)
+                },
+                data: response.data as RequesterIpInfo,
+                throttling: this.getThrottlingData(response)
+            };
         } catch (error) {
             if (error.isAxiosError && error.response) {
                 const data = error.response.data;
@@ -111,7 +174,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             if (window === undefined) {
                 headers['user-agent'] = DefaultRequestHandler.USER_AGENT;
             }
-        } catch(error) {
+        } catch (error) {
             // ignore
         }
 
@@ -119,6 +182,34 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             headers: headers,
             timeout: this.config.timeout
         };
+    }
+
+    protected getRemainingCredits(response: AxiosResponse): number | null {
+        return DefaultRequestHandler.parseInt(response.headers['ipregistry-credits']);
+    }
+
+    protected getThrottlingData(response: AxiosResponse): ApiResponseThrottling | null {
+        const ratelimit = response.headers['x-rate-limit-limit'];
+
+        if (!ratelimit) {
+            return null;
+        }
+
+        return {
+            limit: DefaultRequestHandler.parseInt(ratelimit),
+            remaining: DefaultRequestHandler.parseInt(response.headers['x-rate-limit-remaining']),
+            reset: DefaultRequestHandler.parseInt(response.headers['x-rate-limit-reset'])
+        }
+    }
+
+    protected static parseInt(value: string): number | null {
+        const result = parseInt(value);
+
+        if (isNaN(result)) {
+            return null;
+        }
+
+        return result;
     }
 
     protected buildApiUrl(ip: string, options: IpregistryOption[]) {

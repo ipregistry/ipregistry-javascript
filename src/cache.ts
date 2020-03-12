@@ -21,9 +21,9 @@ import * as LRUCache from 'lru-cache';
 
 export interface IpregistryCache {
 
-    get(key: string): IpInfo | undefined;
+    get(key: string): any | undefined;
 
-    put(key: string, data: IpInfo): void;
+    put(key: string, data: any): void;
 
     invalidate(key: string): void;
 
