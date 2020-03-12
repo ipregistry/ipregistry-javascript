@@ -167,7 +167,18 @@ A manner to proceed is to identify bots using `User-Agent` header. To ease this 
 UserAgent.isBot('TO_REPLACE_BY_USER_AGENT_RETRIEVED_FROM_REQUEST_HEADER')
 ```
 
-## Metadata 
+Please note that when caching is disabled, some of the fields above may be `null` when the content is retrieved from 
+the cache and no request is made to the Ipregistry API.
+
+## Selecting fields
+
+To save bandwidth and speed up response times, the API allows selecting fields to return:
+
+```typescript
+const response = await client.lookup('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
+```
+
+## Usage data
 
 Looking to know the number of credits a request consumed? how much is remaining? or simply get throttling info about 
 an API key for which you have enabled rate limiting?
@@ -183,17 +194,6 @@ console.log(response.credits.remaining);
 console.log(response.throttling.limit);
 console.log(response.throttling.remaining);
 console.log(response.throttling.reset);
-```
-
-All fields are guaranteed to be defined when caching is disabled. However, when caching is enabled, some of the fields 
-above may be `null` if the content is retrieved from cache and no request is made to Ipregistry API.
-
-## Selecting fields
-
-To save bandwidth and speed up response times, the API allows selecting fields to return:
-
-```typescript
-const response = await client.lookup('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
 ```
 
 # Other Libraries

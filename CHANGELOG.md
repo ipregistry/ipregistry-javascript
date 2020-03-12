@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - [BREAKING] All client methods use a new [ApiResponse](https://github.com/ipregistry/ipregistry-javascript/blob/master/src/request.ts#L25) type as response.
-You can now access to metadata (i.e. remaining credits, throttling info) in addition to IP payloads.
+You can now access usage data (i.e. remaining credits, throttling info) in addition to IP payloads.
 
 ## [1.4.0] - 2020-01-12
 ### Added
