@@ -1,4 +1,4 @@
-[<img src="https://ipregistry.co/assets/icons/icon-72x72.png" alt="Ipregistry" width="64"/>](https://ipregistry.co/) 
+[<img src="https://cdn.ipregistry.co/icons/icon-72x72.png" alt="Ipregistry" width="64"/>](https://ipregistry.co/) 
 # Ipregistry Javascript Client Library
 
 [![License](http://img.shields.io/:license-apache-blue.svg)](LICENSE)
