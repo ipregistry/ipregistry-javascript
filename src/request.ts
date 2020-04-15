@@ -37,7 +37,7 @@ export interface ApiResponseCredits {
     /**
      * The number of credits consumed to produce this response.
      */
-    consumed: number;
+    consumed: number | null;
 
     /**
      * The estimated number of credits remaining on the account associated with
@@ -96,7 +96,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
             return {
                 credits: {
-                    consumed: 1,
+                    consumed: this.getConsumedCredits(response),
                     remaining: this.getRemainingCredits(response)
                 },
                 data: response.data as IpInfo,
@@ -123,7 +123,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
             return {
                 credits: {
-                    consumed: ips.length,
+                    consumed: this.getConsumedCredits(response),
                     remaining: this.getRemainingCredits(response)
                 },
                 data: response.data.results,
@@ -149,7 +149,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
             return {
                 credits: {
-                    consumed: 1,
+                    consumed: this.getConsumedCredits(response),
                     remaining: this.getRemainingCredits(response)
                 },
                 data: response.data as RequesterIpInfo,
@@ -182,6 +182,10 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             headers: headers,
             timeout: this.config.timeout
         };
+    }
+
+    protected getConsumedCredits(response: AxiosResponse): number | null {
+        return DefaultRequestHandler.parseInt(response.headers['ipregistry-credits-consumed']);
     }
 
     protected getRemainingCredits(response: AxiosResponse): number | null {
