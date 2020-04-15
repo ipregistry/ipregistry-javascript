@@ -185,7 +185,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     }
 
     protected getRemainingCredits(response: AxiosResponse): number | null {
-        return DefaultRequestHandler.parseInt(response.headers['ipregistry-credits']);
+        return DefaultRequestHandler.parseInt(response.headers['ipregistry-credits-remaining']);
     }
 
     protected getThrottlingData(response: AxiosResponse): ApiResponseThrottling | null {
