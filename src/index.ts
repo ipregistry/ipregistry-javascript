@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {DefaultCache, IpregistryCache} from './cache';
 import {ApiResponse, DefaultRequestHandler, IpregistryRequestHandler} from './request';
-import {IpregistryOption} from './options';
 import {IpInfo, RequesterIpInfo} from './model';
+import {IpregistryCache, NoCache} from './cache';
+import {IpregistryOption} from './options';
+
 import {isApiError, LookupError} from './errors';
 
 
@@ -95,7 +96,7 @@ export class IpregistryClient {
         if (cache) {
             this.cache = cache;
         } else {
-            this.cache = new DefaultCache();
+            this.cache = new NoCache();
         }
 
         if (requestHandler) {
