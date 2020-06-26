@@ -27,7 +27,7 @@ export class IpregistryConfig {
 
     public readonly apiUrl: string = 'https://api.ipregistry.co';
 
-    public readonly timeout: number = 3000;
+    public readonly timeout: number = 15000;
 
     constructor(apiKey: string, apiUrl: string, timeout: number) {
         this.apiKey = apiKey;
@@ -49,7 +49,7 @@ export class IpregistryConfigBuilder {
 
     private apiUrl: string = 'https://api.ipregistry.co';
 
-    private timeout: number = 3000;
+    private timeout: number = 15000;
 
     constructor(apiKey: string) {
         this.apiKey = apiKey;
