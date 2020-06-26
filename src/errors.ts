@@ -73,7 +73,8 @@ export enum ErrorCode {
     MISSING_API_KEY,
     PRIVATE_IP_ADDRESS,
     TOO_MANY_IPS,
-    TOO_MANY_REQUESTS
+    TOO_MANY_REQUESTS,
+    TOO_MANY_USER_AGENTS
 
 }
 
