@@ -78,7 +78,7 @@ export interface IpregistryRequestHandler {
 
 export class DefaultRequestHandler implements IpregistryRequestHandler {
 
-    private static USER_AGENT: string = 'Ipregistry/Javascript/2.0.0';
+    private static USER_AGENT: string = 'Ipregistry/JavaScript/2.0.0';
 
     private config: IpregistryConfig;
 
