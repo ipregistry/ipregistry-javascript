@@ -33,10 +33,10 @@
   resolved "https://registry.yarnpkg.com/@types/lru-cache/-/lru-cache-5.1.0.tgz#57f228f2b80c046b4a1bd5cac031f81f207f4f03"
   integrity sha512-RaE0B+14ToE4l6UqdarKPnXwVDuigfFv+5j9Dze/Nqr23yyuqdNvzcZi3xB+3Agvi5R4EOgAksfv3lXX4vBt9w==
 
-"@types/mocha@^7.0.2":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-7.0.2.tgz#b17f16cf933597e10d6d78eae3251e692ce8b0ce"
-  integrity sha512-ZvO2tAcjmMi8V/5Z3JsyofMe3hasRcaw88cto5etSVMwVQfeivGAlEYmaQgceUSVYFofVjT+ioHsATjdWcFt1w==
+"@types/mocha@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-8.0.1.tgz#813b4ff8dd9920d652e1e6b451ff1e371a4561d2"
+  integrity sha512-TBZ6YdX7IZz4U9/mBoB8zCMRN1vXw8QdihRcZxD3I0Cv/r8XF8RggZ8WiXFws4aj5atzRR5hJrYer7g8nXwpnQ==
 
 "@types/node@^14.0.14":
   version "14.0.26"
