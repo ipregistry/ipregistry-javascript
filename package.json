@@ -61,7 +61,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "lru-cache": "^6.0.0"
   },
   "files": [
