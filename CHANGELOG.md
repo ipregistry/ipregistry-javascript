@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2020-10-03
+### Fixed
+- Access to remaining credits was always returning `null` due to a packaging issue.
+
 ## [3.0.0] - 2020-06-27
 ### Changed
 - Caching is now optional and disabled by default.
@@ -70,8 +74,10 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.0...HEAD
-[3.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/2.0.0...3.0.0
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.1...HEAD
+[3.0.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/3.0.0...3.0.1
+[3.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/2.0.1...3.0.0
+[2.0.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/2.0.0...2.0.1
 [2.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.4.0...2.0.0
 [1.4.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.3.0...1.4.0
 [1.3.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.2.1...1.3.0
