@@ -43,6 +43,7 @@
     "build": "npm run lint && npm run build:mjs && npm run build:cjs && npm run build:browser",
     "clean": "rm -rf dist/",
     "lint": "./node_modules/.bin/tslint -p tsconfig.json",
+    "prepack": "npm run clean && npm run build",
     "pretest": "npm run clean && npm run build",
     "test:integration": "mocha -r ts-node/register integration_test/**/*.ts"
   },
