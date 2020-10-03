@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Caching is now optional and disabled by default.
 - Default timeout value has been increased to 15s from 3s.
 
+## [2.0.1] - 2020-10-03
+### Fixed
+- Fix access to remaining credits due to the removal of the response header `ipregistry-credits` from the Ipregistry API.
+
 ## [2.0.0] - 2020-03-12
 ### Changed
 - [BREAKING] All client methods use a new [ApiResponse](https://github.com/ipregistry/ipregistry-javascript/blob/master/src/request.ts#L25) type as response.
