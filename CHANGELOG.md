@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2020-12-02
+### Changed
+- Use _Authorization_ header instead of the _key_ query parameter to pass API keys. 
+
 ## [3.0.2] - 2020-10-28
 ### Changed
-- Upgrade dependencies, especially to fix an issue affecting TypeScript users (https://github.com/axios/axios/issues/3219).
+- Upgrade dependencies to fix an issue affecting TypeScript users (https://github.com/axios/axios/issues/3219).
 
 ## [3.0.1] - 2020-10-03
 ### Fixed
@@ -82,7 +86,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.2...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/3.1.0...HEAD
+[3.1.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/3.1.0...3.0.2
 [3.0.2]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/3.0.1...3.0.2
 [3.0.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/3.0.0...3.0.1
 [3.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/2.0.1...3.0.0
