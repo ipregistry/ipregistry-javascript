@@ -167,6 +167,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
     protected getAxiosConfig() {
         const headers = {
+            'authorization': `ApiKey ${this.config.apiKey}`,
             'content-type': 'application/json',
         };
 
@@ -217,7 +218,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     }
 
     protected buildApiUrl(ip: string, options: IpregistryOption[]) {
-        let result = `${this.config.apiUrl}/${ip ? ip : ''}?key=${this.config.apiKey}`;
+        let result = `${this.config.apiUrl}/${ip ? ip : ''}`;
 
         if (options) {
             for (const option of options) {
