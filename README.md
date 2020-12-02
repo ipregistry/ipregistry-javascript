@@ -5,7 +5,7 @@
 [![Actions Status](https://github.com/ipregistry/ipregistry-javascript/workflows/Node%20CI/badge.svg)](https://github.com/ipregistry/ipregistry-javascript/actions)
 [![npm](https://img.shields.io/npm/v/@ipregistry/client.svg)](https://www.npmjs.com/package/@ipregistry/client)
 
-This is the official Java client library for the [Ipregistry](https://ipregistry.co) IP geolocation and threat data API, 
+This is the official Javascript client library for the [Ipregistry](https://ipregistry.co) IP geolocation and threat data API, 
 allowing you to lookup your own IP address or specified ones. Responses return up to 65 data points including 
 location, currency, timezone, threat information, and more.
 
