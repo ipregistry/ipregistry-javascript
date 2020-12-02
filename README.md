@@ -34,7 +34,7 @@ This is a very simple example. This creates a Ipregistry client and retrieves IP
 ```javascript
 const {IpregistryClient} = require('@ipregistry/client');
 
-const client = new IpregistryClient('tryout');
+const client = new IpregistryClient('REPLACE_WITH_API_KEY');
 
 client.lookup('73.2.2.2').then(response => {
     console.log(response.data);
@@ -49,7 +49,7 @@ Instead of using promises, you can also use async/await:
 ```javascript
 const {IpregistryClient} = require('@ipregistry/client');
 
-const client = new IpregistryClient('tryout');
+const client = new IpregistryClient('REPLACE_WITH_API_KEY');
 
 async function lookupIpInfo(ip) {
     try {
@@ -72,7 +72,7 @@ Or with TypeScript:
 import {ApiError, ClientError, IpregistryClient} from '@ipregistry/client';
 
 async function main() {
-    const client = new IpregistryClient('tryout');
+    const client = new IpregistryClient('REPLACE_WITH_API_KEY');
 
     try {
         const response = await client.lookup('73.2.2.2');
@@ -96,10 +96,10 @@ main().then(() => 0).catch(() => 1);
 
 Browser support:
 
-```
+```html
 <script src="https://unpkg.com/@ipregistry/client/dist/browser/index.js"></script>
 <script>
-    const client = new ipregistry.IpregistryClient('tryout');
+    const client = new ipregistry.IpregistryClient('REPLACE_WITH_API_KEY');
     
     client.lookup('73.2.2.2').then(response => {
         console.log(response.data);
@@ -108,6 +108,20 @@ Browser support:
     });
 </script>
 ```
+
+### Set API Key after instantiate `IpregistryClient`
+
+In case you need set API Key after instantiate a new `IpregistryClient` client.
+
+```js
+const {IpregistryClient} = require('@ipregistry/client');
+const client = new IpregistryClient('secret', cache);
+
+// Here
+client.config.apiKey = 'REPLACE_WITH_API_KEY';
+```
+
+This is useful when you need reuse the [cache](https://github.com/ipregistry/ipregistry-javascript#caching) with all API Key you created.
 
 More samples are available in the [samples](https://github.com/ipregistry/ipregistry-javascript/tree/master/samples) 
 folder.
@@ -118,12 +132,14 @@ The Ipregistry client library has built-in support for in-memory caching.
 By default caching is disabled. Below are examples to enable and configure a caching strategy.
 Once enabled, the default cache implementation memoizes for 10min the most 2048 recently used lookups on server side (16 when used in a browser).
 
+**WARNING:** You need instantiate `IpregistryClient` outside of a requests or middlewares. If you instantiate, inside on every request, the behavior of caching not will as you expect.
+
 ### Enabling caching
 
 Caching up to 16384 entries:
 
 ```typescript
-const client = new IpregistryClient('tryout', new DefaultCache(16384));
+const client = new IpregistryClient('REPLACE_WITH_API_KEY', new DefaultCache(16384));
 ```
 
 ### Configuring cache max age
@@ -131,13 +147,13 @@ const client = new IpregistryClient('tryout', new DefaultCache(16384));
 Caching up to 16384 entries for at most 6 hours:
 
 ```typescript
-const client = new IpregistryClient('tryout', new DefaultCache(16384, 3600 * 6 * 1000));
+const client = new IpregistryClient('REPLACE_WITH_API_KEY', new DefaultCache(16384, 3600 * 6 * 1000));
 ```
 
 ### Disabling caching
 
 ```typescript
-const client = new IpregistryClient('tryout', new NoCache());
+const client = new IpregistryClient('REPLACE_WITH_API_KEY', new NoCache());
 ```
 
 ## Enabling hostname lookup
