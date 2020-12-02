@@ -87,19 +87,19 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 - First public release.
 
 [Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/3.1.0...HEAD
-[3.1.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/3.1.0...3.0.2
-[3.0.2]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/3.0.1...3.0.2
-[3.0.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/3.0.0...3.0.1
-[3.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/2.0.1...3.0.0
-[2.0.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/2.0.0...2.0.1
-[2.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.4.0...2.0.0
-[1.4.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.3.0...1.4.0
-[1.3.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.2.1...1.3.0
-[1.2.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.2.0...1.2.1
-[1.2.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.1.0...1.2.0
-[1.1.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/1.0.0...1.1.0
-[1.0.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.1...1.0.0
-[0.10.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.10.0...0.10.1
-[0.10.0]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.2...0.10.0
-[0.9.2]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.1...0.9.2
+[3.1.0]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.2...3.1.0
+[3.0.2]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/2.0.1...3.0.0
+[2.0.1]: https://github.com/ipregistry/ipregistry-javascript/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/1.4.0...2.0.0
+[1.4.0]: https://github.com/ipregistry/ipregistry-javascript/compare/1.3.0...1.4.0
+[1.3.0]: https://github.com/ipregistry/ipregistry-javascript/compare/1.2.1...1.3.0
+[1.2.1]: https://github.com/ipregistry/ipregistry-javascript/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/ipregistry/ipregistry-javascript/compare/1.1.0...1.2.0
+[1.1.0]: https://github.com/ipregistry/ipregistry-javascript/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/0.10.1...1.0.0
+[0.10.1]: https://github.com/ipregistry/ipregistry-javascript/compare/0.10.0...0.10.1
+[0.10.0]: https://github.com/ipregistry/ipregistry-javascript/compare/0.9.2...0.10.0
+[0.9.2]: https://github.com/ipregistry/ipregistry-javascript/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/ipregistry/ipregistry-javascript/releases/tag/0.9.1
