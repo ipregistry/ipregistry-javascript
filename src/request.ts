@@ -221,8 +221,11 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         let result = `${this.config.apiUrl}/${ip ? ip : ''}`;
 
         if (options) {
+            let prefix = '?';
+
             for (const option of options) {
-                result += `&${option.name}=${encodeURIComponent(option.value)}`;
+                result += `${prefix}${option.name}=${encodeURIComponent(option.value)}`;
+                prefix = '&';
             }
         }
 
