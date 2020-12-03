@@ -34,7 +34,7 @@ This is a very simple example. This creates a Ipregistry client and retrieves IP
 ```javascript
 const {IpregistryClient} = require('@ipregistry/client');
 
-const client = new IpregistryClient('tryout');
+const client = new IpregistryClient('YOUR_API_KEY');
 
 client.lookup('73.2.2.2').then(response => {
     console.log(response.data);
@@ -49,7 +49,7 @@ Instead of using promises, you can also use async/await:
 ```javascript
 const {IpregistryClient} = require('@ipregistry/client');
 
-const client = new IpregistryClient('tryout');
+const client = new IpregistryClient('YOUR_API_KEY');
 
 async function lookupIpInfo(ip) {
     try {
@@ -72,7 +72,7 @@ Or with TypeScript:
 import {ApiError, ClientError, IpregistryClient} from '@ipregistry/client';
 
 async function main() {
-    const client = new IpregistryClient('tryout');
+    const client = new IpregistryClient('YOUR_API_KEY');
 
     try {
         const response = await client.lookup('73.2.2.2');
@@ -99,7 +99,7 @@ Browser support:
 ```
 <script src="https://unpkg.com/@ipregistry/client/dist/browser/index.js"></script>
 <script>
-    const client = new ipregistry.IpregistryClient('tryout');
+    const client = new ipregistry.IpregistryClient('YOUR_API_KEY');
     
     client.lookup('73.2.2.2').then(response => {
         console.log(response.data);
@@ -123,7 +123,7 @@ Once enabled, the default cache implementation memoizes for 10min the most 2048 
 Caching up to 16384 entries:
 
 ```typescript
-const client = new IpregistryClient('tryout', new DefaultCache(16384));
+const client = new IpregistryClient('YOUR_API_KEY', new DefaultCache(16384));
 ```
 
 ### Configuring cache max age
@@ -131,13 +131,13 @@ const client = new IpregistryClient('tryout', new DefaultCache(16384));
 Caching up to 16384 entries for at most 6 hours:
 
 ```typescript
-const client = new IpregistryClient('tryout', new DefaultCache(16384, 3600 * 6 * 1000));
+const client = new IpregistryClient('YOUR_API_KEY', new DefaultCache(16384, 3600 * 6 * 1000));
 ```
 
 ### Disabling caching
 
 ```typescript
-const client = new IpregistryClient('tryout', new NoCache());
+const client = new IpregistryClient('YOUR_API_KEY', new NoCache());
 ```
 
 ## Enabling hostname lookup
