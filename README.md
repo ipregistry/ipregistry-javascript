@@ -118,6 +118,11 @@ The Ipregistry client library has built-in support for in-memory caching.
 By default caching is disabled. Below are examples to enable and configure a caching strategy.
 Once enabled, the default cache implementation memoizes for 10min the most 2048 recently used lookups on server side (16 when used in a browser).
 
+**Make sure you do not create an Ipregistry client per request, otherwise caching will have no effect**. 
+In the case you are using a Function-as-a-Service (e.g. AWS Lambda, Firebase Function, Google Cloud Function), then you 
+should declare an Ipregistry client variable in global scope. This way, the Ipregistry client states can be reused 
+in subsequent invocations.
+
 ### Enabling caching
 
 Caching up to 16384 entries:
