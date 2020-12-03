@@ -139,6 +139,13 @@ Caching up to 16384 entries for at most 6 hours:
 const client = new IpregistryClient('YOUR_API_KEY', new DefaultCache(16384, 3600 * 6 * 1000));
 ```
 
+If your purpose is to re-use a same Ipregistry client instance (and thus share the same cache) for different API keys, 
+then you can alter the current configuration to set the API key to use before each request:
+
+```typescript
+client.config.apiKey = 'YOUR_NEW_API_KEY';
+```
+
 ### Disabling caching
 
 ```typescript
