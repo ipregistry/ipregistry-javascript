@@ -16,7 +16,7 @@
 
 import {
     ApiError,
-    ClientError, DefaultCache,
+    ClientError, InMemoryCache,
     IpInfo,
     IpregistryClient,
     IpregistryConfigBuilder,
@@ -74,7 +74,7 @@ describe('lookup', () => {
     });
 
     it('should return cached value if available', async () => {
-        const client = new IpregistryClient(API_KEY, new DefaultCache());
+        const client = new IpregistryClient(API_KEY, new InMemoryCache());
         const response = await client.lookup('66.165.2.7');
         const ipInfo = response.data;
         ipInfo.time_zone.current_time = 'cached';
@@ -114,7 +114,7 @@ describe('lookup', () => {
     });
 
     it('should consume 0 credit for a simple cached lookup', async () => {
-        const client = new IpregistryClient(API_KEY, new DefaultCache());
+        const client = new IpregistryClient(API_KEY, new InMemoryCache());
         await client.lookup('8.8.4.4');
 
         const response = await client.lookup('8.8.4.4');
@@ -155,7 +155,7 @@ describe('batchLookup', () => {
     });
 
     it('should return cached value if available', async () => {
-        const client = new IpregistryClient(API_KEY, new DefaultCache());
+        const client = new IpregistryClient(API_KEY, new InMemoryCache());
 
         const response = await client.lookup('66.165.2.7');
         const ipInfo = response.data;
@@ -194,7 +194,7 @@ describe('batchLookup', () => {
     });
 
     it('should consume some credits for a batch lookup with partial results from cache', async () => {
-        const client = new IpregistryClient(API_KEY, new DefaultCache());
+        const client = new IpregistryClient(API_KEY, new InMemoryCache());
         await client.lookup('8.8.4.4');
         await client.lookup('1.2.3.2');
         const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2']);
@@ -205,7 +205,7 @@ describe('batchLookup', () => {
     });
 
     it('should consume no credit for a batch lookup with all data returned from cache', async () => {
-        const client = new IpregistryClient(API_KEY, new DefaultCache());
+        const client = new IpregistryClient(API_KEY, new InMemoryCache());
         await client.lookup('8.8.4.4');
         await client.lookup('1.2.3.4');
         await client.lookup('1.2.3.2');
@@ -246,7 +246,7 @@ describe('originLookup', () => {
     });
 
     it('should return cached value if available', async () => {
-        const client = new IpregistryClient(API_KEY, new DefaultCache());
+        const client = new IpregistryClient(API_KEY, new InMemoryCache());
         const response = await client.originLookup();
         const requesterIpInfo = response.data;
         requesterIpInfo.time_zone.current_time = 'cached';
@@ -278,7 +278,7 @@ describe('originLookup', () => {
     });
 
     it('should consume 0 credit for a simple cached lookup', async () => {
-        const client = new IpregistryClient(API_KEY, new DefaultCache());
+        const client = new IpregistryClient(API_KEY, new InMemoryCache());
         await client.originLookup();
 
         const response = await client.originLookup();

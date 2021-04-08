@@ -31,7 +31,7 @@ export interface IpregistryCache {
 
 }
 
-export class DefaultCache implements IpregistryCache {
+export class InMemoryCache implements IpregistryCache {
 
     private readonly maximumSize;
 

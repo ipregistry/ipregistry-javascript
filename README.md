@@ -128,7 +128,7 @@ in subsequent invocations.
 Caching up to 16384 entries:
 
 ```typescript
-const client = new IpregistryClient('YOUR_API_KEY', new DefaultCache(16384));
+const client = new IpregistryClient('YOUR_API_KEY', new InMemoryCache(16384));
 ```
 
 ### Configuring cache max age
@@ -136,7 +136,7 @@ const client = new IpregistryClient('YOUR_API_KEY', new DefaultCache(16384));
 Caching up to 16384 entries for at most 6 hours:
 
 ```typescript
-const client = new IpregistryClient('YOUR_API_KEY', new DefaultCache(16384, 3600 * 6 * 1000));
+const client = new IpregistryClient('YOUR_API_KEY', new InMemoryCache(16384, 3600 * 6 * 1000));
 ```
 
 If your purpose is to re-use a same Ipregistry client instance (and thus share the same cache) for different API keys, 
