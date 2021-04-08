@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2021-04-08
+### Changed
+- [BREAKING] Rename _DefaultCache_ to _InMemoryCache_.
+- Upgrade dependencies.
+
 ## [3.1.0] - 2020-12-02
 ### Changed
 - Use _Authorization_ header instead of the _key_ query parameter to pass API keys. 
@@ -86,7 +91,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/3.1.0...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.0.0...HEAD
+[4.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/3.1.0...4.0.0
 [3.1.0]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.2...3.1.0
 [3.0.2]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.0...3.0.1
