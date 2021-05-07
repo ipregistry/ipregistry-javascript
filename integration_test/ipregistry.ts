@@ -188,7 +188,7 @@ describe('batchLookup', () => {
         const client = new IpregistryClient(API_KEY, new NoCache());
         const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2']);
 
-        expect(response.credits.consumed).equal(3);
+        expect(response.credits.consumed).equal(4);
         expect(response.credits.remaining).greaterThan(0);
         expect(response.throttling).null;
     });
