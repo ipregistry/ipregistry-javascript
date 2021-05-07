@@ -166,8 +166,8 @@ describe('batchLookup', () => {
         const ipInfoList = response2.data;
 
         for (let i = 0; i < ipInfoList.length; i++) {
-            const ipInfo = ipInfoList[i] as IpInfo;
-            expect(ipInfo.ip).equal(ips[i]);
+            const ipData = ipInfoList[i] as IpInfo;
+            expect(ipData.ip).equal(ips[i]);
         }
 
         expect((ipInfoList[0] as IpInfo).time_zone.current_time).equal('cachedTime');
