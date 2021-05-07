@@ -184,6 +184,15 @@ describe('batchLookup', () => {
         expect(ipInfoList[2]).to.be.instanceOf(LookupError);
     });
 
+    it('should consume 1 credit if batch lookup contains only 1 entry', async () => {
+        const client = new IpregistryClient(API_KEY, new NoCache());
+        const response = await client.batchLookup(['8.8.4.4']);
+
+        expect(response.credits.consumed).equal(1);
+        expect(response.credits.remaining).greaterThan(0);
+        expect(response.throttling).null;
+    });
+
     it('should consume credits for a batch lookup with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache());
         const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2']);
