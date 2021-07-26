@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2021-07-26
+### Added
+- New connection type `government`.
+### Changed
+- Improve utility function to detect bots/crawlers/spiders based on user-agent value.
+### Fixed
+- Fix invalid property names: `language.name_native` -> `language.native` and `time_zone.daylight_saving` -> `time_zone.in_daylight_saving`.
+### Removed
+- Merge connection type `cdn` with `hosting`.
+
 ## [4.0.0] - 2021-04-08
 ### Changed
 - [BREAKING] Rename _DefaultCache_ to _InMemoryCache_.
@@ -91,7 +101,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.0.0...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.1.0...HEAD
+[4.1.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/3.1.0...4.0.0
 [3.1.0]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.2...3.1.0
 [3.0.2]: https://github.com/ipregistry/ipregistry-javascript/compare/3.0.1...3.0.2
