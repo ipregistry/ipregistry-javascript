@@ -114,7 +114,7 @@ export interface Connection {
 
     route: string | null;
 
-    type: 'business' | 'cdn' | 'education' | 'isp' | 'hosting' | null;
+    type: 'business' | 'education' | 'isp' | 'hosting' | null;
 
 }
 
