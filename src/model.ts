@@ -240,7 +240,7 @@ export interface Language {
 
     name: string | null;
 
-    native_name: string | null;
+    native: string | null;
 
 }
 
@@ -278,7 +278,7 @@ export interface TimeZone {
 
     offset: number;
 
-    daylight_saving: boolean;
+    in_daylight_saving: boolean;
 
 }
 
