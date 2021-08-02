@@ -51,7 +51,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/lru-cache": "^5.1.1",
-    "@types/mocha": "~8.2.3",
+    "@types/mocha": "~9.0.0",
     "chai": "^4.3.4",
     "mocha": "~8.4.0",
     "ts-node": "9.1.0",
