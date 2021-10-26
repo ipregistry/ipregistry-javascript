@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import {ApiError, ClientError} from './errors';
-import {IpInfo, RequesterIpInfo} from './model';
-import {IpregistryConfig} from './index';
-import {IpregistryOption} from './options';
-
 import axios, {AxiosResponse} from 'axios';
+import {ApiError, ClientError} from './errors';
+import {IpregistryConfig} from './index';
+import {IpInfo, RequesterIpInfo} from './model';
+import {IpregistryOption} from './options';
 
 
 export interface ApiResponse<T> {
@@ -102,7 +101,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 data: response.data as IpInfo,
                 throttling: this.getThrottlingData(response)
             };
-        } catch (error) {
+        } catch (error: any) {
             if (error.isAxiosError && error.response) {
                 const data = error.response.data;
                 throw new ApiError(data.code, data.message, data.resolution);
@@ -129,7 +128,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 data: response.data.results,
                 throttling: this.getThrottlingData(response)
             };
-        } catch (error) {
+        } catch (error: any) {
             if (error.isAxiosError && error.response) {
                 const data = error.response.data;
                 throw new ApiError(data.code, data.message, data.resolution);
@@ -155,7 +154,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 data: response.data as RequesterIpInfo,
                 throttling: this.getThrottlingData(response)
             };
-        } catch (error) {
+        } catch (error: any) {
             if (error.isAxiosError && error.response) {
                 const data = error.response.data;
                 throw new ApiError(data.code, data.message, data.resolution);
