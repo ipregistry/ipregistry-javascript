@@ -31,6 +31,17 @@ const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryou';
 const API_KEY_THROTTLED = process.env.IPREGISTRY_API_KEY_THROTTLED || 'tryout';
 
 describe('lookup', () => {
+    it('should throw ApiError when input IP is reserved', async () => {
+        try {
+            const client = new IpregistryClient(API_KEY);
+            await client.lookup('0.1.2.3');
+            expect.fail();
+        } catch (error: any) {
+            expect(error).to.be.instanceOf(ApiError);
+            expect(error.code).equal('RESERVED_IP_ADDRESS');
+        }
+    });
+
     it('should return valid information when IPv4 address is known', async () => {
         const client = new IpregistryClient(API_KEY);
         const response = await client.lookup('8.8.8.8');
@@ -69,6 +80,9 @@ describe('lookup', () => {
         const response = await client.lookup('8.8.8.8', IpregistryOptions.hostname(true));
         const ipInfo = response.data;
         expect(ipInfo.type).equal('IPv4');
+        expect(ipInfo.company.domain).not.null;
+        expect(ipInfo.company.name).not.null;
+        expect(ipInfo.company.type).not.null;
         expect(ipInfo.location.country.code).equal('US');
         expect(ipInfo.hostname).not.null;
     });

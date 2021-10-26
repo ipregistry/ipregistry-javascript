@@ -24,6 +24,8 @@ export interface IpInfo {
 
     carrier: Carrier;
 
+    company: Company;
+
     connection: Connection;
 
     currency: Currency;
@@ -104,6 +106,16 @@ export interface Carrier {
 
 }
 
+export interface Company {
+
+    domain: string | null;
+
+    name: string | null;
+
+    type: 'business' | 'education' | 'government' | 'isp' | 'hosting' | null;
+
+}
+
 export interface Connection {
 
     asn: number | null;
@@ -114,7 +126,7 @@ export interface Connection {
 
     route: string | null;
 
-    type: 'business' | 'education' | 'government' | 'isp' | 'hosting' | null;
+    type: 'business' | 'education' | 'government' | 'inactive' | 'isp' | 'hosting' | null;
 
 }
 
