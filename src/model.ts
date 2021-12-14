@@ -60,7 +60,7 @@ export interface UserAgent {
 
     engine: UserAgentEngine;
 
-    operating_system: UserAgentOperatingSystem;
+    os: UserAgentOperatingSystem;
 
 }
 
