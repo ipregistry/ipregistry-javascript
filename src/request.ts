@@ -17,7 +17,7 @@
 import axios, {AxiosResponse} from 'axios';
 import {ApiError, ClientError} from './errors';
 import {IpregistryConfig} from './index';
-import {IpInfo, RequesterIpInfo} from './model';
+import {IpInfo, RequesterIpInfo, UserAgent} from './model';
 import {IpregistryOption} from './options';
 
 
@@ -67,11 +67,13 @@ export interface ApiResponseThrottling {
 
 export interface IpregistryRequestHandler {
 
-    lookup(ip: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>>;
+    batchLookup(ipAddresses: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>>;
 
-    batchLookup(ips: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>>;
+    lookup(ipAddress: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>>;
 
     originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>>;
+
+    parse(userAgents: string[]): Promise<ApiResponse<UserAgent[]>>;
 
 }
 
@@ -83,32 +85,6 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
     constructor(config: IpregistryConfig) {
         this.config = config;
-    }
-
-    async lookup(ip: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>> {
-        try {
-            const response =
-                await axios.get(
-                    this.buildApiUrl(ip, options),
-                    this.getAxiosConfig()
-                );
-
-            return {
-                credits: {
-                    consumed: this.getConsumedCredits(response),
-                    remaining: this.getRemainingCredits(response)
-                },
-                data: response.data as IpInfo,
-                throttling: this.getThrottlingData(response)
-            };
-        } catch (error: any) {
-            if (error.isAxiosError && error.response) {
-                const data = error.response.data;
-                throw new ApiError(data.code, data.message, data.resolution);
-            }
-
-            throw new ClientError(error.message);
-        }
     }
 
     async batchLookup(ips: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>> {
@@ -138,6 +114,32 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
+    async lookup(ip: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>> {
+        try {
+            const response =
+                await axios.get(
+                    this.buildApiUrl(ip, options),
+                    this.getAxiosConfig()
+                );
+
+            return {
+                credits: {
+                    consumed: this.getConsumedCredits(response),
+                    remaining: this.getRemainingCredits(response)
+                },
+                data: response.data as IpInfo,
+                throttling: this.getThrottlingData(response)
+            };
+        } catch (error: any) {
+            if (error.isAxiosError && error.response) {
+                const data = error.response.data;
+                throw new ApiError(data.code, data.message, data.resolution);
+            }
+
+            throw new ClientError(error.message);
+        }
+    }
+
     async originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>> {
         try {
             const response =
@@ -152,6 +154,33 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                     remaining: this.getRemainingCredits(response)
                 },
                 data: response.data as RequesterIpInfo,
+                throttling: this.getThrottlingData(response)
+            };
+        } catch (error: any) {
+            if (error.isAxiosError && error.response) {
+                const data = error.response.data;
+                throw new ApiError(data.code, data.message, data.resolution);
+            }
+
+            throw new ClientError(error.message);
+        }
+    }
+
+    async parse(userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
+        try {
+            const response =
+                await axios.post(
+                    this.buildApiUrl('user_agent'),
+                    userAgents,
+                    this.getAxiosConfig()
+                );
+
+            return {
+                credits: {
+                    consumed: this.getConsumedCredits(response),
+                    remaining: this.getRemainingCredits(response)
+                },
+                data: response.data.results,
                 throttling: this.getThrottlingData(response)
             };
         } catch (error: any) {
@@ -216,8 +245,8 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         return result;
     }
 
-    protected buildApiUrl(ip: string, options: IpregistryOption[]) {
-        let result = `${this.config.apiUrl}/${ip ? ip : ''}`;
+    protected buildApiUrl(path: string, options?: IpregistryOption[]) {
+        let result = `${this.config.apiUrl}/${path ? path : ''}`;
 
         if (options) {
             let prefix = '?';

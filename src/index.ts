@@ -15,7 +15,7 @@
  */
 
 import {ApiResponse, DefaultRequestHandler, IpregistryRequestHandler} from './request';
-import {IpInfo, RequesterIpInfo} from './model';
+import {IpInfo, RequesterIpInfo, UserAgent} from './model';
 import {IpregistryCache, NoCache} from './cache';
 import {IpregistryOption} from './options';
 
@@ -106,36 +106,13 @@ export class IpregistryClient {
         }
     }
 
-    async lookup(ip: string, ...options: IpregistryOption[]): Promise<ApiResponse<IpInfo>> {
-        const cacheKey = this.buildCacheKey(ip, options);
-        const cacheValue = this.cache.get(cacheKey) as IpInfo;
-
-        let result: ApiResponse<IpInfo>;
-
-        if (!cacheValue) {
-            result = await this.requestHandler.lookup(ip, options);
-            this.cache.put(cacheKey, result.data);
-        } else {
-            result = {
-                credits: {
-                    consumed: 0,
-                    remaining: null
-                },
-                data: cacheValue,
-                throttling: null
-            }
-        }
-
-        return result;
-    }
-
     async batchLookup(ips: string[], ...options: IpregistryOption[]): Promise<ApiResponse<(IpInfo | LookupError)[]>> {
         const sparseCache: Array<(IpInfo | null)> = new Array<IpInfo | null>(ips.length);
         const cacheMisses: Array<string> = [];
 
         for (let i = 0; i < ips.length; i++) {
             const ip = ips[i];
-            const cacheKey = this.buildCacheKey(ip, options);
+            const cacheKey = IpregistryClient.buildCacheKey(ip, options);
             const cacheValue = this.cache.get(cacheKey);
 
             if (cacheValue) {
@@ -168,7 +145,7 @@ export class IpregistryClient {
                     result[j] = new LookupError(lookupError['code'], lookupError['message'], lookupError['resolution']);
                 } else {
                     const ipInfo = freshIpInfo[k];
-                    this.cache.put(this.buildCacheKey(ipInfo.ip, options), ipInfo);
+                    this.cache.put(IpregistryClient.buildCacheKey(ipInfo.ip, options), ipInfo);
                     result[j] = freshIpInfo[k];
                 }
 
@@ -190,8 +167,31 @@ export class IpregistryClient {
         };
     }
 
+    async lookup(ip: string, ...options: IpregistryOption[]): Promise<ApiResponse<IpInfo>> {
+        const cacheKey = IpregistryClient.buildCacheKey(ip, options);
+        const cacheValue = this.cache.get(cacheKey) as IpInfo;
+
+        let result: ApiResponse<IpInfo>;
+
+        if (!cacheValue) {
+            result = await this.requestHandler.lookup(ip, options);
+            this.cache.put(cacheKey, result.data);
+        } else {
+            result = {
+                credits: {
+                    consumed: 0,
+                    remaining: null
+                },
+                data: cacheValue,
+                throttling: null
+            }
+        }
+
+        return result;
+    }
+
     async originLookup(...options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>> {
-        const cacheKey = this.buildCacheKey('', options);
+        const cacheKey = IpregistryClient.buildCacheKey('', options);
         const cacheValue = this.cache.get(cacheKey) as RequesterIpInfo;
 
         let result: ApiResponse<RequesterIpInfo>;
@@ -213,11 +213,15 @@ export class IpregistryClient {
         return result;
     }
 
+    async parse(...userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
+        return this.requestHandler.parse(userAgents);
+    }
+
     public getCache(): IpregistryCache {
         return this.cache;
     }
 
-    private buildCacheKey(ip: string, options: IpregistryOption[]): string {
+    private static buildCacheKey(ip: string, options: IpregistryOption[]): string {
         let result = ip ? ip : '';
 
         if (options) {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.0] - 2021-12-14
+### Added
+- New `parse` method in IpregistryClient for parsing user-agent header values.
+
 ## [4.2.0] - 2021-10-26
 ### Added
 - _IpInfo_ responses have a new `company` field.
@@ -106,7 +110,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.2.0...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.3.0...HEAD
+[4.3.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.2.0...4.3.0
 [4.2.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.1.0...4.2.0
 [4.1.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/3.1.0...4.0.0
