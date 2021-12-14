@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.3.0] - 2021-12-14
 ### Added
 - New `parse` method in IpregistryClient for parsing user-agent header values.
+### Deprecated
+- Deprecate `IpregistryConfigBuilder.withApiUrl` in favor of `IpregistryConfigBuilder.withBaseUrl`. 
 
 ## [4.2.0] - 2021-10-26
 ### Added

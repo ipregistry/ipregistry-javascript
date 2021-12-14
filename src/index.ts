@@ -26,15 +26,15 @@ export class IpregistryConfig {
 
     public readonly apiKey: string;
 
-    public readonly apiUrl: string = 'https://api.ipregistry.co';
+    public readonly baseUrl: string = 'https://api.ipregistry.co';
 
     public readonly timeout: number = 15000;
 
-    constructor(apiKey: string, apiUrl: string, timeout: number) {
+    constructor(apiKey: string, baseUrl: string, timeout: number) {
         this.apiKey = apiKey;
 
-        if (apiUrl) {
-            this.apiUrl = apiUrl;
+        if (baseUrl) {
+            this.baseUrl = baseUrl;
         }
 
         if (timeout) {
@@ -48,7 +48,7 @@ export class IpregistryConfigBuilder {
 
     private apiKey: string;
 
-    private apiUrl: string = 'https://api.ipregistry.co';
+    private baseUrl: string = 'https://api.ipregistry.co';
 
     private timeout: number = 15000;
 
@@ -56,8 +56,16 @@ export class IpregistryConfigBuilder {
         this.apiKey = apiKey;
     }
 
+    /*
+     * Use the new {@link IpregistryConfigBuilder.withBaseUrl} method instead.
+     */
     public withApiUrl(apiUrl: string): IpregistryConfigBuilder {
-        this.apiUrl = apiUrl;
+        this.baseUrl = apiUrl;
+        return this;
+    }
+
+    public withBaseUrl(baseUrl: string): IpregistryConfigBuilder {
+        this.baseUrl = baseUrl;
         return this;
     }
 
@@ -67,7 +75,7 @@ export class IpregistryConfigBuilder {
     }
 
     public build(): IpregistryConfig {
-        return new IpregistryConfig(this.apiKey, this.apiUrl, this.timeout);
+        return new IpregistryConfig(this.apiKey, this.baseUrl, this.timeout);
     }
 
 }

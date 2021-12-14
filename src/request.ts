@@ -246,7 +246,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     }
 
     protected buildApiUrl(path: string, options?: IpregistryOption[]) {
-        let result = `${this.config.apiUrl}/${path ? path : ''}`;
+        let result = `${this.config.baseUrl}/${path ? path : ''}`;
 
         if (options) {
             let prefix = '?';
