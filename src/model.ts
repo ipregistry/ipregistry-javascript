@@ -258,21 +258,23 @@ export interface Language {
 
 export interface Security {
 
+    is_abuser: boolean;
+
+    is_attacker: boolean;
+
     is_bogon: boolean;
 
     is_cloud_provider: boolean;
+
+    is_proxy: boolean;
+
+    is_relay: boolean;
 
     is_tor: boolean;
 
     is_tor_exit_node: boolean;
 
-    is_proxy: boolean;
-
     is_anonymous: boolean;
-
-    is_abuser: boolean;
-
-    is_attacker: boolean;
 
     is_threat: boolean;
 
