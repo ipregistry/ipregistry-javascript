@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.0] - 2021-12-21
+### Added
+- New `security.is_relay` field.
+
 ## [4.3.0] - 2021-12-14
 ### Added
 - New `parse` method in _IpregistryClient_ for parsing user-agent header values.
@@ -114,7 +118,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.3.0...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.4.0...HEAD
+[4.4.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.3.0...4.4.0
 [4.3.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.2.0...4.3.0
 [4.2.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.1.0...4.2.0
 [4.1.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.0.0...4.1.0
