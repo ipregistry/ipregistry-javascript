@@ -43,9 +43,9 @@ export class InMemoryCache implements IpregistryCache {
         this.maximumSize = maximumSize;
         this.expireAfter = expireAfter;
 
-        const options : LRUCache.Options<string, IpInfo> = {
+        const options : any = {
             max: maximumSize,
-            maxAge: expireAfter
+            ttl: expireAfter,
         };
 
         this.cache = new LRUCache(options);

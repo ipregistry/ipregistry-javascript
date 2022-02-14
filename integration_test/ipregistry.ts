@@ -344,7 +344,7 @@ describe('parse', () => {
         expect(response.data[0].name).not.null;
     });
 
-    it('should return 2 parsed user-agent result when 2 valid user-agent value is inputted', async () => {
+    it('should return 2 parsed user-agent results when 2 valid user-agent values are inputted', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED);
         const response =
             await client.parse(
