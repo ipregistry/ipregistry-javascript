@@ -272,7 +272,7 @@ export interface Security {
 
     is_tor: boolean;
 
-    is_tor_exit_node: boolean;
+    is_tor_exit: boolean;
 
     is_anonymous: boolean;
 
