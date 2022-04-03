@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.2] - 2022-04-03
+
+### Fixed
+- Invalid field name `security.is_tor_exit_node` has been renamed to `security.is_tor_exit`.
+### Changed
+- Upgrade dependencies.
+
 ## [4.4.1] - 2022-02-14
 - Upgrade dependencies.
 
@@ -121,7 +128,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.4.1...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/4.4.2...HEAD
+[4.4.2]: https://github.com/ipregistry/ipregistry-javascript/compare/4.4.1...4.4.2
 [4.4.1]: https://github.com/ipregistry/ipregistry-javascript/compare/4.4.0...4.4.1
 [4.4.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.3.0...4.4.0
 [4.3.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.2.0...4.3.0
