@@ -56,11 +56,11 @@ export class InMemoryCache implements IpregistryCache {
     }
 
     invalidate(key: string): void {
-        this.cache.del(key);
+        this.cache.delete(key);
     }
 
     invalidateAll(): void {
-        this.cache.reset();
+        this.cache.clear();
     }
 
     put(key: string, data: IpInfo): void {
