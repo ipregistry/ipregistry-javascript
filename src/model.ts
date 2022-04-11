@@ -278,6 +278,8 @@ export interface Security {
 
     is_threat: boolean;
 
+    is_vpn: boolean;
+
 }
 
 export interface TimeZone {
