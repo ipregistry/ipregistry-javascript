@@ -1,7 +1,7 @@
 {
   "name": "@ipregistry/client",
   "description": "Official Ipregistry Javascript Library (ES5, ES6+, TypeScript).",
-  "version": "4.4.2",
+  "version": "4.5.0",
   "main": "./dist/index.js",
   "browser": "./dist/browser/index.js",
   "module": "./dist/esm/index.js",
@@ -50,7 +50,7 @@
   },
   "author": "Ipregistry <support@ipregistry.co>",
   "devDependencies": {
-    "@types/chai": "^4.3.0",
+    "@types/chai": "^4.3.1",
     "@types/lru-cache": "^7.6.1",
     "@types/mocha": "^9.1.0",
     "chai": "^4.3.6",
