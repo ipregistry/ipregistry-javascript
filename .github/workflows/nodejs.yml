@@ -1,14 +1,14 @@
-name: Node CI
+name: Build Sources
 
 on:
   pull_request:
   push:
   schedule:
     - cron: "0 1 * * *"
+  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
