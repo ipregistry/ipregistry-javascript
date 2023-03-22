@@ -61,6 +61,11 @@ export class IpregistryConfigBuilder {
         return this;
     }
 
+    public withEuBaseUrl(): IpregistryConfigBuilder {
+        this.baseUrl = 'https://eu.api.ipregistry.co';
+        return this;
+    }
+
     public withTimeout(timeout: number): IpregistryConfigBuilder {
         this.timeout = timeout;
         return this;

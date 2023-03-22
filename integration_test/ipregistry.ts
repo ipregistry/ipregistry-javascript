@@ -162,6 +162,13 @@ describe('lookup', () => {
         expect(ipInfo.time_zone).not.null;
     });
 
+    it('should return valid information with EU base URL when IPv4 address is known', async () => {
+        const client = new IpregistryClient(new IpregistryConfigBuilder(API_KEY).withEuBaseUrl().build());
+        const response = await client.lookup('9.4.2.1');
+        const ipInfo = response.data;
+        expect(ipInfo.type).equal('IPv4');
+    });
+
     it('should return valid information when IPv6 address is known', async () => {
         const client = new IpregistryClient(API_KEY);
         const response = await client.lookup('2001:4860:4860::8844');
