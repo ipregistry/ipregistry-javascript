@@ -16,7 +16,7 @@
 
 import {IpInfo} from './model';
 
-import * as LRUCache from 'lru-cache';
+import LRUCache from 'lru-cache';
 
 
 export interface IpregistryCache {
@@ -48,7 +48,7 @@ export class InMemoryCache implements IpregistryCache {
             ttl: expireAfter,
         };
 
-        this.cache = new LRUCache(options);
+        this.cache = new LRUCache<string, IpInfo>(options);
     }
 
     get(key: string): IpInfo | undefined {
