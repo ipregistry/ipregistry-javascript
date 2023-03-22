@@ -28,7 +28,7 @@ import {
 
 import {expect} from 'chai';
 
-const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryou';
+const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryout';
 const API_KEY_THROTTLED = process.env.IPREGISTRY_API_KEY_THROTTLED || 'tryout';
 
 describe('batchLookup', () => {
