@@ -56,14 +56,6 @@ export class IpregistryConfigBuilder {
         this.apiKey = apiKey;
     }
 
-    /*
-     * Use the new {@link IpregistryConfigBuilder.withBaseUrl} method instead.
-     */
-    public withApiUrl(apiUrl: string): IpregistryConfigBuilder {
-        this.baseUrl = apiUrl;
-        return this;
-    }
-
     public withBaseUrl(baseUrl: string): IpregistryConfigBuilder {
         this.baseUrl = baseUrl;
         return this;
