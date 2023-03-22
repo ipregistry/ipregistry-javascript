@@ -2,7 +2,7 @@
 # Ipregistry Javascript Client Library
 
 [![License](http://img.shields.io/:license-apache-blue.svg)](LICENSE)
-[![Actions Status](https://github.com/ipregistry/ipregistry-javascript/workflows/Node%20CI/badge.svg)](https://github.com/ipregistry/ipregistry-javascript/actions)
+[![Actions Status](https://github.com/ipregistry/ipregistry-javascript/workflows/Build/badge.svg)](https://github.com/ipregistry/ipregistry-javascript/actions)
 [![npm](https://img.shields.io/npm/v/@ipregistry/client.svg)](https://www.npmjs.com/package/@ipregistry/client)
 
 This is the official Javascript client library for the [Ipregistry](https://ipregistry.co) IP geolocation and threat data API,
