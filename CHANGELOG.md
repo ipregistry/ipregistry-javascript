@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - New `IpregistryConfigBuilder.withEuBaseUrl` method. Once configured, requests will be handled by nodes deployed in the European Union only.
 ### Changed
-- [BREAKING] Require NodeJS 16+.
+- Require NodeJS 16+.
 ### Removed
 - Deprecated `IpregistryConfigBuilder.withApiUrl` method. Use `IpregistryConfigBuilder.withBaseUrl` instead.
 
