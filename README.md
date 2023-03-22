@@ -39,7 +39,7 @@ const client = new IpregistryClient('YOUR_API_KEY');
 client.lookup('73.2.2.2').then(response => {
     console.log(response.data);
 }).catch(error => {
-    console.err(error);
+    console.error(error);
 })
 
 ```
@@ -59,7 +59,7 @@ async function lookupIpInfo(ip) {
         console.log(response.data.currency.code);
         console.log(response.data.security.is_threat);
     } catch(error) {
-        console.err(error);
+        console.error(error);
     }
 }
 
@@ -104,7 +104,7 @@ Browser support:
     client.lookup('73.2.2.2').then(response => {
         console.log(response.data);
     }).catch(error => {
-        console.err(error);
+        console.error(error);
     });
 </script>
 ```
