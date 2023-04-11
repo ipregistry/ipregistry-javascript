@@ -171,7 +171,7 @@ describe('lookup', () => {
 
     it('should return valid information when IPv6 address is known', async () => {
         const client = new IpregistryClient(API_KEY);
-        const response = await client.lookup('2001:4860:4860::8844');
+        const response = await client.lookup('2606:4700::1111');
         const ipInfo = response.data;
         expect(ipInfo.type).equal('IPv6');
         expect(ipInfo.location.country.code).equal('US');
