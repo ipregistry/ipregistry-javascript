@@ -16,7 +16,7 @@
 
 import {IpInfo} from './model';
 
-import LRUCache from 'lru-cache';
+import {LRUCache} from 'lru-cache';
 
 
 export interface IpregistryCache {
