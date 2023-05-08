@@ -53,7 +53,7 @@
     "@types/chai": "^4.3.4",
     "@types/lru-cache": "^7.10.9",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^18.15.11",
+    "@types/node": "^20.1.0",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "ts-node": "^10.9.1",
