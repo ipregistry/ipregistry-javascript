@@ -71,10 +71,12 @@ export class InMemoryCache implements IpregistryCache {
 
 export class NoCache implements IpregistryCache {
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     get(key: string): IpInfo | undefined {
         return undefined;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     invalidate(key: string): void {
         // do nothing
     }
@@ -83,6 +85,7 @@ export class NoCache implements IpregistryCache {
         // do nothing
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     put(key: string, data: IpInfo): void {
         // do nothing
     }
