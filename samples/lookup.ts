@@ -14,30 +14,32 @@
  * limitations under the License.
  */
 
-import {ApiError, ClientError, IpregistryClient} from '../src';
+import { ApiError, ClientError, IpregistryClient } from '../src'
 
 async function main() {
-    const client = new IpregistryClient('tryout');
+    const client = new IpregistryClient('tryout')
 
     try {
-        const response = await client.lookup('54.85.132.205');
+        const response = await client.lookup('54.85.132.205')
 
         // Get location, threat data and more
-        console.log(response.data.location.country.code);
-        console.log(response.data.currency.code);
-        console.log(response.data.security.is_threat);
+        console.log(response.data.location.country.code)
+        console.log(response.data.currency.code)
+        console.log(response.data.security.is_threat)
     } catch (error) {
         if (error instanceof ApiError) {
             // Handle API error here (e.g. Invalid API key or IP address)
-            console.error('API error', error);
+            console.error('API error', error)
         } else if (error instanceof ClientError) {
             // Handle client error here (e.g. request timeout)
-            console.error('Client error', error);
+            console.error('Client error', error)
         } else {
             // Handle unexpected error here
-            console.error('Unexpected error', error);
+            console.error('Unexpected error', error)
         }
     }
 }
 
-main().then(() => 0).catch(() => 1);
+main()
+    .then(() => 0)
+    .catch(() => 1)

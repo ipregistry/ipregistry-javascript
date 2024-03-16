@@ -15,14 +15,14 @@
  */
 
 export class UserAgent {
-
     public static isBot(userAgent: string): boolean {
-        const lowerCaseUserAgent = userAgent.toLowerCase();
+        const lowerCaseUserAgent = userAgent.toLowerCase()
 
-        return lowerCaseUserAgent.includes('bot') ||
+        return (
+            lowerCaseUserAgent.includes('bot') ||
             lowerCaseUserAgent.includes('crawl') ||
             lowerCaseUserAgent.includes('spider') ||
-            lowerCaseUserAgent.includes('slurp');
+            lowerCaseUserAgent.includes('slurp')
+        )
     }
-
 }

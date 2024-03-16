@@ -14,66 +14,63 @@
  * limitations under the License.
  */
 
-import {IpInfo} from './model.js';
+import { IpInfo } from './model.js'
 
-import {LRUCache} from 'lru-cache';
-
+import { LRUCache } from 'lru-cache'
 
 export interface IpregistryCache {
+    get(key: string): any | undefined
 
-    get(key: string): any | undefined;
+    put(key: string, data: any): void
 
-    put(key: string, data: any): void;
+    invalidate(key: string): void
 
-    invalidate(key: string): void;
-
-    invalidateAll(): void;
-
+    invalidateAll(): void
 }
 
 export class InMemoryCache implements IpregistryCache {
+    private readonly maximumSize
 
-    private readonly maximumSize;
+    private readonly expireAfter
 
-    private readonly expireAfter;
+    private readonly cache: LRUCache<string, IpInfo>
 
-    private readonly cache: LRUCache<string, IpInfo>;
+    constructor(
+        maximumSize: number = typeof window !== 'undefined' ? 16 : 2048,
+        expireAfter: number = 600 * 1000,
+    ) {
+        this.maximumSize = maximumSize
+        this.expireAfter = expireAfter
 
-    constructor(maximumSize: number = typeof window !== 'undefined' ? 16 : 2048, expireAfter: number = 600 * 1000) {
-        this.maximumSize = maximumSize;
-        this.expireAfter = expireAfter;
-
-        const options : any = {
+        const options: any = {
             max: maximumSize,
             ttl: expireAfter,
-        };
+        }
 
-        this.cache = new LRUCache<string, IpInfo>(options);
+        this.cache = new LRUCache<string, IpInfo>(options)
     }
 
     get(key: string): IpInfo | undefined {
-        return this.cache.get(key);
+        return this.cache.get(key)
     }
 
     invalidate(key: string): void {
-        this.cache.delete(key);
+        this.cache.delete(key)
     }
 
     invalidateAll(): void {
-        this.cache.clear();
+        this.cache.clear()
     }
 
     put(key: string, data: IpInfo): void {
-        this.cache.set(key, data);
+        this.cache.set(key, data)
     }
-
 }
 
 export class NoCache implements IpregistryCache {
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     get(key: string): IpInfo | undefined {
-        return undefined;
+        return undefined
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -89,5 +86,4 @@ export class NoCache implements IpregistryCache {
     put(key: string, data: IpInfo): void {
         // do nothing
     }
-
 }

@@ -1,35 +1,26 @@
 {
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "alwaysStrict": true,
-    "declaration": true,
-    "declarationMap": true,
-    "inlineSources": true,
-    "lib": [
-      "es7",
-      "dom"
-    ],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "outDir": "./dist",
-    "removeComments": false,
-    "sourceMap": true,
-    "strict": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-    "target": "es2017"
-  },
-  "include": [
-    "integration_test/**/*.ts",
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ]
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "alwaysStrict": true,
+        "declaration": true,
+        "declarationMap": true,
+        "inlineSources": true,
+        "lib": ["es7", "dom"],
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "noImplicitAny": false,
+        "noImplicitThis": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "outDir": "./dist",
+        "removeComments": false,
+        "sourceMap": true,
+        "strict": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "target": "es2017"
+    },
+    "include": ["integration_test/**/*.ts", "src/**/*.ts"],
+    "exclude": ["node_modules", "**/*.spec.ts"]
 }

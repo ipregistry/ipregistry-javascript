@@ -14,35 +14,47 @@
  * limitations under the License.
  */
 
-import {ApiError, ClientError, IpInfo, IpregistryClient, LookupError} from '../src';
+import {
+    ApiError,
+    ClientError,
+    IpInfo,
+    IpregistryClient,
+    LookupError,
+} from '../src'
 
 async function main() {
-    const client = new IpregistryClient('tryout');
+    const client = new IpregistryClient('tryout')
 
     try {
-        const response = await client.batchLookup(['73.2.2.2a', '8.8.8.8', '2001:67c:2e8:22::c100:68b']);
-        const batchResults = response.data;
+        const response = await client.batchLookup([
+            '73.2.2.2a',
+            '8.8.8.8',
+            '2001:67c:2e8:22::c100:68b',
+        ])
+        const batchResults = response.data
 
         for (const batchResult of batchResults) {
             if (batchResult instanceof LookupError) {
                 // Handle lookup error here (e.g. invalid IP address)
-                console.error('Lookup error', batchResult);
+                console.error('Lookup error', batchResult)
             } else {
-                console.log(batchResult);
+                console.log(batchResult)
             }
         }
     } catch (error) {
         if (error instanceof ApiError) {
             // Handle API error here (e.g. Invalid API key)
-            console.error('API error', error);
+            console.error('API error', error)
         } else if (error instanceof ClientError) {
             // Handle client error here (e.g. request timeout)
-            console.error('Client error', error);
+            console.error('Client error', error)
         } else {
             // Handle unexpected error here
-            console.error('Unexpected error', error);
+            console.error('Unexpected error', error)
         }
     }
 }
 
-main().then(() => 0).catch(() => 1);
+main()
+    .then(() => 0)
+    .catch(() => 1)

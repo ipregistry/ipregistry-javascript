@@ -15,295 +15,260 @@
  */
 
 export interface IpInfo {
+    ip: string
 
-    ip: string;
+    type: 'IPv4' | 'IPv6'
 
-    type: 'IPv4' | 'IPv6';
+    hostname: string | null
 
-    hostname: string | null;
+    carrier: Carrier
 
-    carrier: Carrier;
+    company: Company
 
-    company: Company;
+    connection: Connection
 
-    connection: Connection;
+    currency: Currency
 
-    currency: Currency;
+    location: Location
 
-    location: Location;
+    security: Security
 
-    security: Security;
-
-    time_zone: TimeZone;
-
+    time_zone: TimeZone
 }
 
 export interface RequesterIpInfo extends IpInfo {
-
-    user_agent: UserAgent;
-
+    user_agent: UserAgent
 }
 
 export interface UserAgent {
+    header: string | null
 
-    header: string | null;
+    name: string | null
 
-    name: string | null;
+    type: string | null
 
-    type: string | null;
+    version: string | null
 
-    version: string | null;
+    version_major: string | null
 
-    version_major: string | null;
+    device: UserAgentDevice
 
-    device: UserAgentDevice;
+    engine: UserAgentEngine
 
-    engine: UserAgentEngine;
-
-    os: UserAgentOperatingSystem;
-
+    os: UserAgentOperatingSystem
 }
 
 export interface UserAgentDevice {
+    brand: string | null
 
-    brand: string | null;
+    name: string | null
 
-    name: string | null;
-
-    type: string | null;
-
+    type: string | null
 }
 
 export interface UserAgentEngine {
+    name: string | null
 
-    name: string | null;
+    type: string | null
 
-    type: string | null;
+    version: string | null
 
-    version: string | null;
-
-    version_major: string | null;
-
+    version_major: string | null
 }
 
 export interface UserAgentOperatingSystem {
+    name: string | null
 
-    name: string | null;
+    type: string | null
 
-    type: string | null;
-
-    version: string | null;
-
+    version: string | null
 }
 
 export interface Carrier {
+    name: string | null
 
-    name: string | null;
+    mcc: string | null
 
-    mcc: string | null;
-
-    mnc: string | null;
-
+    mnc: string | null
 }
 
 export interface Company {
+    domain: string | null
 
-    domain: string | null;
+    name: string | null
 
-    name: string | null;
-
-    type: 'business' | 'education' | 'government' | 'isp' | 'hosting' | null;
-
+    type: 'business' | 'education' | 'government' | 'isp' | 'hosting' | null
 }
 
 export interface Connection {
+    asn: number | null
 
-    asn: number | null;
+    domain: string | null
 
-    domain: string | null;
+    organization: string | null
 
-    organization: string | null;
+    route: string | null
 
-    route: string | null;
-
-    type: 'business' | 'education' | 'government' | 'inactive' | 'isp' | 'hosting' | null;
-
+    type:
+        | 'business'
+        | 'education'
+        | 'government'
+        | 'inactive'
+        | 'isp'
+        | 'hosting'
+        | null
 }
 
 export interface Currency {
+    code: string | null
 
-    code: string | null;
+    name: string | null
 
-    name: string | null;
+    name_native: string | null
 
-    name_native: string | null;
+    plural: string | null
 
-    plural: string | null;
+    plural_native: string | null
 
-    plural_native: string | null;
+    symbol: string | null
 
-    symbol: string | null;
+    symbol_native: string | null
 
-    symbol_native: string | null;
-
-    format: CurrencyFormat;
-
+    format: CurrencyFormat
 }
 
 export interface CurrencyFormat {
+    negative: CurrencyFormatPrefixSuffix
 
-    negative: CurrencyFormatPrefixSuffix;
-
-    positive: CurrencyFormatPrefixSuffix;
-
+    positive: CurrencyFormatPrefixSuffix
 }
 
 export interface CurrencyFormatPrefixSuffix {
+    prefix: string | null
 
-    prefix: string | null;
-
-    suffix: string | null;
-
+    suffix: string | null
 }
 
 export interface Location {
+    continent: Continent
 
-    continent: Continent;
+    country: Country
 
-    country: Country;
+    region: Region
 
-    region: Region;
+    city: string | null
 
-    city: string | null;
+    postal: string | null
 
-    postal: string | null;
+    latitude: number | null
 
-    latitude: number | null;
+    longitude: number | null
 
-    longitude: number | null;
+    language: Language
 
-    language: Language;
-
-    in_eu: boolean;
-
+    in_eu: boolean
 }
 
 export interface Continent {
+    code: string | null
 
-    code: string | null;
-
-    name: string | null;
-
+    name: string | null
 }
 
 export interface Country {
+    area: number
 
-    area: number;
+    borders: string[]
 
-    borders: string[];
+    calling_code: string | null
 
-    calling_code: string | null;
+    capital: string | null
 
-    capital: string | null;
+    code: string | null
 
-    code: string | null;
+    name: string | null
 
-    name: string | null;
+    population: number
 
-    population: number;
+    population_density: number
 
-    population_density: number;
+    flag: Flag
 
-    flag: Flag;
+    languages: Language[]
 
-    languages: Language[];
-
-    tld: string | null;
-
+    tld: string | null
 }
 
 export interface Flag {
+    emoji: string | null
 
-    emoji: string | null;
+    emoji_unicode: string | null
 
-    emoji_unicode: string | null;
+    emojitwo: string | null
 
-    emojitwo: string | null;
+    noto: string | null
 
-    noto: string | null;
+    twemoji: string | null
 
-    twemoji: string | null;
-
-    wikimedia: string | null;
-
+    wikimedia: string | null
 }
 
 export interface Region {
+    code: string | null
 
-    code: string | null;
-
-    name: string | null;
-
+    name: string | null
 }
 
 export interface Language {
+    code: string | null
 
-    code: string | null;
+    name: string | null
 
-    name: string | null;
-
-    native: string | null;
-
+    native: string | null
 }
 
 export interface Security {
+    is_abuser: boolean
 
-    is_abuser: boolean;
+    is_attacker: boolean
 
-    is_attacker: boolean;
+    is_bogon: boolean
 
-    is_bogon: boolean;
+    is_cloud_provider: boolean
 
-    is_cloud_provider: boolean;
+    is_proxy: boolean
 
-    is_proxy: boolean;
+    is_relay: boolean
 
-    is_relay: boolean;
+    is_tor: boolean
 
-    is_tor: boolean;
+    is_tor_exit: boolean
 
-    is_tor_exit: boolean;
+    is_anonymous: boolean
 
-    is_anonymous: boolean;
+    is_threat: boolean
 
-    is_threat: boolean;
-
-    is_vpn: boolean;
-
+    is_vpn: boolean
 }
 
 export interface TimeZone {
+    id: string | null
 
-    id: string | null;
+    abbreviation: string | null
 
-    abbreviation: string | null;
+    current_time: string | null
 
-    current_time: string | null;
+    name: string | null
 
-    name: string | null;
+    offset: number
 
-    offset: number;
-
-    in_daylight_saving: boolean;
-
+    in_daylight_saving: boolean
 }
 
 export interface Account {
+    remaining_credits: number
 
-    remaining_credits: number;
+    rate_limit: number
 
-    rate_limit: number;
-
-    rate_limit_remaining: number;
-
+    rate_limit_remaining: number
 }

@@ -23,7 +23,7 @@ import {
     IpregistryConfigBuilder,
     IpregistryOptions,
     LookupError,
-    NoCache
+    NoCache,
 } from '../src/index.js'
 
 import { describe, it } from 'node:test'
@@ -67,7 +67,9 @@ describe('batchLookup', () => {
             expect(ipData.ip).equal(ips[i])
         }
 
-        expect((ipInfoList[0] as IpInfo).time_zone.current_time).equal('cachedTime')
+        expect((ipInfoList[0] as IpInfo).time_zone.current_time).equal(
+            'cachedTime',
+        )
     })
 
     it('should handle invalid input with no error', async () => {
@@ -92,7 +94,11 @@ describe('batchLookup', () => {
 
     it('should consume credits for a batch lookup with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
-        const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2'])
+        const response = await client.batchLookup([
+            '8.8.4.4',
+            '1.2.3.4',
+            '1.2.3.2',
+        ])
 
         expect(response.credits.consumed).equal(4)
         expect(response.credits.remaining).greaterThan(0)
@@ -103,7 +109,11 @@ describe('batchLookup', () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
         await client.lookup('8.8.4.4')
         await client.lookup('1.2.3.2')
-        const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2'])
+        const response = await client.batchLookup([
+            '8.8.4.4',
+            '1.2.3.4',
+            '1.2.3.2',
+        ])
 
         expect(response.credits.consumed).equal(1)
         expect(response.credits.remaining).greaterThan(0)
@@ -115,7 +125,11 @@ describe('batchLookup', () => {
         await client.lookup('8.8.4.4')
         await client.lookup('1.2.3.4')
         await client.lookup('1.2.3.2')
-        const response = await client.batchLookup(['8.8.4.4', '1.2.3.4', '1.2.3.2'])
+        const response = await client.batchLookup([
+            '8.8.4.4',
+            '1.2.3.4',
+            '1.2.3.2',
+        ])
 
         expect(response.credits.consumed).equal(0)
         expect(response.credits.remaining).null
@@ -164,7 +178,9 @@ describe('lookup', () => {
     })
 
     it('should return valid information with EU base URL when IPv4 address is known', async () => {
-        const client = new IpregistryClient(new IpregistryConfigBuilder(API_KEY).withEuBaseUrl().build())
+        const client = new IpregistryClient(
+            new IpregistryConfigBuilder(API_KEY).withEuBaseUrl().build(),
+        )
         const response = await client.lookup('9.4.2.1')
         const ipInfo = response.data
         expect(ipInfo.type).equal('IPv4')
@@ -187,7 +203,10 @@ describe('lookup', () => {
 
     it('should return hostname value when option is enabled', async () => {
         const client = new IpregistryClient(API_KEY)
-        const response = await client.lookup('8.8.8.8', IpregistryOptions.hostname(true))
+        const response = await client.lookup(
+            '8.8.8.8',
+            IpregistryOptions.hostname(true),
+        )
         const ipInfo = response.data
         expect(ipInfo.type).equal('IPv4')
         expect(ipInfo.company.domain).not.null
@@ -220,7 +239,9 @@ describe('lookup', () => {
 
     it('should throw ClientError when HTTP request timeout elapsed', async () => {
         try {
-            const client = new IpregistryClient(new IpregistryConfigBuilder(API_KEY).withTimeout(1).build())
+            const client = new IpregistryClient(
+                new IpregistryConfigBuilder(API_KEY).withTimeout(1).build(),
+            )
             await client.lookup('9.4.2.1')
             expect.fail()
         } catch (error) {
@@ -344,21 +365,19 @@ describe('parse', () => {
 
     it('should return 1 parsed user-agent result when 1 valid user-agent value is inputted', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED)
-        const response =
-            await client.parse(
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
-            )
+        const response = await client.parse(
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+        )
         expect(response.data.length).eq(1)
         expect(response.data[0].name).not.null
     })
 
     it('should return 2 parsed user-agent results when 2 valid user-agent values are inputted', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED)
-        const response =
-            await client.parse(
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
-                'Opera/9.80 (Linux armv7l) Presto/2.12.407 Version/12.51 , D50u-D1-UHD/V1.5.16-UHD (Vizio, D50u-D1, Wireless)'
-            )
+        const response = await client.parse(
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+            'Opera/9.80 (Linux armv7l) Presto/2.12.407 Version/12.51 , D50u-D1-UHD/V1.5.16-UHD (Vizio, D50u-D1, Wireless)',
+        )
         expect(response.data.length).eq(2)
         expect(response.data[0].name).not.null
         expect(response.data[1].name).not.null
