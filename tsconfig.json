@@ -1,27 +1,28 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": true,
     "lib": [
       "es7",
       "dom"
     ],
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationMap": true,
-    "inlineSources": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "strict": true,
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noImplicitAny": false,
-    "removeComments": false,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
     "noImplicitThis": true,
-    "alwaysStrict": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "outDir": "./dist",
+    "removeComments": false,
+    "sourceMap": true,
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "es2017"
   },
   "include": [
     "src/**/*.ts"
