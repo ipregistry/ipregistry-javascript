@@ -20,7 +20,7 @@ async function main() {
     const client = new IpregistryClient('tryout')
 
     try {
-        const response = await client.lookup('54.85.132.205')
+        const response = await client.lookupIp('54.85.132.205')
 
         // Get location, threat data and more
         console.log(response.data.location.country.code)

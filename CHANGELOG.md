@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - New `IpregistryConfigBuilder.withEuBaseUrl` method. Once configured, requests will be handled by nodes deployed in the European Union only.
 ### Changed
+- Rename `IpregistryClient#batchLookup` to `IpregistryClient#batchLookupIps`.
+- Rename `IpregistryClient#lookup` to `IpregistryClient#lookupIp`.
+- Rename `IpregistryClient#originLookup` to `IpregistryClient#originLookupIp`.
 - Replace _Axios_ by _ky_ to bring support to Cloudflare Workers in addition to browser and NodeJS environments.
 - Require NodeJS 18+.
 ### Removed

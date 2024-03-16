@@ -26,7 +26,7 @@ async function main() {
     const client = new IpregistryClient('tryout')
 
     try {
-        const response = await client.batchLookup([
+        const response = await client.batchLookupIps([
             '73.2.2.2a',
             '8.8.8.8',
             '2001:67c:2e8:22::c100:68b',

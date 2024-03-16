@@ -39,7 +39,7 @@ describe('batchLookup', () => {
         expect(client.getCache()).instanceOf(NoCache)
 
         const ips = ['66.165.2.7', '2001:4860:4860::8844', '8.8.4.4']
-        const response = await client.batchLookup(ips)
+        const response = await client.batchLookupIps(ips)
         const ipInfoList = response.data
         for (let i = 0; i < ipInfoList.length; i++) {
             const ipInfo = ipInfoList[i] as IpInfo
@@ -54,12 +54,12 @@ describe('batchLookup', () => {
     it('should return cached value if available', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
 
-        const response = await client.lookup('66.165.2.7')
+        const response = await client.lookupIp('66.165.2.7')
         const ipInfo = response.data
         ipInfo.time_zone.current_time = 'cachedTime'
 
         const ips = ['66.165.2.7', '1.1.1.1', '8.8.4.4']
-        const response2 = await client.batchLookup(ips)
+        const response2 = await client.batchLookupIps(ips)
         const ipInfoList = response2.data
 
         for (let i = 0; i < ipInfoList.length; i++) {
@@ -75,7 +75,7 @@ describe('batchLookup', () => {
     it('should handle invalid input with no error', async () => {
         const client = new IpregistryClient(API_KEY)
         const ips = ['66.165.2.7a', '1.1.1.1', '8.8.4.4c']
-        const response = await client.batchLookup(ips)
+        const response = await client.batchLookupIps(ips)
         const ipInfoList = response.data
 
         expect(ipInfoList[0]).to.be.instanceOf(LookupError)
@@ -85,7 +85,7 @@ describe('batchLookup', () => {
 
     it('should consume 1 credit if batch lookup contains only 1 entry', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
-        const response = await client.batchLookup(['8.8.4.4'])
+        const response = await client.batchLookupIps(['8.8.4.4'])
 
         expect(response.credits.consumed).equal(1)
         expect(response.credits.remaining).greaterThan(0)
@@ -94,7 +94,7 @@ describe('batchLookup', () => {
 
     it('should consume credits for a batch lookup with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
-        const response = await client.batchLookup([
+        const response = await client.batchLookupIps([
             '8.8.4.4',
             '1.2.3.4',
             '1.2.3.2',
@@ -107,9 +107,9 @@ describe('batchLookup', () => {
 
     it('should consume some credits for a batch lookup with partial results from cache', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
-        await client.lookup('8.8.4.4')
-        await client.lookup('1.2.3.2')
-        const response = await client.batchLookup([
+        await client.lookupIp('8.8.4.4')
+        await client.lookupIp('1.2.3.2')
+        const response = await client.batchLookupIps([
             '8.8.4.4',
             '1.2.3.4',
             '1.2.3.2',
@@ -122,10 +122,10 @@ describe('batchLookup', () => {
 
     it('should consume no credit for a batch lookup with all data returned from cache', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
-        await client.lookup('8.8.4.4')
-        await client.lookup('1.2.3.4')
-        await client.lookup('1.2.3.2')
-        const response = await client.batchLookup([
+        await client.lookupIp('8.8.4.4')
+        await client.lookupIp('1.2.3.4')
+        await client.lookupIp('1.2.3.2')
+        const response = await client.batchLookupIps([
             '8.8.4.4',
             '1.2.3.4',
             '1.2.3.2',
@@ -138,7 +138,7 @@ describe('batchLookup', () => {
 
     it('should return throttling data if API key is rate limited', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED)
-        const response = await client.batchLookup(['8.8.4.4', '9.9.9.9'])
+        const response = await client.batchLookupIps(['8.8.4.4', '9.9.9.9'])
 
         expect(response.throttling).not.null
         expect(response?.throttling?.limit).greaterThan(-1)
@@ -151,7 +151,7 @@ describe('lookup', () => {
     it('should throw ApiError when input IP is reserved', async () => {
         try {
             const client = new IpregistryClient(API_KEY)
-            await client.lookup('0.1.2.3')
+            await client.lookupIp('0.1.2.3')
             expect.fail()
         } catch (error: any) {
             expect(error).to.be.instanceOf(ApiError)
@@ -161,7 +161,7 @@ describe('lookup', () => {
 
     it('should return valid information when IPv4 address is known', async () => {
         const client = new IpregistryClient(API_KEY)
-        const response = await client.lookup('8.8.8.8')
+        const response = await client.lookupIp('8.8.8.8')
         const ipInfo = response.data
         expect(ipInfo.type).equal('IPv4')
         expect(ipInfo.location.country.code).equal('US')
@@ -181,14 +181,14 @@ describe('lookup', () => {
         const client = new IpregistryClient(
             new IpregistryConfigBuilder(API_KEY).withEuBaseUrl().build(),
         )
-        const response = await client.lookup('9.4.2.1')
+        const response = await client.lookupIp('9.4.2.1')
         const ipInfo = response.data
         expect(ipInfo.type).equal('IPv4')
     })
 
     it('should return valid information when IPv6 address is known', async () => {
         const client = new IpregistryClient(API_KEY)
-        const response = await client.lookup('2606:4700::1111')
+        const response = await client.lookupIp('2606:4700::1111')
         const ipInfo = response.data
         expect(ipInfo.type).equal('IPv6')
         expect(ipInfo.location.country.code).equal('US')
@@ -203,7 +203,7 @@ describe('lookup', () => {
 
     it('should return hostname value when option is enabled', async () => {
         const client = new IpregistryClient(API_KEY)
-        const response = await client.lookup(
+        const response = await client.lookupIp(
             '8.8.8.8',
             IpregistryOptions.hostname(true),
         )
@@ -218,11 +218,11 @@ describe('lookup', () => {
 
     it('should return cached value if available', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
-        const response = await client.lookup('66.165.2.7')
+        const response = await client.lookupIp('66.165.2.7')
         const ipInfo = response.data
         ipInfo.time_zone.current_time = 'cached'
 
-        const response2 = await client.lookup('66.165.2.7')
+        const response2 = await client.lookupIp('66.165.2.7')
         const ipInfo2 = response2.data
         expect(ipInfo2).equal(ipInfo)
     })
@@ -230,7 +230,7 @@ describe('lookup', () => {
     it('should throw ApiError when input IP is invalid', async () => {
         try {
             const client = new IpregistryClient(API_KEY)
-            await client.lookup('invalid')
+            await client.lookupIp('invalid')
             expect.fail()
         } catch (error) {
             expect(error).to.be.instanceOf(ApiError)
@@ -242,7 +242,7 @@ describe('lookup', () => {
             const client = new IpregistryClient(
                 new IpregistryConfigBuilder(API_KEY).withTimeout(1).build(),
             )
-            await client.lookup('9.4.2.1')
+            await client.lookupIp('9.4.2.1')
             expect.fail()
         } catch (error) {
             expect(error).to.be.instanceOf(ClientError)
@@ -251,7 +251,7 @@ describe('lookup', () => {
 
     it('should consume 1 credit for a simple lookup with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
-        const response = await client.lookup('8.8.4.4')
+        const response = await client.lookupIp('8.8.4.4')
 
         expect(response.credits.consumed).equal(1)
         expect(response.credits.remaining).greaterThan(0)
@@ -260,9 +260,9 @@ describe('lookup', () => {
 
     it('should consume 0 credit for a simple cached lookup', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
-        await client.lookup('8.8.4.4')
+        await client.lookupIp('8.8.4.4')
 
-        const response = await client.lookup('8.8.4.4')
+        const response = await client.lookupIp('8.8.4.4')
 
         expect(response.credits.consumed).equal(0)
         expect(response.credits.remaining).null
@@ -271,7 +271,7 @@ describe('lookup', () => {
 
     it('should return throttling data if API key is rate limited', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED)
-        const response = await client.lookup('8.8.4.4')
+        const response = await client.lookupIp('8.8.4.4')
 
         expect(response.throttling).not.null
         expect(response?.throttling?.limit).greaterThan(-1)
@@ -283,7 +283,7 @@ describe('lookup', () => {
 describe('originLookup', () => {
     it('should return fresh info with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
-        const response = await client.originLookup()
+        const response = await client.originLookupIp()
         const requesterIpInfo = response.data
 
         expect(requesterIpInfo.ip).not.null
@@ -300,7 +300,7 @@ describe('originLookup', () => {
 
     it('should return cached value if available', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
-        const response = await client.originLookup()
+        const response = await client.originLookupIp()
         const requesterIpInfo = response.data
         requesterIpInfo.time_zone.current_time = 'cached'
 
@@ -315,7 +315,7 @@ describe('originLookup', () => {
         expect(requesterIpInfo.time_zone).not.null
         expect(requesterIpInfo.user_agent).not.null
 
-        const response2 = await client.originLookup()
+        const response2 = await client.originLookupIp()
         const requesterIpInfo2 = response2.data
 
         expect(requesterIpInfo2).equals(requesterIpInfo)
@@ -323,7 +323,7 @@ describe('originLookup', () => {
 
     it('should consume 1 credit for a simple lookup with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
-        const response = await client.originLookup()
+        const response = await client.originLookupIp()
 
         expect(response.credits.consumed).equal(1)
         expect(response.credits.remaining).greaterThan(0)
@@ -332,9 +332,9 @@ describe('originLookup', () => {
 
     it('should consume 0 credit for a simple cached lookup', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
-        await client.originLookup()
+        await client.originLookupIp()
 
-        const response = await client.originLookup()
+        const response = await client.originLookupIp()
 
         expect(response.credits.consumed).equal(0)
         expect(response.credits.remaining).null
@@ -343,7 +343,7 @@ describe('originLookup', () => {
 
     it('should return throttling data if API key is rate limited', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED)
-        const response = await client.originLookup()
+        const response = await client.originLookupIp()
 
         expect(response.throttling).not.null
         expect(response?.throttling?.limit).greaterThan(-1)

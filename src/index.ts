@@ -78,9 +78,9 @@ export class IpregistryConfigBuilder {
 }
 
 export class IpregistryClient {
-    private config: IpregistryConfig
+    private readonly config: IpregistryConfig
 
-    private cache: IpregistryCache
+    private readonly cache: IpregistryCache
 
     private requestHandler: IpregistryRequestHandler
 
@@ -110,7 +110,7 @@ export class IpregistryClient {
         }
     }
 
-    async batchLookup(
+    async batchLookupIps(
         ips: string[],
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<(IpInfo | LookupError)[]>> {
@@ -190,7 +190,7 @@ export class IpregistryClient {
         }
     }
 
-    async lookup(
+    async lookupIp(
         ip: string,
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<IpInfo>> {
@@ -216,7 +216,7 @@ export class IpregistryClient {
         return result
     }
 
-    async originLookup(
+    async originLookupIp(
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<RequesterIpInfo>> {
         const cacheKey = IpregistryClient.buildCacheKey('', options)
