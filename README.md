@@ -37,7 +37,7 @@ const {IpregistryClient} = require('@ipregistry/client');
 
 const client = new IpregistryClient('YOUR_API_KEY');
 
-client.lookup('73.2.2.2').then(response => {
+client.lookupIp('73.2.2.2').then(response => {
     console.log(response.data);
 }).catch(error => {
     console.error(error);
@@ -54,7 +54,7 @@ const client = new IpregistryClient('YOUR_API_KEY');
 
 async function lookupIpInfo(ip) {
     try {
-        const response = await client.lookup('73.2.2.2');
+        const response = await client.lookupIp('73.2.2.2');
         // Get location, threat data and more
         console.log(response.data.location.country.code);
         console.log(response.data.currency.code);
@@ -76,7 +76,7 @@ async function main() {
     const client = new IpregistryClient('YOUR_API_KEY');
 
     try {
-        const response = await client.lookup('73.2.2.2');
+        const response = await client.lookupIp('73.2.2.2');
         // Get location, threat data and more
         console.log(response.data.location.country.code);
         console.log(response.data.currency.code);
@@ -102,7 +102,7 @@ Browser support:
 <script>
     const client = new ipregistry.IpregistryClient('YOUR_API_KEY');
     
-    client.lookup('73.2.2.2').then(response => {
+    client.lookupIp('73.2.2.2').then(response => {
         console.log(response.data);
     }).catch(error => {
         console.error(error);
@@ -159,7 +159,7 @@ By default, the Ipregistry API does not return information about the hostname a 
 In order to include the hostname value in your API result, you need to enable the feature explicitly:
 
 ```typescript
-const ipInfo = await client.lookup('73.2.2.2', IpregistryOptions.hostname(true));
+const ipInfo = await client.lookupIp('73.2.2.2', IpregistryOptions.hostname(true));
 ```
 
 ## Errors
@@ -188,7 +188,7 @@ the cache and no request is made to the Ipregistry API.
 To save bandwidth and speed up response times, the API allows selecting fields to return:
 
 ```typescript
-const response = await client.lookup('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
+const response = await client.lookupIp('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
 ```
 
 ## Usage data
@@ -201,7 +201,7 @@ All client responses are of type
 about credits and throttling.
 
 ```typescript
-const response = await client.lookup('73.2.2.2');
+const response = await client.lookupIp('73.2.2.2');
 console.log(response.credits.consumed);
 console.log(response.credits.remaining);
 console.log(response.throttling.limit);
