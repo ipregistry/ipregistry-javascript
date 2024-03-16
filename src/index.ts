@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {ApiResponse, DefaultRequestHandler, IpregistryRequestHandler} from './request.js';
-import {IpInfo, RequesterIpInfo, UserAgent} from './model.js';
-import {IpregistryCache, NoCache} from './cache.js';
-import {IpregistryOption} from './options.js';
+import { ApiResponse, BatchResult, DefaultRequestHandler, IpregistryRequestHandler } from './request.js'
+import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
+import { IpregistryCache, NoCache } from './cache.js'
+import { IpregistryOption } from './options.js'
 
-import {isApiError, LookupError} from './errors.js';
+import { isApiError, LookupError } from './errors.js'
 
 
 export class IpregistryConfig {
@@ -129,12 +129,12 @@ export class IpregistryClient {
 
         const result: Array<(IpInfo | LookupError)> = new Array<IpInfo | LookupError>(ips.length);
 
-        let apiResponse;
-        let freshIpInfo;
+        let apiResponse: ApiResponse<BatchResult<IpInfo | LookupError>> | null;
+        let freshIpInfo: (IpInfo | LookupError)[];
 
         if (cacheMisses.length > 0) {
             apiResponse = await this.requestHandler.batchLookup(cacheMisses, options);
-            freshIpInfo = apiResponse.data;
+            freshIpInfo = apiResponse.data.results;
         } else {
             apiResponse = null;
             freshIpInfo = [];
@@ -146,10 +146,10 @@ export class IpregistryClient {
         for (const cachedIpInfo of sparseCache) {
             if (!cachedIpInfo) {
                 if (isApiError(freshIpInfo[k])) {
-                    const lookupError = freshIpInfo[k];
-                    result[j] = new LookupError(lookupError['code'], lookupError['message'], lookupError['resolution']);
+                    const lookupError = freshIpInfo[k] as LookupError;
+                    result[j] = new LookupError(lookupError.code, lookupError.message, lookupError.resolution);
                 } else {
-                    const ipInfo = freshIpInfo[k];
+                    const ipInfo = freshIpInfo[k] as IpInfo;
                     this.cache.put(IpregistryClient.buildCacheKey(ipInfo.ip, options), ipInfo);
                     result[j] = freshIpInfo[k];
                 }
@@ -219,7 +219,12 @@ export class IpregistryClient {
     }
 
     async parse(...userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
-        return this.requestHandler.parse(userAgents);
+        const response = await this.requestHandler.parse(userAgents);
+        return {
+            credits: response.credits,
+            data: response.data.results,
+            throttling: response.throttling
+        }
     }
 
     public getCache(): IpregistryCache {

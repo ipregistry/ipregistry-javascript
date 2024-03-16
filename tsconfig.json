@@ -25,6 +25,7 @@
     "target": "es2017"
   },
   "include": [
+    "integration_test/**/*.ts",
     "src/**/*.ts"
   ],
   "exclude": [

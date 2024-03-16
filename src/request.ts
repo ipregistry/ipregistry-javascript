@@ -14,9 +14,9 @@
 * limitations under the License.
 */
 
-import ky from 'ky'
+import ky, { HTTPError, KyResponse } from 'ky'
 
-import { ApiError, ClientError } from './errors.js'
+import { ApiError, ClientError, LookupError } from './errors.js'
 import { IpregistryConfig } from './index.js'
 import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
 import { IpregistryOption } from './options.js'
@@ -44,27 +44,31 @@ export interface ApiResponseThrottling {
     /**
      * Indicates how many requests is allowed per hour (time window).
      */
-    limit: number | null;
+    limit: number;
 
     /**
      * Indicates how many requests are remaining for the current window.
      */
-    remaining: number | null;
+    remaining: number;
 
     /**
      * Indicates when the current window ends, in seconds from the current time.
      */
-    reset: number | null;
+    reset: number;
+}
+
+export interface BatchResult<T> {
+    results: Array<T>
 }
 
 export interface IpregistryRequestHandler {
-    batchLookup(ipAddresses: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>>;
+    batchLookup(ipAddresses: string[], options: IpregistryOption[]): Promise<ApiResponse<BatchResult<IpInfo | LookupError>>>;
 
     lookup(ipAddress: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>>;
 
     originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>>;
 
-    parse(userAgents: string[]): Promise<ApiResponse<UserAgent[]>>;
+    parse(userAgents: string[]): Promise<ApiResponse<BatchResult<UserAgent>>>;
 }
 
 export class DefaultRequestHandler implements IpregistryRequestHandler {
@@ -75,49 +79,46 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         this.config = config
     }
 
-    async batchLookup(ips: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>> {
+    async batchLookup(ips: string[], options: IpregistryOption[]): Promise<ApiResponse<BatchResult<IpInfo | LookupError>>> {
         try {
-            const response = await ky.post(this.buildApiUrl('', options), {
+            const response: KyResponse = await ky.post(this.buildApiUrl('', options), {
                 json: ips,
                 ...this.getKyConfig()
-            }).json()
+            })
 
             return this.buildApiResponse(response)
         } catch (error) {
-            throw this.handleError(error)
+            throw await this.handleError(error)
         }
     }
 
     async lookup(ip: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>> {
         try {
-            const response = await ky.get(this.buildApiUrl(ip, options), this.getKyConfig()).json()
-
+            const response: KyResponse = await ky.get(this.buildApiUrl(ip, options), this.getKyConfig())
             return this.buildApiResponse(response)
         } catch (error) {
-            throw this.handleError(error)
+            throw await this.handleError(error)
         }
     }
 
     async originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>> {
         try {
-            const response = await ky.get(this.buildApiUrl('', options), this.getKyConfig()).json()
-
+            const response: KyResponse = await ky.get(this.buildApiUrl('', options), this.getKyConfig())
             return this.buildApiResponse(response)
-        } catch (error) {
-            throw this.handleError(error)
+        } catch (error: unknown) {
+            throw await this.handleError(error)
         }
     }
 
-    async parse(userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
+    async parse(userAgents: string[]): Promise<ApiResponse<BatchResult<UserAgent>>> {
         try {
-            const response = await ky.post(this.buildApiUrl('user_agent'), {
+            const response: KyResponse = await ky.post(this.buildApiUrl('user_agent'), {
                 json: userAgents,
                 ...this.getKyConfig()
-            }).json()
-
-            return this.buildApiResponse(response)
+            })
+            return this.buildApiResponse(response);
         } catch (error) {
-            throw this.handleError(error)
+            throw await this.handleError(error)
         }
     }
 
@@ -141,24 +142,32 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    protected buildApiResponse(response: any): ApiResponse<any> {
+    protected async buildApiResponse(response: KyResponse): Promise<ApiResponse<any>> {
+        const throttlingLimit =
+            DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-limit'))
+        const throttlingRemaining =
+            DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-remaining'))
+        const throttlingReset =
+            DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-reset'));
+
         return {
             credits: {
                 consumed: DefaultRequestHandler.parseInt(response.headers.get('ipregistry-credits-consumed')),
                 remaining: DefaultRequestHandler.parseInt(response.headers.get('ipregistry-credits-remaining'))
             },
-            data: response.data,
-            throttling: {
-                limit: DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-limit')),
-                remaining: DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-remaining')),
-                reset: DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-reset'))
+            data: await response.json(),
+            throttling: throttlingLimit == null && throttlingRemaining == null && throttlingReset == null ? null : {
+                limit: throttlingLimit ?? 0,
+                remaining: throttlingRemaining ?? 0,
+                reset: throttlingReset ?? 0
             }
         }
     }
 
-    protected handleError(error: any) {
-        if (error.response) {
-            throw new ApiError(error.response.status, error.response.statusText, '')
+    protected async handleError(error: any) {
+        if (error instanceof HTTPError) {
+            const json = await error.response.json()
+            return new ApiError(json.code, json.message, json.resolution)
         }
 
         return new ClientError(error.message)
