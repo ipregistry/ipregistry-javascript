@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - New `IpregistryConfigBuilder.withEuBaseUrl` method. Once configured, requests will be handled by nodes deployed in the European Union only.
 ### Changed
-- Require NodeJS 16+.
+- Replace _Axios_ by _ky_ to bring support to Cloudflare Workers in addition to browser and NodeJS environments.
+- Require NodeJS 18+.
 ### Removed
 - Deprecated `IpregistryConfigBuilder.withApiUrl` method. Use `IpregistryConfigBuilder.withBaseUrl` instead.
 

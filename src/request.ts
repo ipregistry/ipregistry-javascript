@@ -1,53 +1,46 @@
 /*
- * Copyright 2019 Ipregistry (https://ipregistry.co).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2019 Ipregistry (https://ipregistry.co).
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
-import axios, {AxiosResponse} from 'axios';
-import {ApiError, ClientError} from './errors';
-import {IpregistryConfig} from './index';
-import {IpInfo, RequesterIpInfo, UserAgent} from './model';
-import {IpregistryOption} from './options';
+import ky from 'ky'
+
+import { ApiError, ClientError } from './errors.js'
+import { IpregistryConfig } from './index.js'
+import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
+import { IpregistryOption } from './options.js'
 
 
 export interface ApiResponse<T> {
-
     credits: ApiResponseCredits;
-
     data: T;
-
     throttling: ApiResponseThrottling | null;
-
 }
 
 export interface ApiResponseCredits {
-
     /**
      * The number of credits consumed to produce this response.
      */
     consumed: number | null;
-
     /**
      * The estimated number of credits remaining on the account associated with
      * the API key that was used to make the request.
      */
     remaining: number | null;
-
 }
 
 export interface ApiResponseThrottling {
-
     /**
      * Indicates how many requests is allowed per hour (time window).
      */
@@ -62,11 +55,9 @@ export interface ApiResponseThrottling {
      * Indicates when the current window ends, in seconds from the current time.
      */
     reset: number | null;
-
 }
 
 export interface IpregistryRequestHandler {
-
     batchLookup(ipAddresses: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>>;
 
     lookup(ipAddress: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>>;
@@ -74,134 +65,71 @@ export interface IpregistryRequestHandler {
     originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>>;
 
     parse(userAgents: string[]): Promise<ApiResponse<UserAgent[]>>;
-
 }
 
 export class DefaultRequestHandler implements IpregistryRequestHandler {
-
-    private static USER_AGENT: string = 'Ipregistry/JavaScript/3.0.0';
-
-    private config: IpregistryConfig;
+    private static USER_AGENT: string = 'Ipregistry/JavaScript/3.0.0'
+    private config: IpregistryConfig
 
     constructor(config: IpregistryConfig) {
-        this.config = config;
+        this.config = config
     }
 
     async batchLookup(ips: string[], options: IpregistryOption[]): Promise<ApiResponse<IpInfo[]>> {
         try {
-            const response =
-                await axios.post(
-                    this.buildApiUrl('', options),
-                    JSON.stringify(ips),
-                    this.getAxiosConfig()
-                );
+            const response = await ky.post(this.buildApiUrl('', options), {
+                json: ips,
+                ...this.getKyConfig()
+            }).json()
 
-            return {
-                credits: {
-                    consumed: this.getConsumedCredits(response),
-                    remaining: this.getRemainingCredits(response)
-                },
-                data: response.data.results,
-                throttling: this.getThrottlingData(response)
-            };
-        } catch (error: any) {
-            if (error.isAxiosError && error.response) {
-                const data = error.response.data;
-                throw new ApiError(data.code, data.message, data.resolution);
-            }
-
-            throw new ClientError(error.message);
+            return this.buildApiResponse(response)
+        } catch (error) {
+            throw this.handleError(error)
         }
     }
 
     async lookup(ip: string, options: IpregistryOption[]): Promise<ApiResponse<IpInfo>> {
         try {
-            const response =
-                await axios.get(
-                    this.buildApiUrl(ip, options),
-                    this.getAxiosConfig()
-                );
+            const response = await ky.get(this.buildApiUrl(ip, options), this.getKyConfig()).json()
 
-            return {
-                credits: {
-                    consumed: this.getConsumedCredits(response),
-                    remaining: this.getRemainingCredits(response)
-                },
-                data: response.data as IpInfo,
-                throttling: this.getThrottlingData(response)
-            };
-        } catch (error: any) {
-            if (error.isAxiosError && error.response) {
-                const data = error.response.data;
-                throw new ApiError(data.code, data.message, data.resolution);
-            }
-
-            throw new ClientError(error.message);
+            return this.buildApiResponse(response)
+        } catch (error) {
+            throw this.handleError(error)
         }
     }
 
     async originLookup(options: IpregistryOption[]): Promise<ApiResponse<RequesterIpInfo>> {
         try {
-            const response =
-                await axios.get(
-                    this.buildApiUrl('', options),
-                    this.getAxiosConfig()
-                );
+            const response = await ky.get(this.buildApiUrl('', options), this.getKyConfig()).json()
 
-            return {
-                credits: {
-                    consumed: this.getConsumedCredits(response),
-                    remaining: this.getRemainingCredits(response)
-                },
-                data: response.data as RequesterIpInfo,
-                throttling: this.getThrottlingData(response)
-            };
-        } catch (error: any) {
-            if (error.isAxiosError && error.response) {
-                const data = error.response.data;
-                throw new ApiError(data.code, data.message, data.resolution);
-            }
-
-            throw new ClientError(error.message);
+            return this.buildApiResponse(response)
+        } catch (error) {
+            throw this.handleError(error)
         }
     }
 
     async parse(userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
         try {
-            const response =
-                await axios.post(
-                    this.buildApiUrl('user_agent'),
-                    userAgents,
-                    this.getAxiosConfig()
-                );
+            const response = await ky.post(this.buildApiUrl('user_agent'), {
+                json: userAgents,
+                ...this.getKyConfig()
+            }).json()
 
-            return {
-                credits: {
-                    consumed: this.getConsumedCredits(response),
-                    remaining: this.getRemainingCredits(response)
-                },
-                data: response.data.results,
-                throttling: this.getThrottlingData(response)
-            };
-        } catch (error: any) {
-            if (error.isAxiosError && error.response) {
-                const data = error.response.data;
-                throw new ApiError(data.code, data.message, data.resolution);
-            }
-
-            throw new ClientError(error.message);
+            return this.buildApiResponse(response)
+        } catch (error) {
+            throw this.handleError(error)
         }
     }
 
-    protected getAxiosConfig() {
+    protected getKyConfig() {
         const headers = {
             'authorization': `ApiKey ${this.config.apiKey}`,
-            'content-type': 'application/json',
-        };
+            'content-type': 'application/json'
+        }
 
         try {
             if (window === undefined) {
-                headers['user-agent'] = DefaultRequestHandler.USER_AGENT;
+                headers['user-agent'] = DefaultRequestHandler.USER_AGENT
             }
         } catch (error) {
             // ignore
@@ -210,54 +138,47 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         return {
             headers: headers,
             timeout: this.config.timeout
-        };
-    }
-
-    protected getConsumedCredits(response: AxiosResponse): number | null {
-        return DefaultRequestHandler.parseInt(response.headers['ipregistry-credits-consumed']);
-    }
-
-    protected getRemainingCredits(response: AxiosResponse): number | null {
-        return DefaultRequestHandler.parseInt(response.headers['ipregistry-credits-remaining']);
-    }
-
-    protected getThrottlingData(response: AxiosResponse): ApiResponseThrottling | null {
-        const ratelimit = response.headers['x-rate-limit-limit'];
-
-        if (!ratelimit) {
-            return null;
         }
+    }
 
+    protected buildApiResponse(response: any): ApiResponse<any> {
         return {
-            limit: DefaultRequestHandler.parseInt(ratelimit),
-            remaining: DefaultRequestHandler.parseInt(response.headers['x-rate-limit-remaining']),
-            reset: DefaultRequestHandler.parseInt(response.headers['x-rate-limit-reset'])
+            credits: {
+                consumed: DefaultRequestHandler.parseInt(response.headers.get('ipregistry-credits-consumed')),
+                remaining: DefaultRequestHandler.parseInt(response.headers.get('ipregistry-credits-remaining'))
+            },
+            data: response.data,
+            throttling: {
+                limit: DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-limit')),
+                remaining: DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-remaining')),
+                reset: DefaultRequestHandler.parseInt(response.headers.get('x-rate-limit-reset'))
+            }
         }
     }
 
-    protected static parseInt(value: string): number | null {
-        const result = parseInt(value);
-
-        if (isNaN(result)) {
-            return null;
+    protected handleError(error: any) {
+        if (error.response) {
+            throw new ApiError(error.response.status, error.response.statusText, '')
         }
 
-        return result;
+        return new ClientError(error.message)
+    }
+
+    protected static parseInt(value: string | null): number | null {
+        if (value === null) return null
+        const result = parseInt(value)
+        return isNaN(result) ? null : result
     }
 
     protected buildApiUrl(path: string, options?: IpregistryOption[]) {
-        let result = `${this.config.baseUrl}/${path ? path : ''}`;
+        let result = `${this.config.baseUrl}/${path ? path : ''}`
 
         if (options) {
-            let prefix = '?';
-
-            for (const option of options) {
-                result += `${prefix}${option.name}=${encodeURIComponent(option.value)}`;
-                prefix = '&';
-            }
+            const searchParams = new URLSearchParams()
+            options.forEach(option => searchParams.append(option.name, option.value))
+            result += `?${searchParams.toString()}`
         }
 
-        return result;
+        return result
     }
-
 }

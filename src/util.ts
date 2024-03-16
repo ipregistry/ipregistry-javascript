@@ -20,6 +20,7 @@ export class UserAgent {
         const lowerCaseUserAgent = userAgent.toLowerCase();
 
         return lowerCaseUserAgent.includes('bot') ||
+            lowerCaseUserAgent.includes('crawl') ||
             lowerCaseUserAgent.includes('spider') ||
             lowerCaseUserAgent.includes('slurp');
     }

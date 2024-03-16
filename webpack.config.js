@@ -1,12 +1,12 @@
-var path = require('path');
+import path from 'path';
 
-module.exports = {
+export default {
     mode: 'production',
     entry: './dist/index.js',
     output: {
         library: 'ipregistry',
         libraryTarget: 'umd',
-        path: path.resolve(__dirname, 'dist/browser'),
+        path: path.resolve(process.cwd(), 'dist/browser'),
         filename: 'index.js'
     }
 };

@@ -2,6 +2,7 @@
   "name": "@ipregistry/client",
   "description": "Official Ipregistry Javascript Library (ES5, ES6+, TypeScript).",
   "version": "4.5.0",
+  "type": "module",
   "main": "./dist/index.js",
   "browser": "./dist/browser/index.js",
   "module": "./dist/esm/index.js",
@@ -64,7 +65,7 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "axios": "^1.3.5",
+    "ky": "^1.2.2",
     "lru-cache": "^9.0.1"
   },
   "files": [

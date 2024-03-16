@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {ApiResponse, DefaultRequestHandler, IpregistryRequestHandler} from './request';
-import {IpInfo, RequesterIpInfo, UserAgent} from './model';
-import {IpregistryCache, NoCache} from './cache';
-import {IpregistryOption} from './options';
+import {ApiResponse, DefaultRequestHandler, IpregistryRequestHandler} from './request.js';
+import {IpInfo, RequesterIpInfo, UserAgent} from './model.js';
+import {IpregistryCache, NoCache} from './cache.js';
+import {IpregistryOption} from './options.js';
 
-import {isApiError, LookupError} from './errors';
+import {isApiError, LookupError} from './errors.js';
 
 
 export class IpregistryConfig {
@@ -240,10 +240,10 @@ export class IpregistryClient {
 
 }
 
-export * from './cache';
-export * from './errors';
-export * from './model';
-export * from './options';
-export * from './request';
+export * from './cache.js';
+export * from './errors.js';
+export * from './model.js';
+export * from './options.js';
+export * from './request.js';
 
-export {UserAgent} from './util';
+export {UserAgent} from './util.js';

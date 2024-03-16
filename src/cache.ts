@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {IpInfo} from './model';
+import {IpInfo} from './model.js';
 
 import {LRUCache} from 'lru-cache';
 
