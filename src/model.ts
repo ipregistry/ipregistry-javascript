@@ -14,6 +14,69 @@
  * limitations under the License.
  */
 
+export enum AsType {
+    BUSINESS = 'business',
+    EDUCATION = 'education',
+    GOVERNMENT = 'government',
+    HOSTING = 'hosting',
+    INACTIVE = 'inactive',
+    ISP = 'isp',
+}
+
+export interface AutonomousSystem {
+    allocated: string
+
+    asn: number
+
+    countryCode: string
+
+    domain: string
+
+    name: string
+
+    prefixes: AutonomousSystemPrefixes
+
+    relationships: AutonomousSystemRelationships
+
+    registry: RegionalInternetRegistry
+
+    type: AsType
+
+    updated: string
+}
+
+export interface AutonomousSystemPrefixes {
+    ipv4Count: number
+
+    ipv6Count: number
+
+    ipv4: AutonomousSystemPrefix[]
+
+    ipv6: AutonomousSystemPrefix[]
+}
+
+export interface AutonomousSystemPrefix {
+    cidr: string
+
+    countryCode: string
+
+    networkName: string
+
+    organization: string
+
+    prefix: string
+
+    registry: RegionalInternetRegistry
+}
+
+export interface AutonomousSystemRelationships {
+    downstreams: number[]
+
+    peers: number[]
+
+    upstreams: number[]
+}
+
 export interface IpInfo {
     ip: string
 
@@ -38,50 +101,6 @@ export interface IpInfo {
 
 export interface RequesterIpInfo extends IpInfo {
     user_agent: UserAgent
-}
-
-export interface UserAgent {
-    header: string | null
-
-    name: string | null
-
-    type: string | null
-
-    version: string | null
-
-    version_major: string | null
-
-    device: UserAgentDevice
-
-    engine: UserAgentEngine
-
-    os: UserAgentOperatingSystem
-}
-
-export interface UserAgentDevice {
-    brand: string | null
-
-    name: string | null
-
-    type: string | null
-}
-
-export interface UserAgentEngine {
-    name: string | null
-
-    type: string | null
-
-    version: string | null
-
-    version_major: string | null
-}
-
-export interface UserAgentOperatingSystem {
-    name: string | null
-
-    type: string | null
-
-    version: string | null
 }
 
 export interface Carrier {
@@ -219,6 +238,17 @@ export interface Region {
     name: string | null
 }
 
+export enum RegionalInternetRegistry {
+    AFRINIC = 'AFRINIC',
+    APNIC = 'APNIC',
+    ARIN = 'ARIN',
+    JPNIC = 'JPNIC',
+    KRNIC = 'KRNIC',
+    LACNIC = 'LACNIC',
+    RIPE_NCC = 'RIPE_NCC',
+    TWNIC = 'TWNIC',
+}
+
 export interface Language {
     code: string | null
 
@@ -265,10 +295,46 @@ export interface TimeZone {
     in_daylight_saving: boolean
 }
 
-export interface Account {
-    remaining_credits: number
+export interface UserAgent {
+    header: string | null
 
-    rate_limit: number
+    name: string | null
 
-    rate_limit_remaining: number
+    type: string | null
+
+    version: string | null
+
+    version_major: string | null
+
+    device: UserAgentDevice
+
+    engine: UserAgentEngine
+
+    os: UserAgentOperatingSystem
+}
+
+export interface UserAgentDevice {
+    brand: string | null
+
+    name: string | null
+
+    type: string | null
+}
+
+export interface UserAgentEngine {
+    name: string | null
+
+    type: string | null
+
+    version: string | null
+
+    version_major: string | null
+}
+
+export interface UserAgentOperatingSystem {
+    name: string | null
+
+    type: string | null
+
+    version: string | null
 }
