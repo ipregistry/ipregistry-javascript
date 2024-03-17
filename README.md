@@ -16,16 +16,8 @@ You'll need an Ipregistry API key, which you can get along with 100,000 free loo
 
 ### Installation
 
-#### Npm
-
 ```
 $ npm install @ipregistry/client
-```
-
-#### Yarn
-
-```
-$ yarn add @ipregistry/client
 ```
 
 ### First example
@@ -50,7 +42,7 @@ Instead of using promises, you can also use async/await:
 ```javascript
 const {IpregistryClient} = require('@ipregistry/client');
 
-const client = new IpregistryClient('YOUR_API_KEY');
+const client: Ipre = new IpregistryClient('YOUR_API_KEY');
 
 async function lookupIpInfo(ip) {
     try {
@@ -70,24 +62,29 @@ lookupIpInfo();
 Or with TypeScript:
 
 ```typescript
-import {ApiError, ClientError, IpregistryClient} from '@ipregistry/client';
+import {ApiError, ApiResponse, ClientError, IpInfo, IpregistryClient} from '@ipregistry/client';
 
 async function main() {
-    const client = new IpregistryClient('YOUR_API_KEY');
+    const client: IpregistryClient = new IpregistryClient('tryout')
 
     try {
-        const response = await client.lookupIp('73.2.2.2');
+        const response: ApiResponse<IpInfo> =
+            await client.lookupIp('73.2.2.7')
+
         // Get location, threat data and more
-        console.log(response.data.location.country.code);
-        console.log(response.data.currency.code);
-        console.log(response.data.security.is_threat);
+        console.log(response.data.location.country.code)
+        console.log(response.data.currency.code)
+        console.log(response.data.security.is_threat)
     } catch (error) {
         if (error instanceof ApiError) {
-            console.error('API error', error);
+            // Handle API error here (e.g. Invalid API key or IP address)
+            console.error('API error', error)
         } else if (error instanceof ClientError) {
-            console.error('Client error', error);
+            // Handle client error here (e.g. request timeout)
+            console.error('Client error', error)
         } else {
-            console.error('Unexpected error', error);
+            // Handle unexpected error here
+            console.error('Unexpected error', error)
         }
     }
 }
@@ -174,10 +171,11 @@ Errors of type _ApiError_ include a code field that maps to the one described in
 
 You might want to prevent Ipregistry API requests for crawlers or bots browsing your pages.
 
-A manner to proceed is to identify bots using `User-Agent` header. To ease this process, the library includes a utility function:
+A manner to proceed is to identify bots using `User-Agents` header. To ease this process, the library includes a 
+utility function:
 
 ```
-UserAgent.isBot('TO_REPLACE_BY_USER_AGENT_RETRIEVED_FROM_REQUEST_HEADER')
+UserAgents.isBot('TO_REPLACE_BY_USER_AGENT_RETRIEVED_FROM_REQUEST_HEADER')
 ```
 
 Please note that when caching is disabled, some of the fields above may be `null` when the content is retrieved from 
@@ -207,6 +205,16 @@ console.log(response.credits.remaining);
 console.log(response.throttling.limit);
 console.log(response.throttling.remaining);
 console.log(response.throttling.reset);
+```
+
+## European Union base URL
+
+For clients operating within the European Union or for those who prefer to route their requests through our EU 
+servers, the Ipregistry client library provides an easy way to configure this preference using the `withEuBaseURL` option. This ensures that your requests are handled by our EU-based infrastructure, potentially reducing latency and aligning with local data handling regulations:
+
+```typescript
+const config = new IpregistryConfigBuilder('tryout').withEuBaseUrl().build()
+const client = new IpregistryClient(config)
 ```
 
 # Other Libraries
