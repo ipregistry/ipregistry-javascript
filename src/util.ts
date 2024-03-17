@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export class UserAgent {
+export class UserAgents {
     public static isBot(userAgent: string): boolean {
         const lowerCaseUserAgent = userAgent.toLowerCase()
 

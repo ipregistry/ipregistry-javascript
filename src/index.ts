@@ -276,4 +276,4 @@ export * from './model.js'
 export * from './options.js'
 export * from './request.js'
 
-export { UserAgent } from './util.js'
+export { UserAgents } from './util.js'

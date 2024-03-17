@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `IpregistryClient#batchLookup` to `IpregistryClient#batchLookupIps`.
 - Rename `IpregistryClient#lookup` to `IpregistryClient#lookupIp`.
 - Rename `IpregistryClient#originLookup` to `IpregistryClient#originLookupIp`.
+- Rename utility class `UserAgent` to `UserAgents`.
 - Replace _Axios_ by _ky_ to bring support to Cloudflare Workers in addition to browser and NodeJS environments.
 - Require NodeJS 18+.
 ### Removed
