@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `IpregistryClient#lookup` to `IpregistryClient#lookupIp`.
 - Rename `IpregistryClient#originLookup` to `IpregistryClient#originLookupIp`.
 - Rename `IpregistryClient#parse` to `IpregistryClient#parseUserAgents`.
+- Rename `IpregistryConfigBuilder.withApiUrl` to `IpregistryConfigBuilder.withBaseUrl`.
 - Rename `IpregistryRequestHandler#batchLookup` to `IpregistryRequestHandler#batchLookupIps`.
 - Rename `IpregistryRequestHandler#lookup` to `IpregistryRequestHandler#lookupIp`.
 - Rename `IpregistryRequestHandler#originLookup` to `IpregistryRequestHandler#originLookupIp`.
@@ -29,8 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed origin requests returning wrong information when caching is enabled. Cache is now automatically disabled for 
   origin requests since it is incompatible.
-### Removed
-- Deprecated `IpregistryConfigBuilder.withApiUrl` method. Use `IpregistryConfigBuilder.withBaseUrl` instead.
 
 ## [4.5.0] - 2022-04-15
 ### Added

@@ -339,8 +339,8 @@ describe('originLookupAsn', () => {
         const response = await client.originLookupAsn()
         const autonomousSystem = response.data
         expect(autonomousSystem.asn).not.null
-        expect(autonomousSystem.country_code).not.null
         expect(autonomousSystem.name).not.null
+        expect(autonomousSystem.type).not.null
     })
 })
 
@@ -362,7 +362,7 @@ describe('originLookupIp', () => {
         expect(requesterIpInfo.user_agent).not.null
     })
 
-    it('should return cached value if available', async () => {
+    it('should not return cached value', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
         const response = await client.originLookupIp()
         const requesterIpInfo = response.data
@@ -382,7 +382,7 @@ describe('originLookupIp', () => {
         const response2 = await client.originLookupIp()
         const requesterIpInfo2 = response2.data
 
-        expect(requesterIpInfo2).equals(requesterIpInfo)
+        expect(requesterIpInfo2).not.equals(requesterIpInfo)
     })
 
     it('should consume 1 credit for a simple lookup with no cache', async () => {
@@ -394,14 +394,14 @@ describe('originLookupIp', () => {
         expect(response.throttling).null
     })
 
-    it('should consume 0 credit for a simple cached lookup', async () => {
+    it('should consume 1 credit even with in-memory cache', async () => {
         const client = new IpregistryClient(API_KEY, new InMemoryCache())
         await client.originLookupIp()
 
         const response = await client.originLookupIp()
 
-        expect(response.credits.consumed).equal(0)
-        expect(response.credits.remaining).null
+        expect(response.credits.consumed).equal(1)
+        expect(response.credits.remaining).greaterThan(0)
         expect(response.throttling).null
     })
 
