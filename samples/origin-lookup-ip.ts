@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { ApiError, ClientError, IpregistryClient } from '../src'
+import { ApiError, ApiResponse, ClientError, IpInfo, IpregistryClient } from '../src'
 
 async function main() {
-    const client = new IpregistryClient('tryout')
+    const client: IpregistryClient = new IpregistryClient('tryout')
 
     try {
-        const response = await client.originLookupIp()
+        const response: ApiResponse<IpInfo> = await client.originLookupIp()
 
         // Get location, threat data and more
         console.log(response.data.location.country.code)

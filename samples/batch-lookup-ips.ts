@@ -14,21 +14,37 @@
  * limitations under the License.
  */
 
-import { ApiError, ClientError, IpregistryClient } from '../src'
+import {
+    ApiError,
+    ClientError,
+    IpInfo,
+    IpregistryClient,
+    LookupError,
+} from '../src'
 
 async function main() {
-    const client = new IpregistryClient('tryout')
+    const client: IpregistryClient = new IpregistryClient('tryout')
 
     try {
-        const response = await client.lookupIp('54.85.132.205')
+        const response = await client.batchLookupIps([
+            '73.2.2.2a',
+            '8.8.8.8',
+            '2001:67c:2e8:22::c100:68b',
+        ])
+        const batchResults = response.data
 
-        // Get location, threat data and more
-        console.log(response.data.location.country.code)
-        console.log(response.data.currency.code)
-        console.log(response.data.security.is_threat)
+        for (const batchResult of batchResults) {
+            if (batchResult instanceof LookupError) {
+                // Handle lookup error here (e.g. invalid IP address)
+                console.error('Lookup error', batchResult)
+            } else {
+                const ipInfo: IpInfo = batchResult
+                console.log(ipInfo)
+            }
+        }
     } catch (error) {
         if (error instanceof ApiError) {
-            // Handle API error here (e.g. Invalid API key or IP address)
+            // Handle API error here (e.g. Invalid API key)
             console.error('API error', error)
         } else if (error instanceof ClientError) {
             // Handle client error here (e.g. request timeout)

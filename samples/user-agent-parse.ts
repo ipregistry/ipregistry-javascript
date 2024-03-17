@@ -14,32 +14,23 @@
  * limitations under the License.
  */
 
-import {
-    ApiError,
-    ClientError,
-    IpInfo,
-    IpregistryClient,
-    LookupError,
-} from '../src'
+import { ApiError, ApiResponse, ClientError, IpregistryClient, UserAgent } from '../src'
 
 async function main() {
-    const client = new IpregistryClient('tryout')
+    const client: IpregistryClient = new IpregistryClient('tryout')
 
     try {
-        const response = await client.batchLookupIps([
-            '73.2.2.2a',
-            '8.8.8.8',
-            '2001:67c:2e8:22::c100:68b',
-        ])
-        const batchResults = response.data
+        // Input one or more user-agent header values to parse
+        const response: ApiResponse<UserAgent[]> = await client.parse(
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
+        )
 
-        for (const batchResult of batchResults) {
-            if (batchResult instanceof LookupError) {
-                // Handle lookup error here (e.g. invalid IP address)
-                console.error('Lookup error', batchResult)
-            } else {
-                console.log(batchResult)
-            }
+        for (let userAgent of response.data) {
+            console.log(userAgent.name)
+            console.log(userAgent.os.name)
+            console.log(userAgent.type)
+            console.log(userAgent.version)
         }
     } catch (error) {
         if (error instanceof ApiError) {
