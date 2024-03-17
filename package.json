@@ -1,7 +1,7 @@
 {
     "name": "@ipregistry/client",
     "description": "Official Ipregistry Javascript Library (ES5, ES6+, TypeScript).",
-    "version": "4.5.0",
+    "version": "5.0.0",
     "type": "module",
     "main": "./dist/index.js",
     "browser": "./dist/browser/index.js",
@@ -79,7 +79,7 @@
         "dist/**"
     ],
     "engines": {
-        "node": ">=16.0.0"
+        "node": ">=18.0.0"
     },
     "engineStrict": true,
     "private": false
