@@ -416,11 +416,11 @@ describe('originLookupIp', () => {
     })
 })
 
-describe('parse', () => {
+describe('parseUserAgents', () => {
     it('should throw an error when no user-agent value is inputted', async () => {
         try {
             const client = new IpregistryClient(API_KEY_THROTTLED)
-            await client.parse()
+            await client.parseUserAgents()
             expect.fail()
         } catch (error) {
             expect(error).to.be.instanceOf(ApiError)
@@ -429,7 +429,7 @@ describe('parse', () => {
 
     it('should return 1 parsed user-agent result when 1 valid user-agent value is inputted', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED)
-        const response = await client.parse(
+        const response = await client.parseUserAgents(
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
         )
         expect(response.data.length).eq(1)
@@ -438,7 +438,7 @@ describe('parse', () => {
 
     it('should return 2 parsed user-agent results when 2 valid user-agent values are inputted', async () => {
         const client = new IpregistryClient(API_KEY_THROTTLED)
-        const response = await client.parse(
+        const response = await client.parseUserAgents(
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
             'Opera/9.80 (Linux armv7l) Presto/2.12.407 Version/12.51 , D50u-D1-UHD/V1.5.16-UHD (Vizio, D50u-D1, Wireless)',
         )

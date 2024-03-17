@@ -372,7 +372,7 @@ export class IpregistryClient {
         return result
     }
 
-    async parse(...userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
+    async parseUserAgents(...userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
         const response = await this.requestHandler.parseUserAgents(userAgents)
         return {
             credits: response.credits,
