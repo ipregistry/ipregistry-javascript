@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- New `IpregistryClient#batchLookupAsns` method.
+- New `IpregistryClient#lookupAsn` method.
+- New `IpregistryClient#originLookupAsn` method.
 - New `IpregistryConfigBuilder.withEuBaseUrl` method. Once configured, requests will be handled by nodes deployed in the European Union only.
+- New `IpregistryRequestHandler#batchLookupAsns` method.
+- New `IpregistryRequestHandler#lookupAsn` method.
+- New `IpregistryRequestHandler#originLookupAsn` method.
 ### Changed
 - Rename `IpregistryClient#batchLookup` to `IpregistryClient#batchLookupIps`.
 - Rename `IpregistryClient#lookup` to `IpregistryClient#lookupIp`.
 - Rename `IpregistryClient#originLookup` to `IpregistryClient#originLookupIp`.
+- Rename `IpregistryClient#parse` to `IpregistryClient#parseUserAgents`.
+- Rename `IpregistryRequestHandler#batchLookup` to `IpregistryRequestHandler#batchLookupIps`.
+- Rename `IpregistryRequestHandler#lookup` to `IpregistryRequestHandler#lookupIp`.
+- Rename `IpregistryRequestHandler#originLookup` to `IpregistryRequestHandler#originLookupIp`.
+- Rename `IpregistryRequestHandler#parse` to `IpregistryRequestHandler#parseUserAgents`.
 - Rename utility class `UserAgent` to `UserAgents`.
 - Replace _Axios_ by _ky_ to bring support to Cloudflare Workers in addition to browser and NodeJS environments.
 - Require NodeJS 18+.
