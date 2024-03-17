@@ -32,13 +32,32 @@ import { IpregistryOption } from './options.js'
 
 import { isApiError, LookupError } from './errors.js'
 
+/**
+ * Represents the configuration for the Ipregistry API client.
+ * This class holds the API key, base URL, and timeout setting used for API requests.
+ */
 export class IpregistryConfig {
+    /**
+     * The API key used for authenticating requests to Ipregistry.
+     */
     public readonly apiKey: string
 
+    /**
+     * The base URL of the Ipregistry API. Defaults to 'https://api.ipregistry.co'.
+     */
     public readonly baseUrl: string = 'https://api.ipregistry.co'
 
+    /**
+     * The timeout (in milliseconds) for API requests. Defaults to 15000.
+     */
     public readonly timeout: number = 15000
 
+    /**
+     * Constructs a new `IpregistryConfig` instance.
+     * @param apiKey The API key for authenticating requests.
+     * @param baseUrl Optional. The base URL of the Ipregistry API.
+     * @param timeout Optional. The timeout for API requests in milliseconds.
+     */
     constructor(apiKey: string, baseUrl: string, timeout: number) {
         this.apiKey = apiKey
 
@@ -52,6 +71,11 @@ export class IpregistryConfig {
     }
 }
 
+/**
+ * Provides a builder pattern for constructing `IpregistryConfig` instances.
+ * This class allows for setting the `apiKey`, `baseUrl`, and `timeout` before
+ * building the final `IpregistryConfig` object.
+ */
 export class IpregistryConfigBuilder {
     private apiKey: string
 
@@ -63,6 +87,11 @@ export class IpregistryConfigBuilder {
         this.apiKey = apiKey
     }
 
+    /**
+     * Sets the base URL for the Ipregistry API.
+     * @param baseUrl The base URL to use for API requests.
+     * @returns The `IpregistryConfigBuilder` instance for chaining.
+     */
     public withBaseUrl(baseUrl: string): IpregistryConfigBuilder {
         this.baseUrl = baseUrl
         return this
@@ -83,6 +112,10 @@ export class IpregistryConfigBuilder {
     }
 }
 
+/**
+ * The main client for interacting with the Ipregistry API.
+ * This class provides methods for looking up IP information, ASN details, parsing user agents, and more.
+ */
 export class IpregistryClient {
     private readonly config: IpregistryConfig
 
@@ -90,6 +123,12 @@ export class IpregistryClient {
 
     private requestHandler: IpregistryRequestHandler
 
+    /**
+     * Constructs an IpregistryClient instance for API operations.
+     * @param keyOrConfig The API key as a string or an IpregistryConfig instance for custom configurations.
+     * @param cache Optional. An instance implementing the IpregistryCache interface for caching responses.
+     * @param requestHandler Optional. A custom handler for API requests.
+     */
     constructor(
         keyOrConfig: string | IpregistryConfig,
         cache?: IpregistryCache,
@@ -116,6 +155,13 @@ export class IpregistryClient {
         }
     }
 
+    /**
+     * Performs a batch lookup of Autonomous System Numbers (ASNs) and returns their information or errors.
+     * This method can leverage caching to avoid unnecessary API requests.
+     * @param asns An array of ASNs (Autonomous System Numbers) to lookup.
+     * @param options Optional. Additional options for the lookup operation.
+     * @returns A Promise resolving to an ApiResponse containing an array of AutonomousSystem or LookupError objects.
+     */
     async batchLookupAsns(
         asns: number[],
         ...options: IpregistryOption[]
@@ -203,6 +249,13 @@ export class IpregistryClient {
         }
     }
 
+    /**
+     * Performs a batch lookup of IP addresses and returns their information or errors.
+     * Similar to `batchLookupAsns`, this method also supports caching.
+     * @param ips An array of IP addresses to lookup.
+     * @param options Optional. Additional options for the lookup operation.
+     * @returns A Promise resolving to an ApiResponse containing an array of IpInfo or LookupError objects.
+     */
     async batchLookupIps(
         ips: string[],
         ...options: IpregistryOption[]
@@ -283,6 +336,12 @@ export class IpregistryClient {
         }
     }
 
+    /**
+     * Looks up information for a single Autonomous System Number (ASN).
+     * @param asn The ASN to lookup.
+     * @param options Optional. Additional options for the lookup operation.
+     * @returns A Promise resolving to an ApiResponse containing the AutonomousSystem information.
+     */
     async lookupAsn(
         asn: number,
         ...options: IpregistryOption[]
@@ -309,6 +368,12 @@ export class IpregistryClient {
         return result
     }
 
+    /**
+     * Looks up information for a single IP address.
+     * @param ip The IP address to lookup.
+     * @param options Optional. Additional options for the lookup operation.
+     * @returns A Promise resolving to an ApiResponse containing the IpInfo.
+     */
     async lookupIp(
         ip: string,
         ...options: IpregistryOption[]
@@ -335,18 +400,40 @@ export class IpregistryClient {
         return result
     }
 
+    /**
+     * Performs a lookup for the ASN information of the originating request's IP address.
+     * This is particularly useful for understanding the ASN of the caller itself.
+     * Note: Caching is incompatible with this method. Every call will incur a remote request to the Ipregistry API,
+     * which may consume credits or incur costs depending on your plan.
+     * @param options Optional. Additional options for the lookup operation.
+     * @returns A Promise resolving to an ApiResponse containing the RequesterAutonomousSystem information.
+     */
     async originLookupAsn(
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<RequesterAutonomousSystem>> {
         return await this.requestHandler.originLookupAsn(options)
     }
 
+    /**
+     * Performs a lookup for the IP information of the originating request's IP address.
+     * Useful for obtaining the caller's own IP information.
+     * Similar to `originLookupAsn`, this method does not support caching, and each invocation results in a remote
+     * API request to Ipregistry. This ensures that the most current information is retrieved but also means that
+     * each call will consume credits.
+     * @param options Optional. Additional options for the lookup operation.
+     * @returns A Promise resolving to an ApiResponse containing the RequesterIpInfo.
+     */
     async originLookupIp(
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<RequesterIpInfo>> {
         return await this.requestHandler.originLookupIp(options)
     }
 
+    /**
+     * Parses user agent strings and returns detailed information about them.
+     * @param userAgents An array of user agent strings to parse.
+     * @returns A Promise resolving to an ApiResponse containing an array of UserAgent information.
+     */
     async parseUserAgents(
         ...userAgents: string[]
     ): Promise<ApiResponse<UserAgent[]>> {
@@ -358,6 +445,10 @@ export class IpregistryClient {
         }
     }
 
+    /**
+     * Retrieves the current cache instance used by the client.
+     * @returns The IpregistryCache instance used for caching responses.
+     */
     public getCache(): IpregistryCache {
         return this.cache
     }
