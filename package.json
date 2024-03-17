@@ -1,12 +1,15 @@
 {
     "name": "@ipregistry/client",
-    "description": "Official Ipregistry Javascript Library (ES5, ES6+, TypeScript).",
-    "version": "5.0.0",
+    "description": "Official Ipregistry Javascript Library.",
+    "version": "5.0.1",
     "type": "module",
     "main": "./dist/index.js",
-    "browser": "./dist/browser/index.js",
     "module": "./dist/esm/index.js",
     "types": "./dist/index.d.ts",
+    "exports": {
+        "import": "./dist/esm/index.js",
+        "require": "./dist/index.js"
+    },
     "homepage": "https://ipregistry.co",
     "license": "Apache-2.0",
     "keywords": [

@@ -21,6 +21,6 @@
         "strictPropertyInitialization": true,
         "target": "es2017"
     },
-    "include": ["integration_test/**/*.ts", "src/**/*.ts"],
+    "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"]
 }
