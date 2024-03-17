@@ -32,7 +32,7 @@ import { expect } from 'chai'
 const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryout'
 const API_KEY_THROTTLED = process.env.IPREGISTRY_API_KEY_THROTTLED || 'tryout'
 
-describe('batchLookup', () => {
+describe('batchLookupIps', () => {
     it('should return fresh info with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
 
@@ -147,7 +147,7 @@ describe('batchLookup', () => {
     })
 })
 
-describe('lookup', () => {
+describe('lookupIp', () => {
     it('should throw ApiError when input IP is reserved', async () => {
         try {
             const client = new IpregistryClient(API_KEY)
@@ -280,7 +280,7 @@ describe('lookup', () => {
     })
 })
 
-describe('originLookup', () => {
+describe('originLookupIp', () => {
     it('should return fresh info with no cache', async () => {
         const client = new IpregistryClient(API_KEY, new NoCache())
         const response = await client.originLookupIp()
