@@ -20,7 +20,13 @@ import {
     DefaultRequestHandler,
     IpregistryRequestHandler,
 } from './request.js'
-import { AutonomousSystem, IpInfo, RequesterAutonomousSystem, RequesterIpInfo, UserAgent } from './model.js'
+import {
+    AutonomousSystem,
+    IpInfo,
+    RequesterAutonomousSystem,
+    RequesterIpInfo,
+    UserAgent,
+} from './model.js'
 import { IpregistryCache, NoCache } from './cache.js'
 import { IpregistryOption } from './options.js'
 
@@ -114,14 +120,16 @@ export class IpregistryClient {
         asns: number[],
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<(AutonomousSystem | LookupError)[]>> {
-        const sparseCache: Array<AutonomousSystem | null> = new Array<AutonomousSystem | null>(
-            asns.length,
-        )
+        const sparseCache: Array<AutonomousSystem | null> =
+            new Array<AutonomousSystem | null>(asns.length)
         const cacheMisses: Array<number> = []
 
         for (let i = 0; i < asns.length; i++) {
             const asn = asns[i]
-            const cacheKey = IpregistryClient.buildCacheKey(asn.toString(), options)
+            const cacheKey = IpregistryClient.buildCacheKey(
+                asn.toString(),
+                options,
+            )
             const cacheValue = this.cache.get(cacheKey)
 
             if (cacheValue) {
@@ -135,7 +143,9 @@ export class IpregistryClient {
             AutonomousSystem | LookupError
         >(asns.length)
 
-        let apiResponse: ApiResponse<BatchResult<AutonomousSystem | LookupError>> | null
+        let apiResponse: ApiResponse<
+            BatchResult<AutonomousSystem | LookupError>
+        > | null
         let freshAutonomousSystem: (AutonomousSystem | LookupError)[]
 
         if (cacheMisses.length > 0) {
@@ -164,7 +174,10 @@ export class IpregistryClient {
                 } else {
                     const as = freshAutonomousSystem[k] as AutonomousSystem
                     this.cache.put(
-                        IpregistryClient.buildCacheKey(as.asn.toString(), options),
+                        IpregistryClient.buildCacheKey(
+                            as.asn.toString(),
+                            options,
+                        ),
                         as,
                     )
                     result[j] = freshAutonomousSystem[k]
@@ -182,9 +195,9 @@ export class IpregistryClient {
             credits: apiResponse
                 ? apiResponse.credits
                 : {
-                    consumed: 0,
-                    remaining: null,
-                },
+                      consumed: 0,
+                      remaining: null,
+                  },
             data: result,
             throttling: apiResponse ? apiResponse.throttling : null,
         }
@@ -325,54 +338,18 @@ export class IpregistryClient {
     async originLookupAsn(
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<RequesterAutonomousSystem>> {
-        const cacheKey = IpregistryClient.buildCacheKey('', options)
-        const cacheValue = this.cache.get(cacheKey) as RequesterAutonomousSystem
-
-        let result: ApiResponse<RequesterAutonomousSystem>
-
-        if (!cacheValue) {
-            result = await this.requestHandler.originLookupAsn(options)
-            this.cache.put(cacheKey, result.data)
-        } else {
-            result = {
-                credits: {
-                    consumed: 0,
-                    remaining: null,
-                },
-                data: cacheValue,
-                throttling: null,
-            }
-        }
-
-        return result
+        return await this.requestHandler.originLookupAsn(options)
     }
 
     async originLookupIp(
         ...options: IpregistryOption[]
     ): Promise<ApiResponse<RequesterIpInfo>> {
-        const cacheKey = IpregistryClient.buildCacheKey('', options)
-        const cacheValue = this.cache.get(cacheKey) as RequesterIpInfo
-
-        let result: ApiResponse<RequesterIpInfo>
-
-        if (!cacheValue) {
-            result = await this.requestHandler.originLookupIp(options)
-            this.cache.put(cacheKey, result.data)
-        } else {
-            result = {
-                credits: {
-                    consumed: 0,
-                    remaining: null,
-                },
-                data: cacheValue,
-                throttling: null,
-            }
-        }
-
-        return result
+        return await this.requestHandler.originLookupIp(options)
     }
 
-    async parseUserAgents(...userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
+    async parseUserAgents(
+        ...userAgents: string[]
+    ): Promise<ApiResponse<UserAgent[]>> {
         const response = await this.requestHandler.parseUserAgents(userAgents)
         return {
             credits: response.credits,

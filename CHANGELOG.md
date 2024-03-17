@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename utility class `UserAgent` to `UserAgents`.
 - Replace _Axios_ by _ky_ to bring support to Cloudflare Workers in addition to browser and NodeJS environments.
 - Require NodeJS 18+.
+### Fixed
+- Fixed origin requests returning wrong information when caching is enabled. Cache is now automatically disabled for 
+  origin requests since it is incompatible.
 ### Removed
 - Deprecated `IpregistryConfigBuilder.withApiUrl` method. Use `IpregistryConfigBuilder.withBaseUrl` instead.
 
