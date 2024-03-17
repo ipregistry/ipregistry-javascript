@@ -17,7 +17,7 @@
 import ky, { HTTPError, KyResponse } from 'ky'
 
 import { ApiError, ClientError, LookupError } from './errors.js'
-import { IpregistryConfig } from './index.js'
+import { AutonomousSystem, IpregistryConfig, RequesterAutonomousSystem } from './index.js'
 import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
 import { IpregistryOption } from './options.js'
 
@@ -61,21 +61,35 @@ export interface BatchResult<T> {
 }
 
 export interface IpregistryRequestHandler {
-    batchLookup(
+    batchLookupAsns(
+        asns: number[],
+        options: IpregistryOption[],
+    ): Promise<ApiResponse<BatchResult<AutonomousSystem | LookupError>>>
+
+    batchLookupIps(
         ipAddresses: string[],
         options: IpregistryOption[],
     ): Promise<ApiResponse<BatchResult<IpInfo | LookupError>>>
 
-    lookup(
+    lookupAsn(
+        asn: number,
+        options: IpregistryOption[],
+    ): Promise<ApiResponse<AutonomousSystem>>
+
+    lookupIp(
         ipAddress: string,
         options: IpregistryOption[],
     ): Promise<ApiResponse<IpInfo>>
 
-    originLookup(
+    originLookupAsn(
+        options: IpregistryOption[],
+    ): Promise<ApiResponse<RequesterAutonomousSystem>>
+
+    originLookupIp(
         options: IpregistryOption[],
     ): Promise<ApiResponse<RequesterIpInfo>>
 
-    parse(userAgents: string[]): Promise<ApiResponse<BatchResult<UserAgent>>>
+    parseUserAgents(userAgents: string[]): Promise<ApiResponse<BatchResult<UserAgent>>>
 }
 
 export class DefaultRequestHandler implements IpregistryRequestHandler {
@@ -86,7 +100,26 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         this.config = config
     }
 
-    async batchLookup(
+    async batchLookupAsns(
+        asns: number[],
+        options: IpregistryOption[],
+    ): Promise<ApiResponse<BatchResult<AutonomousSystem | LookupError>>> {
+        try {
+            const response: KyResponse = await ky.post(
+                this.buildApiUrl('', options),
+                {
+                    json: asns.map(asn => `AS${asn}`),
+                    ...this.getKyConfig(),
+                },
+            )
+
+            return this.buildApiResponse(response)
+        } catch (error) {
+            throw await this.handleError(error)
+        }
+    }
+
+    async batchLookupIps(
         ips: string[],
         options: IpregistryOption[],
     ): Promise<ApiResponse<BatchResult<IpInfo | LookupError>>> {
@@ -105,7 +138,22 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    async lookup(
+    async lookupAsn(
+        asn: number,
+        options: IpregistryOption[],
+    ): Promise<ApiResponse<AutonomousSystem>> {
+        try {
+            const response: KyResponse = await ky.get(
+                this.buildApiUrl(`AS${asn}`, options),
+                this.getKyConfig(),
+            )
+            return this.buildApiResponse(response)
+        } catch (error) {
+            throw await this.handleError(error)
+        }
+    }
+
+    async lookupIp(
         ip: string,
         options: IpregistryOption[],
     ): Promise<ApiResponse<IpInfo>> {
@@ -120,7 +168,21 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    async originLookup(
+    async originLookupAsn(
+        options: IpregistryOption[],
+    ): Promise<ApiResponse<RequesterAutonomousSystem>> {
+        try {
+            const response: KyResponse = await ky.get(
+                this.buildApiUrl('AS', options),
+                this.getKyConfig(),
+            )
+            return this.buildApiResponse(response)
+        } catch (error: unknown) {
+            throw await this.handleError(error)
+        }
+    }
+
+    async originLookupIp(
         options: IpregistryOption[],
     ): Promise<ApiResponse<RequesterIpInfo>> {
         try {
@@ -134,7 +196,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         }
     }
 
-    async parse(
+    async parseUserAgents(
         userAgents: string[],
     ): Promise<ApiResponse<BatchResult<UserAgent>>> {
         try {

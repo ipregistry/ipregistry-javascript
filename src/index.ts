@@ -20,7 +20,7 @@ import {
     DefaultRequestHandler,
     IpregistryRequestHandler,
 } from './request.js'
-import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
+import { AutonomousSystem, IpInfo, RequesterAutonomousSystem, RequesterIpInfo, UserAgent } from './model.js'
 import { IpregistryCache, NoCache } from './cache.js'
 import { IpregistryOption } from './options.js'
 
@@ -110,6 +110,86 @@ export class IpregistryClient {
         }
     }
 
+    async batchLookupAsns(
+        asns: number[],
+        ...options: IpregistryOption[]
+    ): Promise<ApiResponse<(AutonomousSystem | LookupError)[]>> {
+        const sparseCache: Array<AutonomousSystem | null> = new Array<AutonomousSystem | null>(
+            asns.length,
+        )
+        const cacheMisses: Array<number> = []
+
+        for (let i = 0; i < asns.length; i++) {
+            const asn = asns[i]
+            const cacheKey = IpregistryClient.buildCacheKey(asn.toString(), options)
+            const cacheValue = this.cache.get(cacheKey)
+
+            if (cacheValue) {
+                sparseCache[i] = cacheValue
+            } else {
+                cacheMisses.push(asn)
+            }
+        }
+
+        const result: Array<AutonomousSystem | LookupError> = new Array<
+            AutonomousSystem | LookupError
+        >(asns.length)
+
+        let apiResponse: ApiResponse<BatchResult<AutonomousSystem | LookupError>> | null
+        let freshAutonomousSystem: (AutonomousSystem | LookupError)[]
+
+        if (cacheMisses.length > 0) {
+            apiResponse = await this.requestHandler.batchLookupAsns(
+                cacheMisses,
+                options,
+            )
+            freshAutonomousSystem = apiResponse.data.results
+        } else {
+            apiResponse = null
+            freshAutonomousSystem = []
+        }
+
+        let j = 0
+        let k = 0
+
+        for (const cachedAutonomousSystem of sparseCache) {
+            if (!cachedAutonomousSystem) {
+                if (isApiError(freshAutonomousSystem[k])) {
+                    const lookupError = freshAutonomousSystem[k] as LookupError
+                    result[j] = new LookupError(
+                        lookupError.code,
+                        lookupError.message,
+                        lookupError.resolution,
+                    )
+                } else {
+                    const as = freshAutonomousSystem[k] as AutonomousSystem
+                    this.cache.put(
+                        IpregistryClient.buildCacheKey(as.asn.toString(), options),
+                        as,
+                    )
+                    result[j] = freshAutonomousSystem[k]
+                }
+
+                k++
+            } else {
+                result[j] = cachedAutonomousSystem
+            }
+
+            j++
+        }
+
+        return {
+            credits: apiResponse
+                ? apiResponse.credits
+                : {
+                    consumed: 0,
+                    remaining: null,
+                },
+            data: result,
+            throttling: apiResponse ? apiResponse.throttling : null,
+        }
+    }
+
     async batchLookupIps(
         ips: string[],
         ...options: IpregistryOption[]
@@ -139,7 +219,7 @@ export class IpregistryClient {
         let freshIpInfo: (IpInfo | LookupError)[]
 
         if (cacheMisses.length > 0) {
-            apiResponse = await this.requestHandler.batchLookup(
+            apiResponse = await this.requestHandler.batchLookupIps(
                 cacheMisses,
                 options,
             )
@@ -190,6 +270,32 @@ export class IpregistryClient {
         }
     }
 
+    async lookupAsn(
+        asn: number,
+        ...options: IpregistryOption[]
+    ): Promise<ApiResponse<AutonomousSystem>> {
+        const cacheKey = IpregistryClient.buildCacheKey(asn.toString(), options)
+        const cacheValue = this.cache.get(cacheKey) as AutonomousSystem
+
+        let result: ApiResponse<AutonomousSystem>
+
+        if (!cacheValue) {
+            result = await this.requestHandler.lookupAsn(asn, options)
+            this.cache.put(cacheKey, result.data)
+        } else {
+            result = {
+                credits: {
+                    consumed: 0,
+                    remaining: null,
+                },
+                data: cacheValue,
+                throttling: null,
+            }
+        }
+
+        return result
+    }
+
     async lookupIp(
         ip: string,
         ...options: IpregistryOption[]
@@ -200,7 +306,32 @@ export class IpregistryClient {
         let result: ApiResponse<IpInfo>
 
         if (!cacheValue) {
-            result = await this.requestHandler.lookup(ip, options)
+            result = await this.requestHandler.lookupIp(ip, options)
+            this.cache.put(cacheKey, result.data)
+        } else {
+            result = {
+                credits: {
+                    consumed: 0,
+                    remaining: null,
+                },
+                data: cacheValue,
+                throttling: null,
+            }
+        }
+
+        return result
+    }
+
+    async originLookupAsn(
+        ...options: IpregistryOption[]
+    ): Promise<ApiResponse<RequesterAutonomousSystem>> {
+        const cacheKey = IpregistryClient.buildCacheKey('', options)
+        const cacheValue = this.cache.get(cacheKey) as RequesterAutonomousSystem
+
+        let result: ApiResponse<RequesterAutonomousSystem>
+
+        if (!cacheValue) {
+            result = await this.requestHandler.originLookupAsn(options)
             this.cache.put(cacheKey, result.data)
         } else {
             result = {
@@ -225,7 +356,7 @@ export class IpregistryClient {
         let result: ApiResponse<RequesterIpInfo>
 
         if (!cacheValue) {
-            result = await this.requestHandler.originLookup(options)
+            result = await this.requestHandler.originLookupIp(options)
             this.cache.put(cacheKey, result.data)
         } else {
             result = {
@@ -242,7 +373,7 @@ export class IpregistryClient {
     }
 
     async parse(...userAgents: string[]): Promise<ApiResponse<UserAgent[]>> {
-        const response = await this.requestHandler.parse(userAgents)
+        const response = await this.requestHandler.parseUserAgents(userAgents)
         return {
             credits: response.credits,
             data: response.data.results,
@@ -255,10 +386,10 @@ export class IpregistryClient {
     }
 
     private static buildCacheKey(
-        ip: string,
+        primaryKey: string,
         options: IpregistryOption[],
     ): string {
-        let result = ip ? ip : ''
+        let result = primaryKey ? primaryKey : ''
 
         if (options) {
             for (const option of options) {

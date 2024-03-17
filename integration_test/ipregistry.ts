@@ -16,6 +16,7 @@
 
 import {
     ApiError,
+    AutonomousSystem,
     ClientError,
     InMemoryCache,
     IpInfo,
@@ -23,7 +24,7 @@ import {
     IpregistryConfigBuilder,
     IpregistryOptions,
     LookupError,
-    NoCache,
+    NoCache
 } from '../src/index.js'
 
 import { describe, it } from 'node:test'
@@ -31,6 +32,25 @@ import { expect } from 'chai'
 
 const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryout'
 const API_KEY_THROTTLED = process.env.IPREGISTRY_API_KEY_THROTTLED || 'tryout'
+
+describe('batchLookupAsns', () => {
+    it('should return fresh info with no cache', async () => {
+        const client = new IpregistryClient(API_KEY, new NoCache())
+
+        expect(client.getCache()).instanceOf(NoCache)
+
+        const asns = [22, 5521]
+        const response = await client.batchLookupAsns(asns)
+        const data = response.data
+        for (let i = 0; i < data.length; i++) {
+            const as = data[i] as AutonomousSystem
+            expect(as.asn).equal(asns[i])
+        }
+
+        expect((data[0] as AutonomousSystem).name).not.null
+        expect((data[1] as AutonomousSystem).name).not.null
+    })
+})
 
 describe('batchLookupIps', () => {
     it('should return fresh info with no cache', async () => {
@@ -144,6 +164,39 @@ describe('batchLookupIps', () => {
         expect(response?.throttling?.limit).greaterThan(-1)
         expect(response?.throttling?.remaining).greaterThan(-1)
         expect(response?.throttling?.reset).greaterThan(-1)
+    })
+})
+
+describe('lookupAsn', () => {
+    it('should throw ApiError when input ASN is reserved', async () => {
+        try {
+            const client = new IpregistryClient(API_KEY)
+            await client.lookupAsn(64512)
+            expect.fail()
+        } catch (error: any) {
+            expect(error).to.be.instanceOf(ApiError)
+            expect(error.code).equal('RESERVED_ASN')
+        }
+    })
+
+    it('should throw ApiError when input ASN is invalid', async () => {
+        try {
+            const client = new IpregistryClient(API_KEY)
+            await client.lookupAsn(-12)
+            expect.fail()
+        } catch (error: any) {
+            expect(error).to.be.instanceOf(ApiError)
+            expect(error.code).equal('INVALID_ASN')
+        }
+    })
+
+    it('should return valid information when ASN is known', async () => {
+        const client = new IpregistryClient(API_KEY)
+        const response = await client.lookupAsn(22)
+        const autonomousSystem = response.data
+        expect(autonomousSystem.asn).equal(22)
+        expect(autonomousSystem.country_code).not.null
+        expect(autonomousSystem.name).not.null
     })
 })
 
@@ -277,6 +330,17 @@ describe('lookupIp', () => {
         expect(response?.throttling?.limit).greaterThan(-1)
         expect(response?.throttling?.remaining).greaterThan(-1)
         expect(response?.throttling?.reset).greaterThan(-1)
+    })
+})
+
+describe('originLookupAsn', () => {
+    it('should return valid information when ASN is known', async () => {
+        const client = new IpregistryClient(API_KEY)
+        const response = await client.originLookupAsn()
+        const autonomousSystem = response.data
+        expect(autonomousSystem.asn).not.null
+        expect(autonomousSystem.country_code).not.null
+        expect(autonomousSystem.name).not.null
     })
 })
 

@@ -28,7 +28,7 @@ export interface AutonomousSystem {
 
     asn: number
 
-    countryCode: string
+    country_code: string
 
     domain: string
 
@@ -46,9 +46,9 @@ export interface AutonomousSystem {
 }
 
 export interface AutonomousSystemPrefixes {
-    ipv4Count: number
+    ipv4_count: number
 
-    ipv6Count: number
+    ipv6_count: number
 
     ipv4: AutonomousSystemPrefix[]
 
@@ -58,9 +58,9 @@ export interface AutonomousSystemPrefixes {
 export interface AutonomousSystemPrefix {
     cidr: string
 
-    countryCode: string
+    country_code: string
 
-    networkName: string
+    network_name: string
 
     organization: string
 
@@ -97,6 +97,9 @@ export interface IpInfo {
     security: Security
 
     time_zone: TimeZone
+}
+
+export interface RequesterAutonomousSystem extends AutonomousSystem {
 }
 
 export interface RequesterIpInfo extends IpInfo {
