@@ -99,8 +99,7 @@ export interface IpInfo {
     time_zone: TimeZone
 }
 
-export interface RequesterAutonomousSystem extends AutonomousSystem {
-}
+export interface RequesterAutonomousSystem extends AutonomousSystem {}
 
 export interface RequesterIpInfo extends IpInfo {
     user_agent: UserAgent

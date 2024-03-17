@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import { ApiError, ApiResponse, ClientError, IpInfo, IpregistryClient } from '../src'
+import {
+    ApiError,
+    ApiResponse,
+    ClientError,
+    IpInfo,
+    IpregistryClient,
+} from '../src'
 
 async function main() {
     const client: IpregistryClient = new IpregistryClient('tryout')

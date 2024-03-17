@@ -17,7 +17,11 @@
 import ky, { HTTPError, KyResponse } from 'ky'
 
 import { ApiError, ClientError, LookupError } from './errors.js'
-import { AutonomousSystem, IpregistryConfig, RequesterAutonomousSystem } from './index.js'
+import {
+    AutonomousSystem,
+    IpregistryConfig,
+    RequesterAutonomousSystem,
+} from './index.js'
 import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
 import { IpregistryOption } from './options.js'
 
@@ -89,7 +93,9 @@ export interface IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<RequesterIpInfo>>
 
-    parseUserAgents(userAgents: string[]): Promise<ApiResponse<BatchResult<UserAgent>>>
+    parseUserAgents(
+        userAgents: string[],
+    ): Promise<ApiResponse<BatchResult<UserAgent>>>
 }
 
 export class DefaultRequestHandler implements IpregistryRequestHandler {

@@ -24,7 +24,7 @@ import {
     IpregistryConfigBuilder,
     IpregistryOptions,
     LookupError,
-    NoCache
+    NoCache,
 } from '../src/index.js'
 
 import { describe, it } from 'node:test'
