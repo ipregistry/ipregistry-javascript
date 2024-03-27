@@ -1,7 +1,7 @@
 {
     "name": "@ipregistry/client",
     "description": "Official Ipregistry Javascript Library.",
-    "version": "5.0.1",
+    "version": "5.0.2",
     "type": "module",
     "main": "./dist/index.js",
     "module": "./dist/esm/index.js",
