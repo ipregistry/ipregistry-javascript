@@ -67,6 +67,10 @@ export interface AutonomousSystemPrefix {
     prefix: string
 
     registry: RegionalInternetRegistry
+
+    size: number
+
+    status: string
 }
 
 export interface AutonomousSystemRelationships {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.2] - 2024-03-27
+### Added
+- Add missing fields `size` and `status` to type _AutonomousSystemPrefix_.
+
 ## [5.0.1] - 2024-03-17
 ### Fixed
 - Fix a packaging issue.
@@ -161,7 +165,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/5.0.1...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/5.0.2...HEAD
+[5.0.2]: https://github.com/ipregistry/ipregistry-javascript/compare/5.0.1...5.0.2
 [5.0.1]: https://github.com/ipregistry/ipregistry-javascript/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.5.0...5.0.0
 [4.5.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.4.2...4.5.0
