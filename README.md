@@ -42,7 +42,7 @@ Instead of using promises, you can also use async/await:
 ```javascript
 const {IpregistryClient} = require('@ipregistry/client');
 
-const client: Ipre = new IpregistryClient('YOUR_API_KEY');
+const client = new IpregistryClient('YOUR_API_KEY');
 
 async function lookupIpInfo(ip) {
     try {
