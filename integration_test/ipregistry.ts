@@ -25,7 +25,7 @@ import {
     IpregistryOptions,
     LookupError,
     NoCache,
-} from '../src/index.js'
+} from '../dist/index.mjs'
 
 import { describe, it } from 'node:test'
 import { expect } from 'chai'

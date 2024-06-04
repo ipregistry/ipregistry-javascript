@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.0]
+### Changed
+- Modify the library packaging to make ECMAScript modules (ESM) optional.
+- Substitute the 'ky' dependency with native fetch API.
+- Reduce the default timeout setting to 5 seconds.
+- Implement retries, up to two times, with exponential backoff in the event of a timeout.
+
 ## [5.0.2] - 2024-03-27
 ### Added
 - Add missing fields `size` and `status` to type _AutonomousSystemPrefix_.
@@ -165,7 +172,8 @@ https://github.com/ipregistry/ipregistry-javascript#configuring-cache-max-age
 ## [0.9.1] - 2019-07-23
 - First public release.
 
-[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/5.0.2...HEAD
+[Unreleased]: https://github.com/ipregistry/ipregistry-javascript/compare/6.0.0...HEAD
+[6.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/6.0.0...5.0.2
 [5.0.2]: https://github.com/ipregistry/ipregistry-javascript/compare/5.0.1...5.0.2
 [5.0.1]: https://github.com/ipregistry/ipregistry-javascript/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/ipregistry/ipregistry-javascript/compare/4.5.0...5.0.0

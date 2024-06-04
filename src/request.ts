@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import ky, { HTTPError, KyResponse } from 'ky'
-
 import { ApiError, ClientError, LookupError } from './errors.js'
 import {
     AutonomousSystem,
@@ -24,6 +22,8 @@ import {
 } from './index.js'
 import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
 import { IpregistryOption } from './options.js'
+
+import {customFetch} from './fetch.js'
 
 export interface ApiResponse<T> {
     credits: ApiResponseCredits
@@ -99,7 +99,7 @@ export interface IpregistryRequestHandler {
 }
 
 export class DefaultRequestHandler implements IpregistryRequestHandler {
-    private static USER_AGENT: string = 'Ipregistry/JavaScript/3.0.0'
+    private static USER_AGENT: string = 'Ipregistry/JavaScript/4.0.0'
     private config: IpregistryConfig
 
     constructor(config: IpregistryConfig) {
@@ -111,13 +111,12 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<BatchResult<AutonomousSystem | LookupError>>> {
         try {
-            const response: KyResponse = await ky.post(
-                this.buildApiUrl('', options),
-                {
-                    json: asns.map(asn => `AS${asn}`),
-                    ...this.getKyConfig(),
-                },
-            )
+            const response = await customFetch(this.buildApiUrl('', options), {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(asns.map(asn => `AS${asn}`)),
+                timeout: this.config.timeout
+            })
 
             return this.buildApiResponse(response)
         } catch (error) {
@@ -130,13 +129,12 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<BatchResult<IpInfo | LookupError>>> {
         try {
-            const response: KyResponse = await ky.post(
-                this.buildApiUrl('', options),
-                {
-                    json: ips,
-                    ...this.getKyConfig(),
-                },
-            )
+            const response = await customFetch(this.buildApiUrl('', options), {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(ips),
+                timeout: this.config.timeout
+            })
 
             return this.buildApiResponse(response)
         } catch (error) {
@@ -149,9 +147,13 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<AutonomousSystem>> {
         try {
-            const response: KyResponse = await ky.get(
+            const response = await customFetch(
                 this.buildApiUrl(`AS${asn}`, options),
-                this.getKyConfig(),
+                {
+                    method: 'GET',
+                    headers: this.getHeaders(),
+                    timeout: this.config.timeout
+                },
             )
             return this.buildApiResponse(response)
         } catch (error) {
@@ -164,10 +166,11 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<IpInfo>> {
         try {
-            const response: KyResponse = await ky.get(
-                this.buildApiUrl(ip, options),
-                this.getKyConfig(),
-            )
+            const response = await customFetch(this.buildApiUrl(ip, options), {
+                method: 'GET',
+                headers: this.getHeaders(),
+                timeout: this.config.timeout
+            })
             return this.buildApiResponse(response)
         } catch (error) {
             throw await this.handleError(error)
@@ -178,10 +181,11 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<RequesterAutonomousSystem>> {
         try {
-            const response: KyResponse = await ky.get(
-                this.buildApiUrl('AS', options),
-                this.getKyConfig(),
-            )
+            const response = await customFetch(this.buildApiUrl('AS', options), {
+                method: 'GET',
+                headers: this.getHeaders(),
+                timeout: this.config.timeout
+            })
             return this.buildApiResponse(response)
         } catch (error: unknown) {
             throw await this.handleError(error)
@@ -192,10 +196,11 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<RequesterIpInfo>> {
         try {
-            const response: KyResponse = await ky.get(
-                this.buildApiUrl('', options),
-                this.getKyConfig(),
-            )
+            const response = await customFetch(this.buildApiUrl('', options), {
+                method: 'GET',
+                headers: this.getHeaders(),
+                timeout: this.config.timeout
+            })
             return this.buildApiResponse(response)
         } catch (error: unknown) {
             throw await this.handleError(error)
@@ -206,42 +211,36 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         userAgents: string[],
     ): Promise<ApiResponse<BatchResult<UserAgent>>> {
         try {
-            const response: KyResponse = await ky.post(
-                this.buildApiUrl('user_agent'),
-                {
-                    json: userAgents,
-                    ...this.getKyConfig(),
-                },
-            )
+            const response = await customFetch(this.buildApiUrl('user_agent'), {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(userAgents),
+                timeout: this.config.timeout
+            })
             return this.buildApiResponse(response)
         } catch (error) {
             throw await this.handleError(error)
         }
     }
 
-    protected getKyConfig() {
-        const headers = {
+    protected getHeaders() {
+        const headers: Record<string, string> = {
             authorization: `ApiKey ${this.config.apiKey}`,
             'content-type': 'application/json',
         }
 
-        try {
-            if (window === undefined) {
-                headers['user-agent'] = DefaultRequestHandler.USER_AGENT
-            }
-        } catch (error) {
-            // ignore
+        if (typeof window === 'undefined') {
+            headers['user-agent'] = DefaultRequestHandler.USER_AGENT
         }
 
-        return {
-            headers: headers,
-            timeout: this.config.timeout,
-        }
+        return headers
     }
 
     protected async buildApiResponse(
-        response: KyResponse,
+        response: Response,
     ): Promise<ApiResponse<any>> {
+        const data = await response.json();
+
         const throttlingLimit = DefaultRequestHandler.parseInt(
             response.headers.get('x-rate-limit-limit'),
         )
@@ -261,7 +260,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                     response.headers.get('ipregistry-credits-remaining'),
                 ),
             },
-            data: await response.json(),
+            data: data,
             throttling:
                 throttlingLimit == null &&
                 throttlingRemaining == null &&
@@ -276,9 +275,12 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     }
 
     protected async handleError(error: any) {
-        if (error instanceof HTTPError) {
-            const json = await error.response.json()
-            return new ApiError(json.code, json.message, json.resolution)
+        if (error instanceof ApiError) {
+            throw error
+        }
+
+        if (error.name === 'AbordError') {
+            throw new ClientError('Request timed out');
         }
 
         return new ClientError(error.message)

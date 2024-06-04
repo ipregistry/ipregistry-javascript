@@ -48,9 +48,9 @@ export class IpregistryConfig {
     public readonly baseUrl: string = 'https://api.ipregistry.co'
 
     /**
-     * The timeout (in milliseconds) for API requests. Defaults to 15000.
+     * The timeout (in milliseconds) for API requests. Defaults to 5000.
      */
-    public readonly timeout: number = 15000
+    public readonly timeout: number = 5000
 
     /**
      * Constructs a new `IpregistryConfig` instance.
@@ -81,7 +81,7 @@ export class IpregistryConfigBuilder {
 
     private baseUrl: string = 'https://api.ipregistry.co'
 
-    private timeout: number = 15000
+    private timeout: number = 5000
 
     constructor(apiKey: string) {
         this.apiKey = apiKey

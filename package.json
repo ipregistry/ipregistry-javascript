@@ -1,14 +1,17 @@
 {
     "name": "@ipregistry/client",
     "description": "Official Ipregistry Javascript Library.",
-    "version": "5.0.2",
-    "type": "module",
+    "version": "6.0.0",
+    "browser": "./dist/index.global.js",
     "main": "./dist/index.js",
-    "module": "./dist/esm/index.js",
+    "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
     "exports": {
-        "import": "./dist/esm/index.js",
-        "require": "./dist/index.js"
+        ".": {
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
     },
     "homepage": "https://ipregistry.co",
     "license": "Apache-2.0",
@@ -43,10 +46,7 @@
         "url": "https://github.com/ipregistry/ipregistry-javascript/issues"
     },
     "scripts": {
-        "build:browser": "rollup -c",
-        "build:cjs": "./node_modules/.bin/tsc -p tsconfig.cjs.json",
-        "build:mjs": "./node_modules/.bin/tsc -d --outDir dist/esm",
-        "build": "npm run lint && npm run format && npm run build:mjs && npm run build:cjs && npm run build:browser",
+        "build": "tsup",
         "clean": "rm -rf dist/",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
         "lint": "./node_modules/.bin/eslint src/*",
@@ -57,26 +57,20 @@
     },
     "author": "Ipregistry <support@ipregistry.co>",
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^25.0.7",
-        "@rollup/plugin-node-resolve": "^15.2.3",
-        "@rollup/plugin-terser": "^0.4.4",
-        "@rollup/plugin-typescript": "^11.1.6",
-        "@typescript-eslint/eslint-plugin": "^7.4.0",
-        "@typescript-eslint/parser": "^7.4.0",
-        "chai": "^5.1.0",
-        "eslint": "^8.57.0",
-        "eslint-config-prettier": "^9.1.0",
-        "prettier": "^3.2.5",
-        "rollup": "^4.13.0",
+        "@typescript-eslint/eslint-plugin": "^7.12.0",
+        "@typescript-eslint/parser": "^7.12.0",
+        "chai": "^5.1.1",
+        "prettier": "^3.3.0",
+        "terser": "^5.31.0",
         "ts-node": "^10.9.2",
         "tsdoc": "^0.0.4",
         "tslib": "^2.6.2",
-        "typedoc": "^0.25.12",
-        "typescript": "^5.4.3"
+        "tsup": "^8.1.0",
+        "typedoc": "^0.25.13",
+        "typescript": "^5.4.5"
     },
     "dependencies": {
-        "ky": "^1.2.3",
-        "lru-cache": "^10.2.0"
+        "lru-cache": "^10.2.2"
     },
     "files": [
         "dist/**"
