@@ -95,7 +95,7 @@ main().then(() => 0).catch(() => 1);
 Browser support:
 
 ```
-<script src="https://unpkg.com/@ipregistry/client/dist/browser/index.js"></script>
+<script src="https://unpkg.com/@ipregistry/client/dist/index.global.js"></script>
 <script>
     const client = new ipregistry.IpregistryClient('YOUR_API_KEY');
     
