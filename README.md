@@ -1,8 +1,8 @@
-[<img src="https://cdn.ipregistry.co/icons/icon-72x72.png" alt="Ipregistry" width="64"/>](https://ipregistry.co/) 
+[<img src="https://cdn.ipregistry.co/icons/favicon-96x96.png" alt="Ipregistry" width="64"/>](https://ipregistry.co/)
 # Ipregistry Javascript Client Library
 
 [![License](http://img.shields.io/:license-apache-blue.svg)](LICENSE)
-[![Actions Status](https://github.com/ipregistry/ipregistry-javascript/workflows/Build/badge.svg)](https://github.com/ipregistry/ipregistry-javascript/actions)
+[![Actions Status](https://github.com/ipregistry/ipregistry-javascript/workflows/Tests/badge.svg)](https://github.com/ipregistry/ipregistry-javascript/actions)
 [![npm](https://img.shields.io/npm/v/@ipregistry/client.svg)](https://www.npmjs.com/package/@ipregistry/client)
 [![tsdoc](https://img.shields.io/badge/tsdoc-latest-yellow)](https://tsdoc.libraries.ipregistry.co/)
 
