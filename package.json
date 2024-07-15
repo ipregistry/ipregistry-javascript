@@ -70,7 +70,7 @@
         "typescript": "^5.4.5"
     },
     "dependencies": {
-        "lru-cache": "^10.2.2"
+        "lru-cache": "^11.0.0"
     },
     "files": [
         "dist/**"
