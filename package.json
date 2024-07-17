@@ -57,17 +57,18 @@
     },
     "author": "Ipregistry <support@ipregistry.co>",
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^7.12.0",
-        "@typescript-eslint/parser": "^7.12.0",
+        "@swc/core": "^1.6.13",
+        "@typescript-eslint/eslint-plugin": "^7.16.1",
+        "@typescript-eslint/parser": "^7.16.1",
         "chai": "^5.1.1",
-        "prettier": "^3.3.0",
-        "terser": "^5.31.0",
+        "prettier": "^3.3.3",
+        "terser": "^5.31.3",
         "ts-node": "^10.9.2",
         "tsdoc": "^0.0.4",
-        "tslib": "^2.6.2",
-        "tsup": "^8.1.0",
-        "typedoc": "^0.26.3",
-        "typescript": "^5.4.5"
+        "tslib": "^2.6.3",
+        "tsup": "^8.1.1",
+        "typedoc": "^0.26.4",
+        "typescript": "^5.5.3"
     },
     "dependencies": {
         "lru-cache": "^11.0.0"
