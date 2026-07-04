@@ -3,6 +3,7 @@
         "allowSyntheticDefaultImports": true,
         "alwaysStrict": true,
         "declaration": true,
+        "ignoreDeprecations": "6.0",
         "declarationMap": true,
         "inlineSources": true,
         "lib": ["es7", "dom"],
@@ -19,7 +20,8 @@
         "strictFunctionTypes": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": true,
-        "target": "es2017"
+        "target": "es2017",
+        "types": ["node"]
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"]
