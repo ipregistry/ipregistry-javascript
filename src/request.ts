@@ -24,6 +24,7 @@ import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
 import { IpregistryOption } from './options.js'
 
 import { customFetch } from './fetch.js'
+import { LIBRARY_VERSION } from './version.js'
 
 export interface ApiResponse<T> {
     credits: ApiResponseCredits
@@ -99,7 +100,7 @@ export interface IpregistryRequestHandler {
 }
 
 export class DefaultRequestHandler implements IpregistryRequestHandler {
-    private static USER_AGENT: string = 'Ipregistry/JavaScript/4.0.0'
+    private static USER_AGENT: string = `Ipregistry/JavaScript/${LIBRARY_VERSION}`
     private config: IpregistryConfig
 
     constructor(config: IpregistryConfig) {

@@ -474,5 +474,6 @@ export * from './errors.js'
 export * from './model.js'
 export * from './options.js'
 export * from './request.js'
+export * from './version.js'
 
 export { UserAgents } from './util.js'
