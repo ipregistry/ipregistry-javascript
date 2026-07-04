@@ -218,13 +218,12 @@ export class IpregistryClient {
                         lookupError.resolution,
                     )
                 } else {
-                    const as = freshAutonomousSystem[k] as AutonomousSystem
                     this.cache.put(
                         IpregistryClient.buildCacheKey(
-                            as.asn.toString(),
+                            cacheMisses[k].toString(),
                             options,
                         ),
-                        as,
+                        freshAutonomousSystem[k] as AutonomousSystem,
                     )
                     result[j] = freshAutonomousSystem[k]
                 }
@@ -308,10 +307,9 @@ export class IpregistryClient {
                         lookupError.resolution,
                     )
                 } else {
-                    const ipInfo = freshIpInfo[k] as IpInfo
                     this.cache.put(
-                        IpregistryClient.buildCacheKey(ipInfo.ip, options),
-                        ipInfo,
+                        IpregistryClient.buildCacheKey(cacheMisses[k], options),
+                        freshIpInfo[k] as IpInfo,
                     )
                     result[j] = freshIpInfo[k]
                 }
