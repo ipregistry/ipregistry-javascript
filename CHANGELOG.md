@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Require Node JS 20+.
 
+## [6.0.2] - 2026-07-05
+### Fixed
+- Return `false` from `isError` and `isApiError` for non-object values instead of throwing a `TypeError`.
+
+### Changed
+- Declare the package side-effect free to improve tree-shaking by bundlers.
+- Expose `package.json` through the package `exports` map.
+
 ## [6.0.1] - 2026-07-04
 ### Fixed
 - Map request timeouts to a `ClientError` with message 'Request timed out'; a typo prevented the mapping from ever matching.
