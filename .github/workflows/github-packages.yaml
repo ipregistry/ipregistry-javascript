@@ -1,0 +1,55 @@
+name: GitHub Packages
+
+# Mirrors published releases to GitHub Packages (npm.pkg.github.com) so the
+# package is listed on the organization packages page. The primary registry
+# remains npmjs.org; this publication is a courtesy mirror. Runs automatically
+# when a GitHub release is published and can be triggered manually for an
+# existing tag.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to publish, e.g. v6.0.1'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine and validate tag
+        # The raw value is passed through the environment (never interpolated
+        # into the shell) and strictly validated before being used as a ref.
+        env:
+          TAG_INPUT: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$TAG_INPUT" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+            echo "::error::Invalid tag '$TAG_INPUT'. Expected a tag such as v1.2.0."
+            exit 1
+          fi
+          echo "TAG=$TAG_INPUT" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish
