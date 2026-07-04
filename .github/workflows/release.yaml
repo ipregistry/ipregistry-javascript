@@ -8,7 +8,7 @@ name: Release
 # and the CHANGELOG must already contain a "## [X.Y.Z]" section for it.
 #
 # Publishing uses npm trusted publishing (OIDC): this repository and workflow
-# file (release.yml) must be configured as a trusted publisher for
+# file (release.yaml) must be configured as a trusted publisher for
 # @ipregistry/client on npmjs.com. No npm token secret is needed.
 on:
   workflow_dispatch:
