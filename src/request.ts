@@ -23,7 +23,7 @@ import {
 import { IpInfo, RequesterIpInfo, UserAgent } from './model.js'
 import { IpregistryOption } from './options.js'
 
-import {customFetch} from './fetch.js'
+import { customFetch } from './fetch.js'
 
 export interface ApiResponse<T> {
     credits: ApiResponseCredits
@@ -115,7 +115,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(asns.map(asn => `AS${asn}`)),
-                timeout: this.config.timeout
+                timeout: this.config.timeout,
             })
 
             return this.buildApiResponse(response)
@@ -133,7 +133,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(ips),
-                timeout: this.config.timeout
+                timeout: this.config.timeout,
             })
 
             return this.buildApiResponse(response)
@@ -152,7 +152,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 {
                     method: 'GET',
                     headers: this.getHeaders(),
-                    timeout: this.config.timeout
+                    timeout: this.config.timeout,
                 },
             )
             return this.buildApiResponse(response)
@@ -169,7 +169,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             const response = await customFetch(this.buildApiUrl(ip, options), {
                 method: 'GET',
                 headers: this.getHeaders(),
-                timeout: this.config.timeout
+                timeout: this.config.timeout,
             })
             return this.buildApiResponse(response)
         } catch (error) {
@@ -181,11 +181,14 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
         options: IpregistryOption[],
     ): Promise<ApiResponse<RequesterAutonomousSystem>> {
         try {
-            const response = await customFetch(this.buildApiUrl('AS', options), {
-                method: 'GET',
-                headers: this.getHeaders(),
-                timeout: this.config.timeout
-            })
+            const response = await customFetch(
+                this.buildApiUrl('AS', options),
+                {
+                    method: 'GET',
+                    headers: this.getHeaders(),
+                    timeout: this.config.timeout,
+                },
+            )
             return this.buildApiResponse(response)
         } catch (error: unknown) {
             throw await this.handleError(error)
@@ -199,7 +202,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             const response = await customFetch(this.buildApiUrl('', options), {
                 method: 'GET',
                 headers: this.getHeaders(),
-                timeout: this.config.timeout
+                timeout: this.config.timeout,
             })
             return this.buildApiResponse(response)
         } catch (error: unknown) {
@@ -215,7 +218,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(userAgents),
-                timeout: this.config.timeout
+                timeout: this.config.timeout,
             })
             return this.buildApiResponse(response)
         } catch (error) {
@@ -239,7 +242,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     protected async buildApiResponse(
         response: Response,
     ): Promise<ApiResponse<any>> {
-        const data = await response.json();
+        const data = await response.json()
 
         const throttlingLimit = DefaultRequestHandler.parseInt(
             response.headers.get('x-rate-limit-limit'),
@@ -279,8 +282,8 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             throw error
         }
 
-        if (error.name === 'AbordError') {
-            throw new ClientError('Request timed out');
+        if (error.name === 'AbortError') {
+            throw new ClientError('Request timed out')
         }
 
         return new ClientError(error.message)
