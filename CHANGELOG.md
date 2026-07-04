@@ -8,7 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Require Node JS 20+.
 
-## [6.0.0]
+## [6.0.1] - 2026-07-04
+### Fixed
+- Map request timeouts to a `ClientError` with message 'Request timed out'; a typo prevented the mapping from ever matching.
+- Send the current library version in the `user-agent` header instead of a hardcoded 4.0.0.
+- Percent-encode user-supplied values interpolated into API URL paths.
+- Cache batch lookup results under the requested IP addresses and ASNs so that caching works when the `fields` option filters out the `ip` or `asn` response fields.
+- Declare the `types` condition first in the package `exports` map and provide format-specific type declarations so that TypeScript resolves them for both ESM and CommonJS consumers.
+
+## [6.0.0] - 2024-06-04
 ### Changed
 - Modify the library packaging to make ECMAScript modules (ESM) optional.
 - Substitute the 'ky' dependency with native fetch API.
