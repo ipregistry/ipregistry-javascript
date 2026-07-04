@@ -1,29 +1,33 @@
 name: Tests
 
 on:
-  pull_request:
   push:
-  schedule:
-    - cron: "0 1 * * *"
-  workflow_dispatch:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        node-version: [20.x, 21.x]
-
+        node-version: [20.x, 22.x, 24.x]
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm run build
-    - run: npm run test:integration
-      env:
-        IPREGISTRY_API_KEY:  ${{ secrets.IPREGISTRY_API_KEY }}
-        IPREGISTRY_API_KEY_THROTTLED:  ${{ secrets.IPREGISTRY_API_KEY_THROTTLED }}
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build

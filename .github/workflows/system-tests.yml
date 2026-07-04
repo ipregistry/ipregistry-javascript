@@ -1,0 +1,45 @@
+name: System Tests
+
+# System tests exercise the live Ipregistry API and consume credits, so they do
+# not run on every push. They run on demand and on a weekly schedule.
+#
+# Requires repository secrets named IPREGISTRY_API_KEY and
+# IPREGISTRY_API_KEY_THROTTLED. When IPREGISTRY_API_KEY is absent (for example
+# on a fork), the tests skip cleanly and the job still succeeds.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1' # every Monday at 06:00 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: system-tests
+  cancel-in-progress: false
+
+jobs:
+  system-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run system tests
+        env:
+          IPREGISTRY_API_KEY: ${{ secrets.IPREGISTRY_API_KEY }}
+          IPREGISTRY_API_KEY_THROTTLED: ${{ secrets.IPREGISTRY_API_KEY_THROTTLED }}
+        run: |
+          set -euo pipefail
+          if [ -z "${IPREGISTRY_API_KEY:-}" ]; then
+            echo "IPREGISTRY_API_KEY secret is not set; skipping system tests."
+            exit 0
+          fi
+          npm run test:integration
