@@ -297,7 +297,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     }
 
     protected buildApiUrl(path: string, options?: IpregistryOption[]) {
-        let result = `${this.config.baseUrl}/${path ? path : ''}`
+        let result = `${this.config.baseUrl}/${path ? encodeURIComponent(path) : ''}`
 
         if (options) {
             const searchParams = new URLSearchParams()
