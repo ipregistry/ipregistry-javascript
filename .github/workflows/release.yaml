@@ -19,6 +19,7 @@ on:
         type: string
 
 permissions:
+  actions: write # dispatch the GitHub Packages mirror workflow
   contents: write
   id-token: write # npm trusted publishing and provenance
 
@@ -138,3 +139,8 @@ jobs:
             --notes-file release-notes.md \
             $prerelease
           echo "Released $TAG: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
+
+      - name: Mirror to GitHub Packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run github-packages.yaml -f "tag=$TAG"

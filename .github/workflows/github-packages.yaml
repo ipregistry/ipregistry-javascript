@@ -2,12 +2,12 @@ name: GitHub Packages
 
 # Mirrors published releases to GitHub Packages (npm.pkg.github.com) so the
 # package is listed on the organization packages page. The primary registry
-# remains npmjs.org; this publication is a courtesy mirror. Runs automatically
-# when a GitHub release is published and can be triggered manually for an
-# existing tag.
+# remains npmjs.org; this publication is a courtesy mirror. Dispatched by the
+# Release workflow after a successful release (a `release: published` trigger
+# would never fire, since releases are created with GITHUB_TOKEN and GitHub
+# suppresses workflow triggers from such events) and can be triggered manually
+# for an existing tag.
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -27,7 +27,7 @@ jobs:
         # The raw value is passed through the environment (never interpolated
         # into the shell) and strictly validated before being used as a ref.
         env:
-          TAG_INPUT: ${{ inputs.tag || github.event.release.tag_name }}
+          TAG_INPUT: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           if ! printf '%s' "$TAG_INPUT" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
