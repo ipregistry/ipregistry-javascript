@@ -7,7 +7,9 @@ name: Release
 # The version in package.json must already match the version being released,
 # and the CHANGELOG must already contain a "## [X.Y.Z]" section for it.
 #
-# Requires an NPM_TOKEN secret with publish rights on @ipregistry/client.
+# Publishing uses npm trusted publishing (OIDC): this repository and workflow
+# file (release.yml) must be configured as a trusted publisher for
+# @ipregistry/client on npmjs.com. No npm token secret is needed.
 on:
   workflow_dispatch:
     inputs:
@@ -18,7 +20,7 @@ on:
 
 permissions:
   contents: write
-  id-token: write # npm provenance
+  id-token: write # npm trusted publishing and provenance
 
 concurrency:
   group: release
@@ -36,7 +38,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24.x
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Validate version
         # The raw input is passed through the environment (never interpolated
@@ -112,9 +113,11 @@ jobs:
           npm run test:integration
 
       - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public --provenance
+        # Trusted publishing needs npm 11.5.1+; upgrade in case the bundled npm
+        # is older. Provenance is generated automatically with OIDC.
+        run: |
+          npm install -g npm@latest
+          npm publish --access public
 
       - name: Create tag and GitHub release
         # The default Actions token (GITHUB_TOKEN) is blocked by an organization
