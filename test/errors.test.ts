@@ -19,6 +19,8 @@ import {
     ClientError,
     DefaultRequestHandler,
     IpregistryConfigBuilder,
+    isApiError,
+    isError,
 } from '../dist/index.mjs'
 
 import { describe, it } from 'node:test'
@@ -35,6 +37,24 @@ function newHandler(): TestableRequestHandler {
         new IpregistryConfigBuilder('tryout').build(),
     )
 }
+
+describe('isError and isApiError', () => {
+    it('recognizes error-shaped objects', () => {
+        expect(isError(new Error('boom'))).to.be.true
+        expect(isError({ message: 'boom' })).to.be.true
+        expect(isApiError(new ApiError('CODE', 'boom', 'fix'))).to.be.true
+        expect(isApiError({ message: 'boom' })).to.be.false
+    })
+
+    it('returns false for non-object values instead of throwing', () => {
+        expect(isError('boom')).to.be.false
+        expect(isError(42)).to.be.false
+        expect(isError(true)).to.be.false
+        expect(isError(null)).to.be.false
+        expect(isError(undefined)).to.be.false
+        expect(isApiError('boom')).to.be.false
+    })
+})
 
 describe('DefaultRequestHandler#handleError', () => {
     it('maps fetch abort errors to a request timeout ClientError', async () => {

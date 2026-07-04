@@ -73,7 +73,7 @@ export enum ErrorCode {
 }
 
 export function isError(object: any): boolean {
-    return object && 'message' in object
+    return typeof object === 'object' && object !== null && 'message' in object
 }
 
 export function isApiError(object: any): boolean {
