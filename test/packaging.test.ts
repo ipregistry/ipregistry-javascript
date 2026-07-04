@@ -50,6 +50,11 @@ describe('package exports', () => {
         expect(rootExport.require.types).to.match(/\.d\.ts$/)
     })
 
+    it('exposes package.json and declares the package side-effect free', () => {
+        expect(packageJson.exports['./package.json']).to.equal('./package.json')
+        expect(packageJson.sideEffects).to.be.false
+    })
+
     it('only references files that the build produces', () => {
         for (const path of collectPaths(packageJson.exports)) {
             const resolved = fileURLToPath(

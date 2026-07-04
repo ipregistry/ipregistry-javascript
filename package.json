@@ -16,8 +16,10 @@
                 "types": "./dist/index.d.ts",
                 "default": "./dist/index.js"
             }
-        }
+        },
+        "./package.json": "./package.json"
     },
+    "sideEffects": false,
     "homepage": "https://ipregistry.co",
     "license": "Apache-2.0",
     "keywords": [
