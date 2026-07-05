@@ -116,7 +116,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(asns.map(asn => `AS${asn}`)),
-                timeout: this.config.timeout,
+                ...this.getFetchOptions(),
             })
 
             return this.buildApiResponse(response)
@@ -134,7 +134,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(ips),
-                timeout: this.config.timeout,
+                ...this.getFetchOptions(),
             })
 
             return this.buildApiResponse(response)
@@ -153,7 +153,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 {
                     method: 'GET',
                     headers: this.getHeaders(),
-                    timeout: this.config.timeout,
+                    ...this.getFetchOptions(),
                 },
             )
             return this.buildApiResponse(response)
@@ -170,7 +170,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             const response = await customFetch(this.buildApiUrl(ip, options), {
                 method: 'GET',
                 headers: this.getHeaders(),
-                timeout: this.config.timeout,
+                ...this.getFetchOptions(),
             })
             return this.buildApiResponse(response)
         } catch (error) {
@@ -187,7 +187,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 {
                     method: 'GET',
                     headers: this.getHeaders(),
-                    timeout: this.config.timeout,
+                    ...this.getFetchOptions(),
                 },
             )
             return this.buildApiResponse(response)
@@ -203,7 +203,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
             const response = await customFetch(this.buildApiUrl('', options), {
                 method: 'GET',
                 headers: this.getHeaders(),
-                timeout: this.config.timeout,
+                ...this.getFetchOptions(),
             })
             return this.buildApiResponse(response)
         } catch (error: unknown) {
@@ -219,11 +219,21 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(userAgents),
-                timeout: this.config.timeout,
+                ...this.getFetchOptions(),
             })
             return this.buildApiResponse(response)
         } catch (error) {
             throw await this.handleError(error)
+        }
+    }
+
+    protected getFetchOptions() {
+        return {
+            maxRetries: this.config.maxRetries,
+            retryInterval: this.config.retryInterval,
+            retryOnServerError: this.config.retryOnServerError,
+            retryOnTooManyRequests: this.config.retryOnTooManyRequests,
+            timeout: this.config.timeout,
         }
     }
 

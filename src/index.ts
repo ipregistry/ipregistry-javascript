@@ -53,12 +53,53 @@ export class IpregistryConfig {
     public readonly timeout: number = 5000
 
     /**
+     * The maximum number of automatic retries performed in addition to the
+     * initial attempt. Applies to transport errors (timeouts, network
+     * failures) and to the response statuses enabled by `retryOnServerError`
+     * and `retryOnTooManyRequests`. Defaults to 3. Use 0 to disable retries.
+     */
+    public readonly maxRetries: number = 3
+
+    /**
+     * The base backoff (in milliseconds) between retries. Successive retries
+     * use an exponentially increasing delay (retryInterval * 2^attempt). When
+     * a response carries a Retry-After header, that value takes precedence.
+     * Defaults to 1000.
+     */
+    public readonly retryInterval: number = 1000
+
+    /**
+     * Whether 5xx responses (and transient network errors) are retried.
+     * Defaults to true.
+     */
+    public readonly retryOnServerError: boolean = true
+
+    /**
+     * Whether 429 Too Many Requests responses are retried, honoring the
+     * Retry-After header when present. Ipregistry does not rate limit by
+     * default (it is opt-in per API key), so this defaults to false.
+     */
+    public readonly retryOnTooManyRequests: boolean = false
+
+    /**
      * Constructs a new `IpregistryConfig` instance.
      * @param apiKey The API key for authenticating requests.
      * @param baseUrl Optional. The base URL of the Ipregistry API.
      * @param timeout Optional. The timeout for API requests in milliseconds.
+     * @param maxRetries Optional. The maximum number of automatic retries.
+     * @param retryInterval Optional. The base backoff between retries in milliseconds.
+     * @param retryOnServerError Optional. Whether 5xx responses are retried.
+     * @param retryOnTooManyRequests Optional. Whether 429 responses are retried.
      */
-    constructor(apiKey: string, baseUrl: string, timeout: number) {
+    constructor(
+        apiKey: string,
+        baseUrl: string,
+        timeout: number,
+        maxRetries?: number,
+        retryInterval?: number,
+        retryOnServerError?: boolean,
+        retryOnTooManyRequests?: boolean,
+    ) {
         this.apiKey = apiKey
 
         if (baseUrl) {
@@ -67,6 +108,22 @@ export class IpregistryConfig {
 
         if (timeout) {
             this.timeout = timeout
+        }
+
+        if (maxRetries !== undefined && maxRetries >= 0) {
+            this.maxRetries = maxRetries
+        }
+
+        if (retryInterval !== undefined && retryInterval > 0) {
+            this.retryInterval = retryInterval
+        }
+
+        if (retryOnServerError !== undefined) {
+            this.retryOnServerError = retryOnServerError
+        }
+
+        if (retryOnTooManyRequests !== undefined) {
+            this.retryOnTooManyRequests = retryOnTooManyRequests
         }
     }
 }
@@ -82,6 +139,14 @@ export class IpregistryConfigBuilder {
     private baseUrl: string = 'https://api.ipregistry.co'
 
     private timeout: number = 5000
+
+    private maxRetries: number = 3
+
+    private retryInterval: number = 1000
+
+    private retryOnServerError: boolean = true
+
+    private retryOnTooManyRequests: boolean = false
 
     constructor(apiKey: string) {
         this.apiKey = apiKey
@@ -107,8 +172,66 @@ export class IpregistryConfigBuilder {
         return this
     }
 
+    /**
+     * Sets the maximum number of automatic retries performed in addition to
+     * the initial attempt. Use 0 to disable retries.
+     * @param maxRetries The maximum number of retries.
+     * @returns The `IpregistryConfigBuilder` instance for chaining.
+     */
+    public withMaxRetries(maxRetries: number): IpregistryConfigBuilder {
+        this.maxRetries = maxRetries
+        return this
+    }
+
+    /**
+     * Sets the base backoff between retries. Successive retries use an
+     * exponentially increasing delay (retryInterval * 2^attempt). When a
+     * response carries a Retry-After header, that value takes precedence.
+     * @param retryInterval The base backoff in milliseconds.
+     * @returns The `IpregistryConfigBuilder` instance for chaining.
+     */
+    public withRetryInterval(retryInterval: number): IpregistryConfigBuilder {
+        this.retryInterval = retryInterval
+        return this
+    }
+
+    /**
+     * Controls whether 5xx responses (and transient network errors) are
+     * retried. Defaults to true.
+     * @param retryOnServerError Whether 5xx responses are retried.
+     * @returns The `IpregistryConfigBuilder` instance for chaining.
+     */
+    public withRetryOnServerError(
+        retryOnServerError: boolean,
+    ): IpregistryConfigBuilder {
+        this.retryOnServerError = retryOnServerError
+        return this
+    }
+
+    /**
+     * Controls whether 429 Too Many Requests responses are retried, honoring
+     * the Retry-After header when present. Ipregistry does not rate limit by
+     * default (it is opt-in per API key), so this defaults to false.
+     * @param retryOnTooManyRequests Whether 429 responses are retried.
+     * @returns The `IpregistryConfigBuilder` instance for chaining.
+     */
+    public withRetryOnTooManyRequests(
+        retryOnTooManyRequests: boolean,
+    ): IpregistryConfigBuilder {
+        this.retryOnTooManyRequests = retryOnTooManyRequests
+        return this
+    }
+
     public build(): IpregistryConfig {
-        return new IpregistryConfig(this.apiKey, this.baseUrl, this.timeout)
+        return new IpregistryConfig(
+            this.apiKey,
+            this.baseUrl,
+            this.timeout,
+            this.maxRetries,
+            this.retryInterval,
+            this.retryOnServerError,
+            this.retryOnTooManyRequests,
+        )
     }
 }
 

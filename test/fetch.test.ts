@@ -30,9 +30,18 @@ afterEach(() => {
     globalThis.fetch = originalFetch
 })
 
-function newHandler(timeout: number = 5000): DefaultRequestHandler {
+function newHandler(
+    timeout: number = 5000,
+    configure: (
+        builder: IpregistryConfigBuilder,
+    ) => IpregistryConfigBuilder = builder => builder,
+): DefaultRequestHandler {
     return new DefaultRequestHandler(
-        new IpregistryConfigBuilder('tryout').withTimeout(timeout).build(),
+        configure(
+            new IpregistryConfigBuilder('tryout')
+                .withTimeout(timeout)
+                .withRetryInterval(1),
+        ).build(),
     )
 }
 
@@ -45,6 +54,10 @@ function jsonResponse(
         status,
         headers: { 'content-type': 'application/json', ...headers },
     })
+}
+
+function errorBody(code: string) {
+    return { code, message: `error ${code}`, resolution: 'try again later' }
 }
 
 function abortingFetch(onAttempt: () => Response | null): typeof fetch {
@@ -64,6 +77,39 @@ function abortingFetch(onAttempt: () => Response | null): typeof fetch {
             )
         })) as typeof fetch
 }
+
+function countingFetch(responses: (() => Response)[]): {
+    attempts: () => number
+} {
+    let attempts = 0
+    globalThis.fetch = (async () => {
+        const index = Math.min(attempts, responses.length - 1)
+        attempts++
+        return responses[index]()
+    }) as typeof fetch
+    return { attempts: () => attempts }
+}
+
+describe('retry configuration', () => {
+    it('defaults match the other Ipregistry clients', () => {
+        const config = new IpregistryConfigBuilder('tryout').build()
+
+        expect(config.maxRetries).to.equal(3)
+        expect(config.retryInterval).to.equal(1000)
+        expect(config.retryOnServerError).to.be.true
+        expect(config.retryOnTooManyRequests).to.be.false
+    })
+
+    it('ignores invalid values', () => {
+        const config = new IpregistryConfigBuilder('tryout')
+            .withMaxRetries(-1)
+            .withRetryInterval(0)
+            .build()
+
+        expect(config.maxRetries).to.equal(3)
+        expect(config.retryInterval).to.equal(1000)
+    })
+})
 
 describe('DefaultRequestHandler response building', () => {
     it('parses credits and throttling response headers', async () => {
@@ -145,6 +191,23 @@ describe('DefaultRequestHandler response building', () => {
             )
         }
     })
+
+    it('throws an ApiError for non-ok responses without a JSON body', async () => {
+        globalThis.fetch = async () =>
+            new Response('<html>bad gateway</html>', { status: 502 })
+
+        try {
+            await newHandler(5000, builder =>
+                builder.withRetryOnServerError(false),
+            ).lookupIp('8.8.8.8', [])
+            expect.fail('expected lookupIp to throw')
+        } catch (error) {
+            expect(error).instanceOf(ApiError)
+            expect((error as ApiError).message).to.equal(
+                'Unexpected HTTP status 502',
+            )
+        }
+    })
 })
 
 describe('customFetch retry behavior', () => {
@@ -174,10 +237,129 @@ describe('customFetch retry behavior', () => {
         } catch (error) {
             expect(error).instanceOf(ClientError)
             expect((error as ClientError).message).to.equal(
-                'Request failed after 2 retries',
+                'Request failed after 3 retries',
             )
         }
 
-        expect(attempts).to.equal(3)
+        expect(attempts).to.equal(4)
+    })
+
+    it('performs a single attempt when retries are disabled', async () => {
+        let attempts = 0
+        globalThis.fetch = abortingFetch(() => {
+            attempts++
+            return null
+        })
+
+        try {
+            await newHandler(5, builder => builder.withMaxRetries(0)).lookupIp(
+                '8.8.8.8',
+                [],
+            )
+            expect.fail('expected lookupIp to throw')
+        } catch (error) {
+            expect(error).instanceOf(ClientError)
+            expect((error as ClientError).message).to.equal(
+                'Request failed after 0 retries',
+            )
+        }
+
+        expect(attempts).to.equal(1)
+    })
+
+    it('retries network errors', async () => {
+        let attempts = 0
+        globalThis.fetch = (async () => {
+            attempts++
+            if (attempts === 1) {
+                throw new TypeError('fetch failed')
+            }
+            return jsonResponse({ ip: '8.8.8.8' })
+        }) as typeof fetch
+
+        const response = await newHandler().lookupIp('8.8.8.8', [])
+
+        expect(attempts).to.equal(2)
+        expect(response.data).to.deep.equal({ ip: '8.8.8.8' })
+    })
+
+    it('retries server errors and succeeds', async () => {
+        const counter = countingFetch([
+            () => jsonResponse(errorBody('INTERNAL'), {}, 503),
+            () => jsonResponse({ ip: '8.8.8.8' }),
+        ])
+
+        const response = await newHandler().lookupIp('8.8.8.8', [])
+
+        expect(counter.attempts()).to.equal(2)
+        expect(response.data).to.deep.equal({ ip: '8.8.8.8' })
+    })
+
+    it('retries batch requests on server errors', async () => {
+        const counter = countingFetch([
+            () => jsonResponse(errorBody('INTERNAL'), {}, 500),
+            () => jsonResponse({ results: [{ ip: '8.8.8.8' }] }),
+        ])
+
+        const response = await newHandler().batchLookupIps(['8.8.8.8'], [])
+
+        expect(counter.attempts()).to.equal(2)
+        expect(response.data.results).to.deep.equal([{ ip: '8.8.8.8' }])
+    })
+
+    it('does not retry server errors when disabled', async () => {
+        const counter = countingFetch([
+            () => jsonResponse(errorBody('INTERNAL'), {}, 503),
+        ])
+
+        try {
+            await newHandler(5000, builder =>
+                builder.withRetryOnServerError(false),
+            ).lookupIp('8.8.8.8', [])
+            expect.fail('expected lookupIp to throw')
+        } catch (error) {
+            expect(error).instanceOf(ApiError)
+            expect((error as ApiError).code).to.equal('INTERNAL')
+        }
+
+        expect(counter.attempts()).to.equal(1)
+    })
+
+    it('does not retry 429 responses by default', async () => {
+        const counter = countingFetch([
+            () => jsonResponse(errorBody('TOO_MANY_REQUESTS'), {}, 429),
+        ])
+
+        try {
+            await newHandler().lookupIp('8.8.8.8', [])
+            expect.fail('expected lookupIp to throw')
+        } catch (error) {
+            expect(error).instanceOf(ApiError)
+            expect((error as ApiError).code).to.equal('TOO_MANY_REQUESTS')
+        }
+
+        expect(counter.attempts()).to.equal(1)
+    })
+
+    it('retries 429 responses when enabled, honoring Retry-After', async () => {
+        const counter = countingFetch([
+            () =>
+                jsonResponse(
+                    errorBody('TOO_MANY_REQUESTS'),
+                    { 'retry-after': '1' },
+                    429,
+                ),
+            () => jsonResponse({ ip: '8.8.8.8' }),
+        ])
+
+        const startedAt = Date.now()
+        const response = await newHandler(5000, builder =>
+            builder.withRetryOnTooManyRequests(true),
+        ).lookupIp('8.8.8.8', [])
+
+        expect(counter.attempts()).to.equal(2)
+        expect(response.data).to.deep.equal({ ip: '8.8.8.8' })
+        // Retry-After: 1 (second) must take precedence over the 1ms interval.
+        expect(Date.now() - startedAt).to.be.at.least(900)
     })
 })
