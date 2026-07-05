@@ -6,7 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Require Node JS 20+.
+
+## [6.1.0] - 2026-07-05
+### Added
+- Configurable retry behavior aligned with the Go client: `withMaxRetries` (default 3), `withRetryInterval` (exponential backoff base, default 1 second), `withRetryOnServerError` (default true) and `withRetryOnTooManyRequests` (default false, honoring the `Retry-After` header when enabled).
+
+### Changed
+- Require Node.js 20+.
+- Retry transient network errors and, by default, 5xx responses; previously only timeouts were retried.
+- Replace the `lru-cache` dependency with an internal implementation; the library now has zero runtime dependencies.
 
 ## [6.0.2] - 2026-07-05
 ### Fixed
