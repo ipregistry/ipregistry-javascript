@@ -170,6 +170,31 @@ client.config.apiKey = 'YOUR_NEW_API_KEY';
 const client = new IpregistryClient('YOUR_API_KEY', new NoCache());
 ```
 
+## Timeouts and retries
+
+Each request times out after 5 seconds by default. Failed attempts are retried
+automatically with exponential backoff (`retryInterval * 2^attempt`): transport
+errors (timeouts, network failures) and `5xx` responses are retried up to
+`maxRetries` times (3 by default). `429 Too Many Requests` responses are not
+retried unless you opt in; when enabled, a `Retry-After` response header takes
+precedence over the computed backoff. All of it is configurable:
+
+```typescript
+const client = new IpregistryClient(
+    new IpregistryConfigBuilder('YOUR_API_KEY')
+        .withTimeout(10000)             // per-attempt timeout, in milliseconds
+        .withMaxRetries(2)              // 0 disables retries
+        .withRetryInterval(500)         // backoff base, in milliseconds
+        .withRetryOnServerError(true)   // retry 5xx responses (default: true)
+        .withRetryOnTooManyRequests(true) // retry 429 responses (default: false)
+        .build()
+);
+```
+
+Rate limiting is opt-in per API key on Ipregistry, which is why
+`retryOnTooManyRequests` defaults to false. Enable it if your key is
+rate limited.
+
 ## Enabling hostname lookup
 
 By default, the Ipregistry API does not return information about the hostname a given IP address resolves to. 
