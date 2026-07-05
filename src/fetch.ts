@@ -52,7 +52,13 @@ export async function customFetch(
         ),
     } as Required<Pick<Options, keyof typeof DEFAULT_OPTIONS>> & Options
 
+    const callerSignal = providedOptions.signal ?? undefined
+
     for (let attempt = 0; ; attempt++) {
+        if (callerSignal?.aborted) {
+            throw new ClientError('Request cancelled')
+        }
+
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), options.timeout)
 
@@ -60,13 +66,16 @@ export async function customFetch(
         try {
             response = await fetch(url, {
                 ...options,
-                signal: controller.signal,
+                signal: combineSignals(controller.signal, callerSignal),
             })
         } catch {
+            if (callerSignal?.aborted) {
+                throw new ClientError('Request cancelled')
+            }
             // Transport errors are retried up to maxRetries regardless of the
             // retry-on-status flags, matching the other Ipregistry clients.
             if (attempt < options.maxRetries) {
-                await backoff(options.retryInterval, attempt, 0)
+                await backoff(options.retryInterval, attempt, 0, callerSignal)
                 continue
             }
             throw new ClientError(
@@ -87,7 +96,12 @@ export async function customFetch(
             const retryAfter = parseRetryAfter(
                 response.headers.get('retry-after'),
             )
-            await backoff(options.retryInterval, attempt, retryAfter)
+            await backoff(
+                options.retryInterval,
+                attempt,
+                retryAfter,
+                callerSignal,
+            )
             continue
         }
 
@@ -140,14 +154,46 @@ function parseRetryAfter(value: string | null): number {
 }
 
 /**
+ * Combines the internal timeout signal with an optional caller-supplied
+ * signal so that either can abort the request.
+ */
+function combineSignals(
+    timeoutSignal: AbortSignal,
+    callerSignal?: AbortSignal,
+): AbortSignal {
+    if (!callerSignal) {
+        return timeoutSignal
+    }
+
+    if (typeof AbortSignal.any === 'function') {
+        return AbortSignal.any([timeoutSignal, callerSignal])
+    }
+
+    // Fallback for runtimes without AbortSignal.any (Node.js < 20.3).
+    const controller = new AbortController()
+    const abort = () => controller.abort()
+
+    if (timeoutSignal.aborted || callerSignal.aborted) {
+        controller.abort()
+    } else {
+        timeoutSignal.addEventListener('abort', abort, { once: true })
+        callerSignal.addEventListener('abort', abort, { once: true })
+    }
+
+    return controller.signal
+}
+
+/**
  * Waits before the next retry attempt, honoring an explicit Retry-After delay
  * when positive and otherwise using exponential backoff
- * (retryInterval * 2^attempt).
+ * (retryInterval * 2^attempt). Rejects with a `ClientError` if the caller
+ * signal aborts while waiting.
  */
 async function backoff(
     retryInterval: number,
     attempt: number,
     retryAfter: number,
+    callerSignal?: AbortSignal,
 ): Promise<void> {
     let delay = retryAfter
 
@@ -155,5 +201,15 @@ async function backoff(
         delay = retryInterval * 2 ** Math.min(attempt, 30)
     }
 
-    await new Promise(resolve => setTimeout(resolve, delay))
+    await new Promise<void>((resolve, reject) => {
+        const cancel = () => {
+            clearTimeout(timer)
+            reject(new ClientError('Request cancelled during retry backoff'))
+        }
+        const timer = setTimeout(() => {
+            callerSignal?.removeEventListener('abort', cancel)
+            resolve()
+        }, delay)
+        callerSignal?.addEventListener('abort', cancel, { once: true })
+    })
 }

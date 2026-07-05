@@ -1,7 +1,7 @@
 {
     "name": "@ipregistry/client",
     "description": "Official Ipregistry Javascript Library.",
-    "version": "6.2.0",
+    "version": "7.0.0",
     "browser": "./dist/index.global.js",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -70,6 +70,7 @@
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@swc/core": "^1.15.43",
+        "@types/chai": "^5.2.3",
         "@types/node": "^26.1.0",
         "chai": "^6.2.2",
         "eslint": "^10.6.0",

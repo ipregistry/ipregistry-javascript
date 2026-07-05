@@ -14,6 +14,37 @@
  * limitations under the License.
  */
 
+/**
+ * Options accepted by lookup methods.
+ */
+export interface LookupOptions {
+    /**
+     * Selects the fields to include in the response, as a comma-separated
+     * list of field paths (e.g. 'location.country,security').
+     */
+    fields?: string
+
+    /**
+     * Whether to resolve and include the hostname the IP address points to.
+     */
+    hostname?: boolean
+
+    /**
+     * Additional query parameters to send with the request.
+     */
+    params?: Record<string, string | number | boolean>
+
+    /**
+     * Cancels the request (including retries and, for batch lookups, pending
+     * chunks) when aborted.
+     */
+    signal?: AbortSignal
+}
+
+/**
+ * @deprecated Use `LookupOptions` instead, e.g.
+ * `client.lookupIp(ip, { fields: 'location', hostname: true })`.
+ */
 export class IpregistryOption {
     public readonly name: string
 
@@ -25,18 +56,28 @@ export class IpregistryOption {
     }
 }
 
+/**
+ * @deprecated Use `LookupOptions#fields` instead.
+ */
 export class FilterOption extends IpregistryOption {
     constructor(expression: string) {
         super('fields', expression)
     }
 }
 
+/**
+ * @deprecated Use `LookupOptions#hostname` instead.
+ */
 export class HostnameOption extends IpregistryOption {
     constructor(hostname: boolean) {
         super('hostname', String(hostname))
     }
 }
 
+/**
+ * @deprecated Use `LookupOptions` instead, e.g.
+ * `client.lookupIp(ip, { fields: 'location', hostname: true })`.
+ */
 export class IpregistryOptions {
     public static filter(fields: string): FilterOption {
         return new FilterOption(fields)

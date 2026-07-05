@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-import { IpInfo } from './model.js'
+import { AutonomousSystem, IpInfo } from './model.js'
 
-export interface IpregistryCache {
-    get(key: string): any | undefined
+/**
+ * The union of value types the Ipregistry client stores in its cache.
+ */
+export type IpregistryCacheValue = IpInfo | AutonomousSystem
 
-    put(key: string, data: any): void
+export interface IpregistryCache<V = IpregistryCacheValue> {
+    get(key: string): V | undefined
+
+    put(key: string, data: V): void
 
     invalidate(key: string): void
 
     invalidateAll(): void
 }
 
-interface CacheEntry {
+interface CacheEntry<V> {
     expiresAt: number
-    value: IpInfo
+    value: V
 }
 
 /**
@@ -37,14 +42,16 @@ interface CacheEntry {
  * after insertion; reading an entry refreshes its recency for eviction
  * purposes but does not extend its lifetime.
  */
-export class InMemoryCache implements IpregistryCache {
+export class InMemoryCache<
+    V = IpregistryCacheValue,
+> implements IpregistryCache<V> {
     private readonly maximumSize: number
 
     private readonly expireAfter: number
 
     // Iteration order of a Map is insertion order; the first key is therefore
     // the least recently used, since reads re-insert their entry.
-    private readonly cache: Map<string, CacheEntry> = new Map()
+    private readonly cache: Map<string, CacheEntry<V>> = new Map()
 
     constructor(
         maximumSize: number = typeof window !== 'undefined' ? 16 : 2048,
@@ -54,7 +61,7 @@ export class InMemoryCache implements IpregistryCache {
         this.expireAfter = expireAfter
     }
 
-    get(key: string): IpInfo | undefined {
+    get(key: string): V | undefined {
         const entry = this.cache.get(key)
 
         if (!entry) {
@@ -80,7 +87,7 @@ export class InMemoryCache implements IpregistryCache {
         this.cache.clear()
     }
 
-    put(key: string, data: IpInfo): void {
+    put(key: string, data: V): void {
         this.cache.delete(key)
         this.cache.set(key, {
             expiresAt: Date.now() + this.expireAfter,
@@ -96,9 +103,9 @@ export class InMemoryCache implements IpregistryCache {
     }
 }
 
-export class NoCache implements IpregistryCache {
+export class NoCache<V = IpregistryCacheValue> implements IpregistryCache<V> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    get(key: string): IpInfo | undefined {
+    get(key: string): V | undefined {
         return undefined
     }
 
@@ -112,7 +119,7 @@ export class NoCache implements IpregistryCache {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    put(key: string, data: IpInfo): void {
+    put(key: string, data: V): void {
         // do nothing
     }
 }

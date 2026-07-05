@@ -30,7 +30,12 @@ import {
     UserAgent,
 } from './model.js'
 import { IpregistryCache, NoCache } from './cache.js'
-import { IpregistryOption } from './options.js'
+import {
+    FilterOption,
+    HostnameOption,
+    IpregistryOption,
+    LookupOptions,
+} from './options.js'
 
 import { isApiError, LookupError } from './errors.js'
 
@@ -169,6 +174,10 @@ export class IpregistryConfig {
  * Provides a builder pattern for constructing `IpregistryConfig` instances.
  * This class allows for setting the `apiKey`, `baseUrl`, and `timeout` before
  * building the final `IpregistryConfig` object.
+ *
+ * @deprecated Pass an `IpregistryClientOptions` object to the
+ * `IpregistryClient` constructor instead, e.g.
+ * `new IpregistryClient({ apiKey: 'KEY', timeout: 10000 })`.
  */
 export class IpregistryConfigBuilder {
     private apiKey: string
@@ -307,6 +316,72 @@ export class IpregistryConfigBuilder {
 }
 
 /**
+ * Configuration options for constructing an `IpregistryClient`.
+ */
+export interface IpregistryClientOptions {
+    /**
+     * The API key used for authenticating requests to Ipregistry.
+     */
+    apiKey: string
+
+    /**
+     * The base URL of the Ipregistry API, or the shorthand 'eu' for the
+     * European Union endpoint. Defaults to 'https://api.ipregistry.co'.
+     */
+    baseUrl?: string
+
+    /**
+     * The timeout (in milliseconds) for API requests. Defaults to 5000.
+     */
+    timeout?: number
+
+    /**
+     * The maximum number of automatic retries performed in addition to the
+     * initial attempt. Defaults to 3. Use 0 to disable retries.
+     */
+    maxRetries?: number
+
+    /**
+     * The base backoff (in milliseconds) between retries. Defaults to 1000.
+     */
+    retryInterval?: number
+
+    /**
+     * Whether 5xx responses (and transient network errors) are retried.
+     * Defaults to true.
+     */
+    retryOnServerError?: boolean
+
+    /**
+     * Whether 429 Too Many Requests responses are retried, honoring the
+     * Retry-After header when present. Defaults to false.
+     */
+    retryOnTooManyRequests?: boolean
+
+    /**
+     * The maximum number of values sent in a single batch request. Capped at
+     * `DEFAULT_MAX_BATCH_SIZE` (the API limit).
+     */
+    maxBatchSize?: number
+
+    /**
+     * How many batch sub-requests are dispatched concurrently when a batch is
+     * split into chunks. Defaults to 4.
+     */
+    batchConcurrency?: number
+
+    /**
+     * The cache used to memoize lookups. Defaults to `NoCache`.
+     */
+    cache?: IpregistryCache
+
+    /**
+     * A custom handler for API requests.
+     */
+    requestHandler?: IpregistryRequestHandler
+}
+
+/**
  * The main client for interacting with the Ipregistry API.
  * This class provides methods for looking up IP information, ASN details, parsing user agents, and more.
  */
@@ -319,21 +394,65 @@ export class IpregistryClient {
 
     /**
      * Constructs an IpregistryClient instance for API operations.
+     * @param options The client configuration, including the API key.
+     */
+    constructor(options: IpregistryClientOptions)
+    /**
+     * Constructs an IpregistryClient instance for API operations.
      * @param keyOrConfig The API key as a string or an IpregistryConfig instance for custom configurations.
      * @param cache Optional. An instance implementing the IpregistryCache interface for caching responses.
      * @param requestHandler Optional. A custom handler for API requests.
+     * @deprecated Pass an `IpregistryClientOptions` object instead, e.g.
+     * `new IpregistryClient({ apiKey: 'KEY', cache: new InMemoryCache() })`.
+     * The API-key-string form remains supported.
      */
     constructor(
         keyOrConfig: string | IpregistryConfig,
         cache?: IpregistryCache,
         requestHandler?: IpregistryRequestHandler,
+    )
+    constructor(
+        keyOrConfigOrOptions:
+            string | IpregistryConfig | IpregistryClientOptions,
+        cache?: IpregistryCache,
+        requestHandler?: IpregistryRequestHandler,
     ) {
-        if (typeof keyOrConfig === 'string') {
-            this.config = new IpregistryConfigBuilder(keyOrConfig).build()
-        } else if (!keyOrConfig) {
+        let options: IpregistryClientOptions | undefined
+
+        if (
+            keyOrConfigOrOptions &&
+            typeof keyOrConfigOrOptions === 'object' &&
+            !(keyOrConfigOrOptions instanceof IpregistryConfig)
+        ) {
+            options = keyOrConfigOrOptions
+        }
+
+        if (options) {
+            this.config = new IpregistryConfig(
+                options.apiKey,
+                options.baseUrl === 'eu'
+                    ? 'https://eu.api.ipregistry.co'
+                    : (options.baseUrl ?? ''),
+                options.timeout ?? 0,
+                options.maxRetries,
+                options.retryInterval,
+                options.retryOnServerError,
+                options.retryOnTooManyRequests,
+                options.maxBatchSize,
+                options.batchConcurrency,
+            )
+            cache = options.cache ?? cache
+            requestHandler = options.requestHandler ?? requestHandler
+        } else if (typeof keyOrConfigOrOptions === 'string') {
+            this.config = new IpregistryConfigBuilder(
+                keyOrConfigOrOptions,
+            ).build()
+        } else if (!keyOrConfigOrOptions) {
             this.config = new IpregistryConfigBuilder('tryout').build()
         } else {
-            this.config = keyOrConfig
+            // The plain-options case was handled above, so an object here is
+            // necessarily an IpregistryConfig instance.
+            this.config = keyOrConfigOrOptions as IpregistryConfig
         }
 
         if (cache) {
@@ -358,8 +477,21 @@ export class IpregistryClient {
      */
     async batchLookupAsns(
         asns: number[],
+        options?: LookupOptions,
+    ): Promise<ApiResponse<(AutonomousSystem | LookupError)[]>>
+    /**
+     * @deprecated Pass a `LookupOptions` object instead, e.g.
+     * `client.batchLookupAsns(asns, { fields: 'name' })`.
+     */
+    async batchLookupAsns(
+        asns: number[],
         ...options: IpregistryOption[]
+    ): Promise<ApiResponse<(AutonomousSystem | LookupError)[]>>
+    async batchLookupAsns(
+        asns: number[],
+        ...options: (IpregistryOption | LookupOptions | undefined)[]
     ): Promise<ApiResponse<(AutonomousSystem | LookupError)[]>> {
+        const { params, signal } = IpregistryClient.normalizeOptions(options)
         const sparseCache: Array<AutonomousSystem | null> =
             new Array<AutonomousSystem | null>(asns.length)
         const cacheMisses: Array<number> = []
@@ -368,9 +500,10 @@ export class IpregistryClient {
             const asn = asns[i]
             const cacheKey = IpregistryClient.buildCacheKey(
                 asn.toString(),
-                options,
+                params,
             )
-            const cacheValue = this.cache.get(cacheKey)
+            const cacheValue = this.cache.get(cacheKey) as
+                AutonomousSystem | undefined
 
             if (cacheValue) {
                 sparseCache[i] = cacheValue
@@ -384,7 +517,7 @@ export class IpregistryClient {
         >(asns.length)
 
         const apiResponse = await this.dispatchBatchChunks(cacheMisses, chunk =>
-            this.requestHandler.batchLookupAsns(chunk, options),
+            this.requestHandler.batchLookupAsns(chunk, params, signal),
         )
         const freshAutonomousSystem = apiResponse
             ? apiResponse.data.results
@@ -406,7 +539,7 @@ export class IpregistryClient {
                     this.cache.put(
                         IpregistryClient.buildCacheKey(
                             cacheMisses[k].toString(),
-                            options,
+                            params,
                         ),
                         freshAutonomousSystem[k] as AutonomousSystem,
                     )
@@ -442,8 +575,21 @@ export class IpregistryClient {
      */
     async batchLookupIps(
         ips: string[],
+        options?: LookupOptions,
+    ): Promise<ApiResponse<(IpInfo | LookupError)[]>>
+    /**
+     * @deprecated Pass a `LookupOptions` object instead, e.g.
+     * `client.batchLookupIps(ips, { fields: 'location' })`.
+     */
+    async batchLookupIps(
+        ips: string[],
         ...options: IpregistryOption[]
+    ): Promise<ApiResponse<(IpInfo | LookupError)[]>>
+    async batchLookupIps(
+        ips: string[],
+        ...options: (IpregistryOption | LookupOptions | undefined)[]
     ): Promise<ApiResponse<(IpInfo | LookupError)[]>> {
+        const { params, signal } = IpregistryClient.normalizeOptions(options)
         const sparseCache: Array<IpInfo | null> = new Array<IpInfo | null>(
             ips.length,
         )
@@ -451,8 +597,8 @@ export class IpregistryClient {
 
         for (let i = 0; i < ips.length; i++) {
             const ip = ips[i]
-            const cacheKey = IpregistryClient.buildCacheKey(ip, options)
-            const cacheValue = this.cache.get(cacheKey)
+            const cacheKey = IpregistryClient.buildCacheKey(ip, params)
+            const cacheValue = this.cache.get(cacheKey) as IpInfo | undefined
 
             if (cacheValue) {
                 sparseCache[i] = cacheValue
@@ -466,7 +612,7 @@ export class IpregistryClient {
         >(ips.length)
 
         const apiResponse = await this.dispatchBatchChunks(cacheMisses, chunk =>
-            this.requestHandler.batchLookupIps(chunk, options),
+            this.requestHandler.batchLookupIps(chunk, params, signal),
         )
         const freshIpInfo = apiResponse ? apiResponse.data.results : []
 
@@ -484,7 +630,7 @@ export class IpregistryClient {
                     )
                 } else {
                     this.cache.put(
-                        IpregistryClient.buildCacheKey(cacheMisses[k], options),
+                        IpregistryClient.buildCacheKey(cacheMisses[k], params),
                         freshIpInfo[k] as IpInfo,
                     )
                     result[j] = freshIpInfo[k]
@@ -518,15 +664,29 @@ export class IpregistryClient {
      */
     async lookupAsn(
         asn: number,
+        options?: LookupOptions,
+    ): Promise<ApiResponse<AutonomousSystem>>
+    /**
+     * @deprecated Pass a `LookupOptions` object instead, e.g.
+     * `client.lookupAsn(asn, { fields: 'name' })`.
+     */
+    async lookupAsn(
+        asn: number,
         ...options: IpregistryOption[]
+    ): Promise<ApiResponse<AutonomousSystem>>
+    async lookupAsn(
+        asn: number,
+        ...options: (IpregistryOption | LookupOptions | undefined)[]
     ): Promise<ApiResponse<AutonomousSystem>> {
-        const cacheKey = IpregistryClient.buildCacheKey(asn.toString(), options)
-        const cacheValue = this.cache.get(cacheKey) as AutonomousSystem
+        const { params, signal } = IpregistryClient.normalizeOptions(options)
+        const cacheKey = IpregistryClient.buildCacheKey(asn.toString(), params)
+        const cacheValue = this.cache.get(cacheKey) as
+            AutonomousSystem | undefined
 
         let result: ApiResponse<AutonomousSystem>
 
         if (!cacheValue) {
-            result = await this.requestHandler.lookupAsn(asn, options)
+            result = await this.requestHandler.lookupAsn(asn, params, signal)
             this.cache.put(cacheKey, result.data)
         } else {
             result = {
@@ -550,15 +710,28 @@ export class IpregistryClient {
      */
     async lookupIp(
         ip: string,
+        options?: LookupOptions,
+    ): Promise<ApiResponse<IpInfo>>
+    /**
+     * @deprecated Pass a `LookupOptions` object instead, e.g.
+     * `client.lookupIp(ip, { fields: 'location', hostname: true })`.
+     */
+    async lookupIp(
+        ip: string,
         ...options: IpregistryOption[]
+    ): Promise<ApiResponse<IpInfo>>
+    async lookupIp(
+        ip: string,
+        ...options: (IpregistryOption | LookupOptions | undefined)[]
     ): Promise<ApiResponse<IpInfo>> {
-        const cacheKey = IpregistryClient.buildCacheKey(ip, options)
-        const cacheValue = this.cache.get(cacheKey) as IpInfo
+        const { params, signal } = IpregistryClient.normalizeOptions(options)
+        const cacheKey = IpregistryClient.buildCacheKey(ip, params)
+        const cacheValue = this.cache.get(cacheKey) as IpInfo | undefined
 
         let result: ApiResponse<IpInfo>
 
         if (!cacheValue) {
-            result = await this.requestHandler.lookupIp(ip, options)
+            result = await this.requestHandler.lookupIp(ip, params, signal)
             this.cache.put(cacheKey, result.data)
         } else {
             result = {
@@ -583,9 +756,20 @@ export class IpregistryClient {
      * @returns A Promise resolving to an ApiResponse containing the RequesterAutonomousSystem information.
      */
     async originLookupAsn(
+        options?: LookupOptions,
+    ): Promise<ApiResponse<RequesterAutonomousSystem>>
+    /**
+     * @deprecated Pass a `LookupOptions` object instead, e.g.
+     * `client.originLookupAsn({ fields: 'name' })`.
+     */
+    async originLookupAsn(
         ...options: IpregistryOption[]
+    ): Promise<ApiResponse<RequesterAutonomousSystem>>
+    async originLookupAsn(
+        ...options: (IpregistryOption | LookupOptions | undefined)[]
     ): Promise<ApiResponse<RequesterAutonomousSystem>> {
-        return await this.requestHandler.originLookupAsn(options)
+        const { params, signal } = IpregistryClient.normalizeOptions(options)
+        return await this.requestHandler.originLookupAsn(params, signal)
     }
 
     /**
@@ -598,9 +782,20 @@ export class IpregistryClient {
      * @returns A Promise resolving to an ApiResponse containing the RequesterIpInfo.
      */
     async originLookupIp(
+        options?: LookupOptions,
+    ): Promise<ApiResponse<RequesterIpInfo>>
+    /**
+     * @deprecated Pass a `LookupOptions` object instead, e.g.
+     * `client.originLookupIp({ fields: 'location' })`.
+     */
+    async originLookupIp(
         ...options: IpregistryOption[]
+    ): Promise<ApiResponse<RequesterIpInfo>>
+    async originLookupIp(
+        ...options: (IpregistryOption | LookupOptions | undefined)[]
     ): Promise<ApiResponse<RequesterIpInfo>> {
-        return await this.requestHandler.originLookupIp(options)
+        const { params, signal } = IpregistryClient.normalizeOptions(options)
+        return await this.requestHandler.originLookupIp(params, signal)
     }
 
     /**
@@ -609,9 +804,36 @@ export class IpregistryClient {
      * @returns A Promise resolving to an ApiResponse containing an array of UserAgent information.
      */
     async parseUserAgents(
+        userAgents: string[],
+        options?: LookupOptions,
+    ): Promise<ApiResponse<UserAgent[]>>
+    /**
+     * @deprecated Pass the user agents as an array instead, e.g.
+     * `client.parseUserAgents([userAgent1, userAgent2])`.
+     */
+    async parseUserAgents(
         ...userAgents: string[]
+    ): Promise<ApiResponse<UserAgent[]>>
+    async parseUserAgents(
+        ...args: (string | string[] | LookupOptions | undefined)[]
     ): Promise<ApiResponse<UserAgent[]>> {
-        const response = await this.requestHandler.parseUserAgents(userAgents)
+        let userAgents: string[]
+        let signal: AbortSignal | undefined
+
+        if (Array.isArray(args[0])) {
+            userAgents = args[0]
+            const options = args[1] as LookupOptions | undefined
+            signal = options?.signal
+        } else {
+            userAgents = args.filter(
+                (value): value is string => typeof value === 'string',
+            )
+        }
+
+        const response = await this.requestHandler.parseUserAgents(
+            userAgents,
+            signal,
+        )
         return {
             credits: response.credits,
             data: response.data.results,
@@ -732,6 +954,52 @@ export class IpregistryClient {
         }
 
         return result
+    }
+
+    /**
+     * Normalizes the supported option shapes (a single `LookupOptions` object
+     * or legacy variadic `IpregistryOption` instances) into query parameters
+     * and an optional abort signal. Param entries from `LookupOptions#params`
+     * are sorted by name so equivalent options produce identical cache keys.
+     */
+    private static normalizeOptions(
+        options: (IpregistryOption | LookupOptions | undefined)[],
+    ): { params: IpregistryOption[]; signal?: AbortSignal } {
+        const provided = options.filter(
+            (option): option is IpregistryOption | LookupOptions =>
+                option !== undefined && option !== null,
+        )
+
+        if (
+            provided.length === 1 &&
+            !(provided[0] instanceof IpregistryOption)
+        ) {
+            const lookupOptions = provided[0]
+            const params: IpregistryOption[] = []
+
+            if (lookupOptions.fields !== undefined) {
+                params.push(new FilterOption(lookupOptions.fields))
+            }
+
+            if (lookupOptions.hostname !== undefined) {
+                params.push(new HostnameOption(lookupOptions.hostname))
+            }
+
+            if (lookupOptions.params) {
+                for (const name of Object.keys(lookupOptions.params).sort()) {
+                    params.push(
+                        new IpregistryOption(
+                            name,
+                            String(lookupOptions.params[name]),
+                        ),
+                    )
+                }
+            }
+
+            return { params, signal: lookupOptions.signal }
+        }
+
+        return { params: provided as IpregistryOption[] }
     }
 
     private static buildCacheKey(
