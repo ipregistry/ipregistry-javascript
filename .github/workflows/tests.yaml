@@ -31,3 +31,33 @@ jobs:
 
       - name: Build and test
         run: npm test
+
+  # Verifies the built library on non-Node runtimes: Bun and the Cloudflare
+  # Workers runtime (workerd, via Miniflare).
+  runtimes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+
+      - name: Use Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test on Node.js
+        run: npm run test:smoke
+
+      - name: Smoke test on Bun
+        run: bun test/smoke.mjs
+
+      - name: Smoke test on Cloudflare Workers (workerd)
+        run: npm run test:workers

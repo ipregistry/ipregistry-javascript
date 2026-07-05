@@ -110,6 +110,26 @@ Browser support:
 More samples are available in the [samples](https://github.com/ipregistry/ipregistry-javascript/tree/master/samples) 
 folder.
 
+## Supported runtimes
+
+The library has zero runtime dependencies and only relies on web-standard APIs
+(`fetch`, `AbortController`, timers), so it runs on any modern JavaScript
+runtime:
+
+- **Node.js 20+** — CommonJS and ESM, with bundled TypeScript declarations for
+  both. Verified continuously on Node 20, 22 and 24.
+- **Bun** — verified continuously.
+- **Cloudflare Workers** — verified continuously against the real Workers
+  runtime (workerd). Note that retry backoff waits count toward a Worker's
+  wall-clock duration; on latency-sensitive Workers consider
+  `withMaxRetries(1)` or a lower `withRetryInterval`.
+- **Deno** and other web-standard runtimes are expected to work through the
+  same APIs.
+- **Browsers** — through a bundler (the ESM build is tree-shakable) or a
+  `<script>` tag exposing the `ipregistry` global, as shown above. Use an
+  origin-restricted API key for browser deployments so your key cannot be
+  reused from other websites.
+
 ## Caching
 
 The Ipregistry client library has built-in support for in-memory caching. 
