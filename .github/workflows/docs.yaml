@@ -1,0 +1,70 @@
+name: Docs
+
+# Builds the typedoc API reference and publishes it to the Cloudflare Pages
+# project behind tsdoc.libraries.ipregistry.co. Dispatched by the Release
+# workflow after a successful release and can be triggered manually for an
+# existing tag.
+#
+# Requires:
+# - CLOUDFLARE_API_TOKEN secret (API token with the "Cloudflare Pages: Edit"
+#   permission)
+# - CLOUDFLARE_ACCOUNT_ID secret
+# - CLOUDFLARE_PAGES_PROJECT_TSDOC repository variable (the Pages project name)
+#
+# When any of them is missing (for example on a fork), publishing skips
+# cleanly and the job still succeeds so releases are not blocked.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to build docs from, e.g. v6.2.0'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine and validate tag
+        # The raw value is passed through the environment (never interpolated
+        # into the shell) and strictly validated before being used as a ref.
+        env:
+          TAG_INPUT: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$TAG_INPUT" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+            echo "::error::Invalid tag '$TAG_INPUT'. Expected a tag such as v1.2.0."
+            exit 1
+          fi
+          echo "TAG=$TAG_INPUT" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build API reference
+        run: npm run tsdoc
+
+      - name: Publish to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT_TSDOC }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ] || [ -z "${PAGES_PROJECT:-}" ]; then
+            echo "::warning::Cloudflare Pages credentials are not configured (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID secrets and CLOUDFLARE_PAGES_PROJECT_TSDOC variable); skipping docs publication."
+            exit 0
+          fi
+          npx wrangler@4 pages deploy docs --project-name "$PAGES_PROJECT" --branch main

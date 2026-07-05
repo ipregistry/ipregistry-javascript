@@ -144,3 +144,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run github-packages.yaml -f "tag=$TAG"
+
+      - name: Publish API reference
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run docs.yaml -f "tag=$TAG"
