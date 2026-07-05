@@ -66,9 +66,9 @@ describe('batchLookupIps', () => {
             expect(ipInfo.ip).equal(ips[i])
         }
 
-        expect(ipInfoList[0]['type']).equal('IPv4')
-        expect(ipInfoList[1]['type']).equal('IPv6')
-        expect(ipInfoList[2]['type']).equal('IPv4')
+        expect((ipInfoList[0] as IpInfo).type).equal('IPv4')
+        expect((ipInfoList[1] as IpInfo).type).equal('IPv6')
+        expect((ipInfoList[2] as IpInfo).type).equal('IPv4')
     })
 
     it('should return cached value if available', async () => {
