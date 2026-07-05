@@ -9,7 +9,8 @@ name: Docs
 # - CLOUDFLARE_API_TOKEN secret (API token with the "Cloudflare Pages: Edit"
 #   permission)
 # - CLOUDFLARE_ACCOUNT_ID secret
-# - CLOUDFLARE_PAGES_PROJECT_TSDOC repository variable (the Pages project name)
+# - CLOUDFLARE_PAGES_PROJECT_TSDOC secret or repository variable (the Pages
+#   project name)
 #
 # When any of them is missing (for example on a fork), publishing skips
 # cleanly and the job still succeeds so releases are not blocked.
@@ -60,7 +61,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT_TSDOC }}
+          PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT_TSDOC || vars.CLOUDFLARE_PAGES_PROJECT_TSDOC }}
         run: |
           set -euo pipefail
           if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ] || [ -z "${PAGES_PROJECT:-}" ]; then
