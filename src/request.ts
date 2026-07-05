@@ -69,33 +69,40 @@ export interface IpregistryRequestHandler {
     batchLookupAsns(
         asns: number[],
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<BatchResult<AutonomousSystem | LookupError>>>
 
     batchLookupIps(
         ipAddresses: string[],
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<BatchResult<IpInfo | LookupError>>>
 
     lookupAsn(
         asn: number,
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<AutonomousSystem>>
 
     lookupIp(
         ipAddress: string,
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<IpInfo>>
 
     originLookupAsn(
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<RequesterAutonomousSystem>>
 
     originLookupIp(
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<RequesterIpInfo>>
 
     parseUserAgents(
         userAgents: string[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<BatchResult<UserAgent>>>
 }
 
@@ -110,6 +117,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     async batchLookupAsns(
         asns: number[],
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<BatchResult<AutonomousSystem | LookupError>>> {
         try {
             const response = await customFetch(this.buildApiUrl('', options), {
@@ -117,6 +125,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 headers: this.getHeaders(),
                 body: JSON.stringify(asns.map(asn => `AS${asn}`)),
                 ...this.getFetchOptions(),
+                signal,
             })
 
             return this.buildApiResponse(response)
@@ -128,6 +137,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     async batchLookupIps(
         ips: string[],
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<BatchResult<IpInfo | LookupError>>> {
         try {
             const response = await customFetch(this.buildApiUrl('', options), {
@@ -135,6 +145,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 headers: this.getHeaders(),
                 body: JSON.stringify(ips),
                 ...this.getFetchOptions(),
+                signal,
             })
 
             return this.buildApiResponse(response)
@@ -146,6 +157,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     async lookupAsn(
         asn: number,
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<AutonomousSystem>> {
         try {
             const response = await customFetch(
@@ -154,6 +166,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                     method: 'GET',
                     headers: this.getHeaders(),
                     ...this.getFetchOptions(),
+                    signal,
                 },
             )
             return this.buildApiResponse(response)
@@ -165,12 +178,14 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
     async lookupIp(
         ip: string,
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<IpInfo>> {
         try {
             const response = await customFetch(this.buildApiUrl(ip, options), {
                 method: 'GET',
                 headers: this.getHeaders(),
                 ...this.getFetchOptions(),
+                signal,
             })
             return this.buildApiResponse(response)
         } catch (error) {
@@ -180,6 +195,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
     async originLookupAsn(
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<RequesterAutonomousSystem>> {
         try {
             const response = await customFetch(
@@ -188,6 +204,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                     method: 'GET',
                     headers: this.getHeaders(),
                     ...this.getFetchOptions(),
+                    signal,
                 },
             )
             return this.buildApiResponse(response)
@@ -198,12 +215,14 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
     async originLookupIp(
         options: IpregistryOption[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<RequesterIpInfo>> {
         try {
             const response = await customFetch(this.buildApiUrl('', options), {
                 method: 'GET',
                 headers: this.getHeaders(),
                 ...this.getFetchOptions(),
+                signal,
             })
             return this.buildApiResponse(response)
         } catch (error: unknown) {
@@ -213,6 +232,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
     async parseUserAgents(
         userAgents: string[],
+        signal?: AbortSignal,
     ): Promise<ApiResponse<BatchResult<UserAgent>>> {
         try {
             const response = await customFetch(this.buildApiUrl('user_agent'), {
@@ -220,6 +240,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
                 headers: this.getHeaders(),
                 body: JSON.stringify(userAgents),
                 ...this.getFetchOptions(),
+                signal,
             })
             return this.buildApiResponse(response)
         } catch (error) {

@@ -121,8 +121,8 @@ runtime:
 - **Bun** — verified continuously.
 - **Cloudflare Workers** — verified continuously against the real Workers
   runtime (workerd). Note that retry backoff waits count toward a Worker's
-  wall-clock duration; on latency-sensitive Workers consider
-  `withMaxRetries(1)` or a lower `withRetryInterval`.
+  wall-clock duration; on latency-sensitive Workers consider a lower
+  `maxRetries` or `retryInterval`.
 - **Deno** and other web-standard runtimes are expected to work through the
   same APIs.
 - **Browsers** — through a bundler (the ESM build is tree-shakable) or a
@@ -146,7 +146,7 @@ in subsequent invocations.
 Caching up to 16384 entries:
 
 ```typescript
-const client = new IpregistryClient('YOUR_API_KEY', new InMemoryCache(16384));
+const client = new IpregistryClient({apiKey: 'YOUR_API_KEY', cache: new InMemoryCache(16384)});
 ```
 
 ### Configuring cache max age
@@ -154,7 +154,7 @@ const client = new IpregistryClient('YOUR_API_KEY', new InMemoryCache(16384));
 Caching up to 16384 entries for at most 6 hours:
 
 ```typescript
-const client = new IpregistryClient('YOUR_API_KEY', new InMemoryCache(16384, 3600 * 6 * 1000));
+const client = new IpregistryClient({apiKey: 'YOUR_API_KEY', cache: new InMemoryCache(16384, 3600 * 6 * 1000)});
 ```
 
 If your purpose is to re-use a same Ipregistry client instance (and thus share the same cache) for different API keys, 
@@ -167,7 +167,7 @@ client.config.apiKey = 'YOUR_NEW_API_KEY';
 ### Disabling caching
 
 ```typescript
-const client = new IpregistryClient('YOUR_API_KEY', new NoCache());
+const client = new IpregistryClient('YOUR_API_KEY');
 ```
 
 ## Timeouts and retries
@@ -180,20 +180,33 @@ retried unless you opt in; when enabled, a `Retry-After` response header takes
 precedence over the computed backoff. All of it is configurable:
 
 ```typescript
-const client = new IpregistryClient(
-    new IpregistryConfigBuilder('YOUR_API_KEY')
-        .withTimeout(10000)             // per-attempt timeout, in milliseconds
-        .withMaxRetries(2)              // 0 disables retries
-        .withRetryInterval(500)         // backoff base, in milliseconds
-        .withRetryOnServerError(true)   // retry 5xx responses (default: true)
-        .withRetryOnTooManyRequests(true) // retry 429 responses (default: false)
-        .build()
-);
+const client = new IpregistryClient({
+    apiKey: 'YOUR_API_KEY',
+    timeout: 10000,                // per-attempt timeout, in milliseconds
+    maxRetries: 2,                 // 0 disables retries
+    retryInterval: 500,            // backoff base, in milliseconds
+    retryOnServerError: true,      // retry 5xx responses (default: true)
+    retryOnTooManyRequests: true,  // retry 429 responses (default: false)
+});
 ```
 
 Rate limiting is opt-in per API key on Ipregistry, which is why
 `retryOnTooManyRequests` defaults to false. Enable it if your key is
 rate limited.
+
+### Cancelling requests
+
+Every lookup accepts an `AbortSignal`. Aborting cancels the in-flight request,
+any pending retries and their backoff waits, and pending batch chunks:
+
+```typescript
+const controller = new AbortController();
+
+const promise = client.lookupIp('73.2.2.2', {signal: controller.signal});
+
+// Later, e.g. when the user navigates away:
+controller.abort();
+```
 
 ## Batch lookups
 
@@ -210,12 +223,11 @@ Cached entries are served locally; only the remainder is requested. Both knobs
 are configurable:
 
 ```typescript
-const client = new IpregistryClient(
-    new IpregistryConfigBuilder('YOUR_API_KEY')
-        .withMaxBatchSize(256)     // values per request, capped at 1024
-        .withBatchConcurrency(1)   // sequential dispatch, gentler on rate-limited keys
-        .build()
-);
+const client = new IpregistryClient({
+    apiKey: 'YOUR_API_KEY',
+    maxBatchSize: 256,       // values per request, capped at 1024
+    batchConcurrency: 1,     // sequential dispatch, gentler on rate-limited keys
+});
 ```
 
 ## Enabling hostname lookup
@@ -224,7 +236,7 @@ By default, the Ipregistry API does not return information about the hostname a 
 In order to include the hostname value in your API result, you need to enable the feature explicitly:
 
 ```typescript
-const ipInfo = await client.lookupIp('73.2.2.2', IpregistryOptions.hostname(true));
+const ipInfo = await client.lookupIp('73.2.2.2', {hostname: true});
 ```
 
 ## Errors
@@ -254,7 +266,7 @@ the cache and no request is made to the Ipregistry API.
 To save bandwidth and speed up response times, the API allows selecting fields to return:
 
 ```typescript
-const response = await client.lookupIp('73.2.2.2', IpregistryOptions.filter('hostname,location.country.name'));
+const response = await client.lookupIp('73.2.2.2', {fields: 'hostname,location.country.name'});
 ```
 
 ## Usage data
@@ -278,11 +290,10 @@ console.log(response.throttling.reset);
 ## European Union base URL
 
 For clients operating within the European Union or for those who prefer to route their requests through our EU 
-servers, the Ipregistry client library provides an easy way to configure this preference using the `withEuBaseURL` option. This ensures that your requests are handled by our EU-based infrastructure, potentially reducing latency and aligning with local data handling regulations:
+servers, the Ipregistry client library provides an easy way to configure this preference using the `baseUrl` option. This ensures that your requests are handled by our EU-based infrastructure, potentially reducing latency and aligning with local data handling regulations:
 
 ```typescript
-const config = new IpregistryConfigBuilder('tryout').withEuBaseUrl().build()
-const client = new IpregistryClient(config)
+const client = new IpregistryClient({apiKey: 'tryout', baseUrl: 'eu'})
 ```
 
 # Other Libraries

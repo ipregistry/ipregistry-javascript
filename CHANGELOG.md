@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.0]
+### Added
+- Options-object API: construct the client with `new IpregistryClient({ apiKey, baseUrl, timeout, maxRetries, cache, ... })` and pass per-call options as a plain object, e.g. `client.lookupIp(ip, { fields: 'location', hostname: true })`. The `baseUrl` option accepts the shorthand `'eu'` for the European Union endpoint.
+- Request cancellation: every lookup accepts an `AbortSignal` via `{ signal }`. Aborting cancels the in-flight request, pending retries and their backoff waits, and pending batch chunks.
+- `parseUserAgents` accepts an array (`client.parseUserAgents([ua1, ua2])`) in addition to the deprecated variadic form.
+- Generic cache typing: `IpregistryCache<V>` and the new `IpregistryCacheValue` type.
+
+### Changed
+- The library is now compiled with full TypeScript strict mode (`noImplicitAny` enabled).
+
+### Deprecated
+- `IpregistryConfigBuilder`: pass an `IpregistryClientOptions` object to the constructor instead.
+- `IpregistryOption`, `FilterOption`, `HostnameOption`, `IpregistryOptions` and the variadic lookup signatures: pass a `LookupOptions` object instead.
+- The variadic `parseUserAgents(...userAgents)` form: pass an array instead.
+
+All deprecated forms keep working in 7.x and behave identically (including cache
+key compatibility between legacy options and their `LookupOptions` equivalents);
+they will be removed in a future major version.
+
+### Migration
+```typescript
+// Before (6.x)                                    // After (7.x)
+new IpregistryClient(                              new IpregistryClient({
+    new IpregistryConfigBuilder('KEY')                 apiKey: 'KEY',
+        .withTimeout(10000)                            timeout: 10000,
+        .withEuBaseUrl()                               baseUrl: 'eu',
+        .build(),                                      cache: new InMemoryCache(),
+    new InMemoryCache())                           })
+
+client.lookupIp(ip,                                client.lookupIp(ip, {
+    IpregistryOptions.filter('location'),              fields: 'location',
+    IpregistryOptions.hostname(true))                  hostname: true,
+                                                   })
+```
+
 ## [6.2.0] - 2026-07-05
 ### Added
 - Automatic splitting of large batch lookups, aligned with the Go client: inputs beyond the API limit (1024 values) are chunked and dispatched with bounded concurrency, preserving input order. Configurable via `withMaxBatchSize` and `withBatchConcurrency` (default 4, set 1 for sequential dispatch).
