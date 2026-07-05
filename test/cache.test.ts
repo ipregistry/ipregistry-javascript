@@ -155,3 +155,59 @@ describe('IpregistryClient batch caching', () => {
         expect(second.credits.consumed).to.equal(0)
     })
 })
+
+function ipInfo(ip: string): IpInfo {
+    return { ip } as IpInfo
+}
+
+describe('InMemoryCache', () => {
+    it('evicts the least recently used entry beyond the maximum size', () => {
+        const cache = new InMemoryCache(2, 60_000)
+
+        cache.put('a', ipInfo('a'))
+        cache.put('b', ipInfo('b'))
+        cache.get('a')
+        cache.put('c', ipInfo('c'))
+
+        expect(cache.get('a')).to.deep.equal(ipInfo('a'))
+        expect(cache.get('b')).to.be.undefined
+        expect(cache.get('c')).to.deep.equal(ipInfo('c'))
+    })
+
+    it('overwrites entries without growing the cache', () => {
+        const cache = new InMemoryCache(2, 60_000)
+
+        cache.put('a', ipInfo('a1'))
+        cache.put('b', ipInfo('b'))
+        cache.put('a', ipInfo('a2'))
+
+        expect(cache.get('a')).to.deep.equal(ipInfo('a2'))
+        expect(cache.get('b')).to.deep.equal(ipInfo('b'))
+    })
+
+    it('expires entries after the configured lifetime', async () => {
+        const cache = new InMemoryCache(16, 5)
+
+        cache.put('a', ipInfo('a'))
+        expect(cache.get('a')).to.deep.equal(ipInfo('a'))
+
+        await new Promise(resolve => setTimeout(resolve, 15))
+
+        expect(cache.get('a')).to.be.undefined
+    })
+
+    it('invalidates a single entry or all entries', () => {
+        const cache = new InMemoryCache(16, 60_000)
+
+        cache.put('a', ipInfo('a'))
+        cache.put('b', ipInfo('b'))
+        cache.invalidate('a')
+
+        expect(cache.get('a')).to.be.undefined
+        expect(cache.get('b')).to.deep.equal(ipInfo('b'))
+
+        cache.invalidateAll()
+
+        expect(cache.get('b')).to.be.undefined
+    })
+})

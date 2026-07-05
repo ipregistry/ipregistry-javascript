@@ -16,8 +16,6 @@
 
 import { IpInfo } from './model.js'
 
-import { LRUCache } from 'lru-cache'
-
 export interface IpregistryCache {
     get(key: string): any | undefined
 
@@ -28,12 +26,25 @@ export interface IpregistryCache {
     invalidateAll(): void
 }
 
+interface CacheEntry {
+    expiresAt: number
+    value: IpInfo
+}
+
+/**
+ * An in-process cache with time-based expiration and a bounded size using
+ * least-recently-used eviction. Entries expire `expireAfter` milliseconds
+ * after insertion; reading an entry refreshes its recency for eviction
+ * purposes but does not extend its lifetime.
+ */
 export class InMemoryCache implements IpregistryCache {
-    private readonly maximumSize
+    private readonly maximumSize: number
 
-    private readonly expireAfter
+    private readonly expireAfter: number
 
-    private readonly cache: LRUCache<string, IpInfo>
+    // Iteration order of a Map is insertion order; the first key is therefore
+    // the least recently used, since reads re-insert their entry.
+    private readonly cache: Map<string, CacheEntry> = new Map()
 
     constructor(
         maximumSize: number = typeof window !== 'undefined' ? 16 : 2048,
@@ -41,17 +52,24 @@ export class InMemoryCache implements IpregistryCache {
     ) {
         this.maximumSize = maximumSize
         this.expireAfter = expireAfter
-
-        const options: any = {
-            max: maximumSize,
-            ttl: expireAfter,
-        }
-
-        this.cache = new LRUCache<string, IpInfo>(options)
     }
 
     get(key: string): IpInfo | undefined {
-        return this.cache.get(key)
+        const entry = this.cache.get(key)
+
+        if (!entry) {
+            return undefined
+        }
+
+        if (Date.now() >= entry.expiresAt) {
+            this.cache.delete(key)
+            return undefined
+        }
+
+        this.cache.delete(key)
+        this.cache.set(key, entry)
+
+        return entry.value
     }
 
     invalidate(key: string): void {
@@ -63,7 +81,18 @@ export class InMemoryCache implements IpregistryCache {
     }
 
     put(key: string, data: IpInfo): void {
-        this.cache.set(key, data)
+        this.cache.delete(key)
+        this.cache.set(key, {
+            expiresAt: Date.now() + this.expireAfter,
+            value: data,
+        })
+
+        if (this.cache.size > this.maximumSize) {
+            const leastRecentlyUsed = this.cache.keys().next().value
+            if (leastRecentlyUsed !== undefined) {
+                this.cache.delete(leastRecentlyUsed)
+            }
+        }
     }
 }
 
