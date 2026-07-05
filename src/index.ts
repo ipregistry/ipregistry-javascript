@@ -16,6 +16,8 @@
 
 import {
     ApiResponse,
+    ApiResponseCredits,
+    ApiResponseThrottling,
     BatchResult,
     DefaultRequestHandler,
     IpregistryRequestHandler,
@@ -31,6 +33,12 @@ import { IpregistryCache, NoCache } from './cache.js'
 import { IpregistryOption } from './options.js'
 
 import { isApiError, LookupError } from './errors.js'
+
+/**
+ * The maximum number of IP addresses or ASNs the Ipregistry API accepts in a
+ * single batch request.
+ */
+export const DEFAULT_MAX_BATCH_SIZE = 1024
 
 /**
  * Represents the configuration for the Ipregistry API client.
@@ -82,6 +90,19 @@ export class IpregistryConfig {
     public readonly retryOnTooManyRequests: boolean = false
 
     /**
+     * The maximum number of values sent in a single batch request. Larger
+     * batches are split into this many values per request. Capped at
+     * `DEFAULT_MAX_BATCH_SIZE` (the API limit).
+     */
+    public readonly maxBatchSize: number = DEFAULT_MAX_BATCH_SIZE
+
+    /**
+     * How many batch sub-requests are dispatched concurrently when a batch is
+     * large enough to be split into chunks. Defaults to 4.
+     */
+    public readonly batchConcurrency: number = 4
+
+    /**
      * Constructs a new `IpregistryConfig` instance.
      * @param apiKey The API key for authenticating requests.
      * @param baseUrl Optional. The base URL of the Ipregistry API.
@@ -90,6 +111,8 @@ export class IpregistryConfig {
      * @param retryInterval Optional. The base backoff between retries in milliseconds.
      * @param retryOnServerError Optional. Whether 5xx responses are retried.
      * @param retryOnTooManyRequests Optional. Whether 429 responses are retried.
+     * @param maxBatchSize Optional. The maximum number of values per batch request.
+     * @param batchConcurrency Optional. How many batch sub-requests run concurrently.
      */
     constructor(
         apiKey: string,
@@ -99,6 +122,8 @@ export class IpregistryConfig {
         retryInterval?: number,
         retryOnServerError?: boolean,
         retryOnTooManyRequests?: boolean,
+        maxBatchSize?: number,
+        batchConcurrency?: number,
     ) {
         this.apiKey = apiKey
 
@@ -125,6 +150,18 @@ export class IpregistryConfig {
         if (retryOnTooManyRequests !== undefined) {
             this.retryOnTooManyRequests = retryOnTooManyRequests
         }
+
+        if (
+            maxBatchSize !== undefined &&
+            maxBatchSize > 0 &&
+            maxBatchSize <= DEFAULT_MAX_BATCH_SIZE
+        ) {
+            this.maxBatchSize = maxBatchSize
+        }
+
+        if (batchConcurrency !== undefined && batchConcurrency > 0) {
+            this.batchConcurrency = batchConcurrency
+        }
     }
 }
 
@@ -147,6 +184,10 @@ export class IpregistryConfigBuilder {
     private retryOnServerError: boolean = true
 
     private retryOnTooManyRequests: boolean = false
+
+    private maxBatchSize: number = DEFAULT_MAX_BATCH_SIZE
+
+    private batchConcurrency: number = 4
 
     constructor(apiKey: string) {
         this.apiKey = apiKey
@@ -222,6 +263,34 @@ export class IpregistryConfigBuilder {
         return this
     }
 
+    /**
+     * Sets the maximum number of values sent in a single batch request. Batch
+     * lookups split larger inputs into this many values per request. Values
+     * are capped at `DEFAULT_MAX_BATCH_SIZE` (the API limit); a value <= 0 is
+     * ignored.
+     * @param maxBatchSize The maximum number of values per batch request.
+     * @returns The `IpregistryConfigBuilder` instance for chaining.
+     */
+    public withMaxBatchSize(maxBatchSize: number): IpregistryConfigBuilder {
+        this.maxBatchSize = maxBatchSize
+        return this
+    }
+
+    /**
+     * Sets how many batch sub-requests are dispatched concurrently when a
+     * batch is large enough to be split into chunks. A value <= 0 is ignored.
+     * Set it to 1 for strictly sequential dispatch, which is gentler on a
+     * rate-limited API key.
+     * @param batchConcurrency How many batch sub-requests run concurrently.
+     * @returns The `IpregistryConfigBuilder` instance for chaining.
+     */
+    public withBatchConcurrency(
+        batchConcurrency: number,
+    ): IpregistryConfigBuilder {
+        this.batchConcurrency = batchConcurrency
+        return this
+    }
+
     public build(): IpregistryConfig {
         return new IpregistryConfig(
             this.apiKey,
@@ -231,6 +300,8 @@ export class IpregistryConfigBuilder {
             this.retryInterval,
             this.retryOnServerError,
             this.retryOnTooManyRequests,
+            this.maxBatchSize,
+            this.batchConcurrency,
         )
     }
 }
@@ -312,21 +383,12 @@ export class IpregistryClient {
             AutonomousSystem | LookupError
         >(asns.length)
 
-        let apiResponse: ApiResponse<
-            BatchResult<AutonomousSystem | LookupError>
-        > | null
-        let freshAutonomousSystem: (AutonomousSystem | LookupError)[]
-
-        if (cacheMisses.length > 0) {
-            apiResponse = await this.requestHandler.batchLookupAsns(
-                cacheMisses,
-                options,
-            )
-            freshAutonomousSystem = apiResponse.data.results
-        } else {
-            apiResponse = null
-            freshAutonomousSystem = []
-        }
+        const apiResponse = await this.dispatchBatchChunks(cacheMisses, chunk =>
+            this.requestHandler.batchLookupAsns(chunk, options),
+        )
+        const freshAutonomousSystem = apiResponse
+            ? apiResponse.data.results
+            : []
 
         let j = 0
         let k = 0
@@ -403,19 +465,10 @@ export class IpregistryClient {
             IpInfo | LookupError
         >(ips.length)
 
-        let apiResponse: ApiResponse<BatchResult<IpInfo | LookupError>> | null
-        let freshIpInfo: (IpInfo | LookupError)[]
-
-        if (cacheMisses.length > 0) {
-            apiResponse = await this.requestHandler.batchLookupIps(
-                cacheMisses,
-                options,
-            )
-            freshIpInfo = apiResponse.data.results
-        } else {
-            apiResponse = null
-            freshIpInfo = []
-        }
+        const apiResponse = await this.dispatchBatchChunks(cacheMisses, chunk =>
+            this.requestHandler.batchLookupIps(chunk, options),
+        )
+        const freshIpInfo = apiResponse ? apiResponse.data.results : []
 
         let j = 0
         let k = 0
@@ -572,6 +625,113 @@ export class IpregistryClient {
      */
     public getCache(): IpregistryCache {
         return this.cache
+    }
+
+    /**
+     * Resolves batch values, splitting inputs larger than `maxBatchSize` into
+     * chunks dispatched with at most `batchConcurrency` requests in flight,
+     * and concatenating their results in order. When a chunk fails, the first
+     * error is thrown and no further chunk is dispatched (in-flight chunks
+     * complete but their results are discarded). Returns null when there is
+     * nothing to resolve.
+     */
+    private async dispatchBatchChunks<V, R>(
+        values: V[],
+        request: (chunk: V[]) => Promise<ApiResponse<BatchResult<R>>>,
+    ): Promise<ApiResponse<BatchResult<R>> | null> {
+        if (values.length === 0) {
+            return null
+        }
+
+        const { batchConcurrency, maxBatchSize } = this.config
+
+        if (values.length <= maxBatchSize) {
+            return await request(values)
+        }
+
+        const chunks: V[][] = []
+        for (let start = 0; start < values.length; start += maxBatchSize) {
+            chunks.push(values.slice(start, start + maxBatchSize))
+        }
+
+        const responses: ApiResponse<BatchResult<R>>[] = new Array(
+            chunks.length,
+        )
+        let nextChunk = 0
+        let firstError: unknown = null
+
+        const worker = async () => {
+            while (firstError === null) {
+                const index = nextChunk++
+                if (index >= chunks.length) {
+                    return
+                }
+                try {
+                    responses[index] = await request(chunks[index])
+                } catch (error) {
+                    firstError = firstError ?? error
+                    return
+                }
+            }
+        }
+
+        await Promise.all(
+            Array.from(
+                { length: Math.min(batchConcurrency, chunks.length) },
+                () => worker(),
+            ),
+        )
+
+        if (firstError !== null) {
+            throw firstError
+        }
+
+        const results: R[] = []
+        for (const response of responses) {
+            results.push(...response.data.results)
+        }
+
+        return {
+            credits: IpregistryClient.aggregateCredits(responses),
+            data: { results },
+            throttling: IpregistryClient.mostConstrainedThrottling(responses),
+        }
+    }
+
+    private static aggregateCredits(
+        responses: ApiResponse<unknown>[],
+    ): ApiResponseCredits {
+        const consumed = responses
+            .map(response => response.credits.consumed)
+            .filter((value): value is number => value !== null)
+        const remaining = responses
+            .map(response => response.credits.remaining)
+            .filter((value): value is number => value !== null)
+
+        return {
+            consumed: consumed.length
+                ? consumed.reduce((total, value) => total + value, 0)
+                : null,
+            remaining: remaining.length ? Math.min(...remaining) : null,
+        }
+    }
+
+    private static mostConstrainedThrottling(
+        responses: ApiResponse<unknown>[],
+    ): ApiResponseThrottling | null {
+        let result: ApiResponseThrottling | null = null
+
+        for (const response of responses) {
+            const throttling = response.throttling
+            if (
+                throttling &&
+                (!result || throttling.remaining < result.remaining)
+            ) {
+                result = throttling
+            }
+        }
+
+        return result
     }
 
     private static buildCacheKey(

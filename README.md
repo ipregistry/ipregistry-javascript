@@ -195,6 +195,29 @@ Rate limiting is opt-in per API key on Ipregistry, which is why
 `retryOnTooManyRequests` defaults to false. Enable it if your key is
 rate limited.
 
+## Batch lookups
+
+`batchLookupIps` and `batchLookupAsns` look up many values in a single call:
+
+```typescript
+const response = await client.batchLookupIps(['1.1.1.1', '8.8.8.8']);
+```
+
+Inputs larger than the API's per-request limit (1024 values) are split
+automatically into multiple requests dispatched with bounded concurrency
+(4 requests in flight by default), and results are returned in input order.
+Cached entries are served locally; only the remainder is requested. Both knobs
+are configurable:
+
+```typescript
+const client = new IpregistryClient(
+    new IpregistryConfigBuilder('YOUR_API_KEY')
+        .withMaxBatchSize(256)     // values per request, capped at 1024
+        .withBatchConcurrency(1)   // sequential dispatch, gentler on rate-limited keys
+        .build()
+);
+```
+
 ## Enabling hostname lookup
 
 By default, the Ipregistry API does not return information about the hostname a given IP address resolves to. 
