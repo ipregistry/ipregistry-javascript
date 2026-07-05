@@ -182,11 +182,11 @@ precedence over the computed backoff. All of it is configurable:
 ```typescript
 const client = new IpregistryClient({
     apiKey: 'YOUR_API_KEY',
-    timeout: 10000,                // per-attempt timeout, in milliseconds
     maxRetries: 2,                 // 0 disables retries
     retryInterval: 500,            // backoff base, in milliseconds
     retryOnServerError: true,      // retry 5xx responses (default: true)
     retryOnTooManyRequests: true,  // retry 429 responses (default: false)
+    timeout: 10000,                // per-attempt timeout, in milliseconds
 });
 ```
 
@@ -225,8 +225,8 @@ are configurable:
 ```typescript
 const client = new IpregistryClient({
     apiKey: 'YOUR_API_KEY',
-    maxBatchSize: 256,       // values per request, capped at 1024
     batchConcurrency: 1,     // sequential dispatch, gentler on rate-limited keys
+    maxBatchSize: 256,       // values per request, capped at 1024
 });
 ```
 

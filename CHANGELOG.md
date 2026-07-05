@@ -31,9 +31,9 @@ they will be removed in a future major version.
 // Before (6.x)                                    // After (7.x)
 new IpregistryClient(                              new IpregistryClient({
     new IpregistryConfigBuilder('KEY')                 apiKey: 'KEY',
-        .withTimeout(10000)                            timeout: 10000,
         .withEuBaseUrl()                               baseUrl: 'eu',
-        .build(),                                      cache: new InMemoryCache(),
+        .withTimeout(10000)                            cache: new InMemoryCache(),
+        .build(),                                      timeout: 10000,
     new InMemoryCache())                           })
 
 client.lookupIp(ip,                                client.lookupIp(ip, {
