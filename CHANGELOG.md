@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.2.0] - 2026-07-05
+### Added
+- Automatic splitting of large batch lookups, aligned with the Go client: inputs beyond the API limit (1024 values) are chunked and dispatched with bounded concurrency, preserving input order. Configurable via `withMaxBatchSize` and `withBatchConcurrency` (default 4, set 1 for sequential dispatch).
+- New `DEFAULT_MAX_BATCH_SIZE` constant exposing the API per-request limit.
+
+### Changed
+- Document timeout, retry, and batch configuration in the README.
+
 ## [6.1.0] - 2026-07-05
 ### Added
 - Configurable retry behavior aligned with the Go client: `withMaxRetries` (default 3), `withRetryInterval` (exponential backoff base, default 1 second), `withRetryOnServerError` (default true) and `withRetryOnTooManyRequests` (default false, honoring the `Retry-After` header when enabled).

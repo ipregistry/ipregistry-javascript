@@ -1,7 +1,7 @@
 {
     "name": "@ipregistry/client",
     "description": "Official Ipregistry Javascript Library.",
-    "version": "6.1.0",
+    "version": "6.2.0",
     "browser": "./dist/index.global.js",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
