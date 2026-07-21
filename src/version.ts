@@ -18,4 +18,4 @@
  * The version of this library. Must be kept in sync with the version field of
  * package.json; a unit test enforces this.
  */
-export const LIBRARY_VERSION = '7.0.0'
+export const LIBRARY_VERSION = '7.1.0'

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.1.0] - 2026-07-21
+
 ### Added
 
 - Custom `fetch` implementation: pass `fetch` in the client options to route
@@ -22,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   new `SelectedFields` utility type is exported.
 - Missing `decimal_separator` and `group_separator` fields in
   `CurrencyFormat`.
+
+### Changed
+
+- Build with tsdown instead of tsup; the published files, their names and
+  the package exports are unchanged.
 
 ## [7.0.0]
 
