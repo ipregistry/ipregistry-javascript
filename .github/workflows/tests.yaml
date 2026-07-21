@@ -32,8 +32,8 @@ jobs:
       - name: Build and test
         run: npm test
 
-  # Verifies the built library on non-Node runtimes: Bun and the Cloudflare
-  # Workers runtime (workerd, via Miniflare).
+  # Verifies the built library on non-Node runtimes: Bun, Deno and the
+  # Cloudflare Workers runtime (workerd, via Miniflare).
   runtimes:
     runs-on: ubuntu-latest
     steps:
@@ -47,6 +47,11 @@ jobs:
       - name: Use Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Use Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Install dependencies
         run: npm ci
 
@@ -58,6 +63,9 @@ jobs:
 
       - name: Smoke test on Bun
         run: bun test/smoke.mjs
+
+      - name: Smoke test on Deno
+        run: deno run test/smoke.mjs
 
       - name: Smoke test on Cloudflare Workers (workerd)
         run: npm run test:workers
