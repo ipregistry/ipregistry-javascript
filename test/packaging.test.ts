@@ -16,8 +16,12 @@
 
 import { describe, it } from 'node:test'
 import { existsSync, readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { runInNewContext } from 'node:vm'
 import { expect } from 'chai'
+
+import * as esmExports from '../dist/index.mjs'
 
 const packageJson = JSON.parse(
     readFileSync(new URL('../package.json', import.meta.url), 'utf-8'),
@@ -62,5 +66,41 @@ describe('package exports', () => {
             )
             expect(existsSync(resolved), `${path} exists`).to.be.true
         }
+    })
+})
+
+describe('built bundles', () => {
+    const esmKeys = Object.keys(esmExports).sort()
+
+    it('exposes the public API through the ESM bundle', () => {
+        expect(esmKeys).to.include.members([
+            'ApiError',
+            'InMemoryCache',
+            'IpregistryClient',
+            'IpregistryConfigBuilder',
+            'LookupError',
+        ])
+    })
+
+    it('loads under require() with the same exports as the ESM bundle', () => {
+        const require = createRequire(import.meta.url)
+        const cjsExports = require('../dist/index.js')
+        const cjsKeys = Object.keys(cjsExports)
+            .filter(key => key !== '__esModule' && key !== 'default')
+            .sort()
+        expect(cjsKeys).to.deep.equal(esmKeys)
+    })
+
+    it('registers the ipregistry global with the same exports when loaded as a browser script', () => {
+        const source = readFileSync(
+            new URL(`../${packageJson.browser}`, import.meta.url),
+            'utf-8',
+        )
+        const context: { ipregistry?: Record<string, unknown> } = {}
+        runInNewContext(source, context)
+        expect(typeof context.ipregistry, 'window.ipregistry').to.equal(
+            'object',
+        )
+        expect(Object.keys(context.ipregistry!).sort()).to.deep.equal(esmKeys)
     })
 })
