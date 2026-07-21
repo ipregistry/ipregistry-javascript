@@ -15,24 +15,53 @@
  */
 
 /**
- * Narrows a lookup response type to the top-level fields named by a `fields`
- * selection expression. `SelectedFields<IpInfo, 'location,currency'>` is
- * `Pick<IpInfo, 'location' | 'currency'>`. Dotted paths select their
- * top-level field: `'location.country'` selects `location` (the nested
- * narrowing is not reflected in the type). When the expression is not a
- * literal type (a plain `string`), the full response type is kept.
+ * Narrows a lookup response type to the fields named by a `fields` selection
+ * expression, including nested (dotted) paths.
+ * `SelectedFields<IpInfo, 'location.region'>` is
+ * `{ location: { region: Region } }`, so accessing an unselected field such
+ * as `location.city` is a compile-time error. Comma-separated selections are
+ * merged: `'location.region,location.city'` yields
+ * `{ location: { region: Region; city: string | null } }`. Paths that
+ * traverse arrays narrow the element type. Unknown path segments contribute
+ * nothing to the result. When the expression is not a literal type (a plain
+ * `string`), the full response type is kept.
  */
 export type SelectedFields<T, F extends string> = string extends F
     ? T
-    : Pick<T, Extract<FieldRoots<F>, keyof T>>
+    : Simplify<SelectedPaths<T, F>>
 
-type FieldRoots<F extends string> = F extends `${infer Head},${infer Rest}`
-    ? FieldRoot<Head> | FieldRoots<Rest>
-    : FieldRoot<F>
+type SelectedPaths<
+    T,
+    F extends string,
+> = F extends `${infer Head},${infer Rest}`
+    ? SelectPath<T, Trim<Head>> & SelectedPaths<T, Rest>
+    : SelectPath<T, Trim<F>>
 
-type FieldRoot<F extends string> = RootName<Trim<F>>
+type SelectPath<T, P extends string> = P extends `${infer Head}.${infer Rest}`
+    ? Head extends keyof T
+        ? { [K in Head]: SelectNested<T[K], Rest> }
+        : unknown
+    : P extends keyof T
+      ? Pick<T, P>
+      : unknown
 
-type RootName<F extends string> = F extends `${infer Root}.${string}` ? Root : F
+type SelectNested<T, P extends string> = T extends readonly (infer Element)[]
+    ? SelectNested<Element, P>[]
+    : T extends object
+      ? SelectPath<T, P>
+      : T
+
+/**
+ * Flattens the intersections produced by merging comma-separated selections
+ * into plain object types, so hovers show
+ * `{ location: { region: Region; city: string | null } }` instead of
+ * `{ location: { region: Region } } & { location: { city: string | null } }`.
+ */
+type Simplify<T> = T extends readonly (infer Element)[]
+    ? Simplify<Element>[]
+    : T extends object
+      ? { [K in keyof T]: Simplify<T[K]> }
+      : T
 
 type Trim<F extends string> = F extends ` ${infer Rest}`
     ? Trim<Rest>

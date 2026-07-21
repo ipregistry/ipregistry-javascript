@@ -29,6 +29,7 @@ import {
     IpregistryCacheValue,
     IpregistryClient,
     LookupError,
+    Region,
     RequesterIpInfo,
     UserAgent,
 } from '../dist/index.mjs'
@@ -84,11 +85,43 @@ describe('public type surface', () => {
         >()
     })
 
-    it('narrows dotted field paths to their top-level field', () => {
+    it('narrows dotted field paths to the nested selection', () => {
         const call = () =>
             client.lookupIp('8.8.8.8', { fields: 'location.country.code' })
         expectTypeOf(call).returns.resolves.toEqualTypeOf<
-            ApiResponse<Pick<IpInfo, 'location'>>
+            ApiResponse<{ location: { country: { code: string | null } } }>
+        >()
+    })
+
+    it('narrows a nested object selection to its full declared type', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', { fields: 'location.region' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<{ location: { region: Region } }>
+        >()
+    })
+
+    it('merges nested selections under a shared parent', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', {
+                fields: 'location.region, location.city',
+            })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<{
+                location: { region: Region; city: string | null }
+            }>
+        >()
+    })
+
+    it('narrows selections that traverse arrays to their element type', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', {
+                fields: 'location.country.languages.name',
+            })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<{
+                location: { country: { languages: { name: string | null }[] } }
+            }>
         >()
     })
 

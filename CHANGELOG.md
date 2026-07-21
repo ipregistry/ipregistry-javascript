@@ -13,11 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   requests through your own implementation (proxies, instrumentation,
   testing), e.g. `new IpregistryClient({ apiKey, fetch: myFetch })`.
 - Typed field selection: when a literal `fields` expression is passed, the
-  response type is narrowed to the selected fields, e.g.
-  `client.lookupIp(ip, { fields: 'location' })` resolves to
-  `ApiResponse<Pick<IpInfo, 'location'>>` and accessing unselected fields is
-  a compile-time error. Dynamic (non-literal) expressions keep the full
-  response type. The new `SelectedFields` utility type is exported.
+  response type is narrowed to the selected fields, including nested paths,
+  e.g. `client.lookupIp(ip, { fields: 'location.region' })` resolves to
+  `ApiResponse<{ location: { region: Region } }>` and accessing unselected
+  fields (even within `location`) is a compile-time error. Comma-separated
+  selections are merged and paths that traverse arrays narrow the element
+  type. Dynamic (non-literal) expressions keep the full response type. The
+  new `SelectedFields` utility type is exported.
 - Missing `decimal_separator` and `group_separator` fields in
   `CurrencyFormat`.
 
