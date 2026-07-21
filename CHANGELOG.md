@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom `fetch` implementation: pass `fetch` in the client options to route
   requests through your own implementation (proxies, instrumentation,
   testing), e.g. `new IpregistryClient({ apiKey, fetch: myFetch })`.
+- Typed field selection: when a literal `fields` expression is passed, the
+  response type is narrowed to the selected fields, e.g.
+  `client.lookupIp(ip, { fields: 'location' })` resolves to
+  `ApiResponse<Pick<IpInfo, 'location'>>` and accessing unselected fields is
+  a compile-time error. Dynamic (non-literal) expressions keep the full
+  response type. The new `SelectedFields` utility type is exported.
 
 ## [7.0.0]
 

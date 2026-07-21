@@ -15,6 +15,32 @@
  */
 
 /**
+ * Narrows a lookup response type to the top-level fields named by a `fields`
+ * selection expression. `SelectedFields<IpInfo, 'location,currency'>` is
+ * `Pick<IpInfo, 'location' | 'currency'>`. Dotted paths select their
+ * top-level field: `'location.country'` selects `location` (the nested
+ * narrowing is not reflected in the type). When the expression is not a
+ * literal type (a plain `string`), the full response type is kept.
+ */
+export type SelectedFields<T, F extends string> = string extends F
+    ? T
+    : Pick<T, Extract<FieldRoots<F>, keyof T>>
+
+type FieldRoots<F extends string> = F extends `${infer Head},${infer Rest}`
+    ? FieldRoot<Head> | FieldRoots<Rest>
+    : FieldRoot<F>
+
+type FieldRoot<F extends string> = RootName<Trim<F>>
+
+type RootName<F extends string> = F extends `${infer Root}.${string}` ? Root : F
+
+type Trim<F extends string> = F extends ` ${infer Rest}`
+    ? Trim<Rest>
+    : F extends `${infer Rest} `
+      ? Trim<Rest>
+      : F
+
+/**
  * Options accepted by lookup methods.
  */
 export interface LookupOptions {

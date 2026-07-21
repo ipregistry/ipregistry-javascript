@@ -35,6 +35,7 @@ import {
     HostnameOption,
     IpregistryOption,
     LookupOptions,
+    SelectedFields,
 } from './options.js'
 
 import { isApiError, LookupError } from './errors.js'
@@ -498,6 +499,12 @@ export class IpregistryClient {
      * @param options Optional. Additional options for the lookup operation.
      * @returns A Promise resolving to an ApiResponse containing an array of AutonomousSystem or LookupError objects.
      */
+    async batchLookupAsns<const F extends string>(
+        asns: number[],
+        options: LookupOptions & { fields: F },
+    ): Promise<
+        ApiResponse<(SelectedFields<AutonomousSystem, F> | LookupError)[]>
+    >
     async batchLookupAsns(
         asns: number[],
         options?: LookupOptions,
@@ -596,6 +603,10 @@ export class IpregistryClient {
      * @param options Optional. Additional options for the lookup operation.
      * @returns A Promise resolving to an ApiResponse containing an array of IpInfo or LookupError objects.
      */
+    async batchLookupIps<const F extends string>(
+        ips: string[],
+        options: LookupOptions & { fields: F },
+    ): Promise<ApiResponse<(SelectedFields<IpInfo, F> | LookupError)[]>>
     async batchLookupIps(
         ips: string[],
         options?: LookupOptions,
@@ -685,6 +696,10 @@ export class IpregistryClient {
      * @param options Optional. Additional options for the lookup operation.
      * @returns A Promise resolving to an ApiResponse containing the AutonomousSystem information.
      */
+    async lookupAsn<const F extends string>(
+        asn: number,
+        options: LookupOptions & { fields: F },
+    ): Promise<ApiResponse<SelectedFields<AutonomousSystem, F>>>
     async lookupAsn(
         asn: number,
         options?: LookupOptions,
@@ -731,6 +746,10 @@ export class IpregistryClient {
      * @param options Optional. Additional options for the lookup operation.
      * @returns A Promise resolving to an ApiResponse containing the IpInfo.
      */
+    async lookupIp<const F extends string>(
+        ip: string,
+        options: LookupOptions & { fields: F },
+    ): Promise<ApiResponse<SelectedFields<IpInfo, F>>>
     async lookupIp(
         ip: string,
         options?: LookupOptions,
@@ -778,6 +797,9 @@ export class IpregistryClient {
      * @param options Optional. Additional options for the lookup operation.
      * @returns A Promise resolving to an ApiResponse containing the RequesterAutonomousSystem information.
      */
+    async originLookupAsn<const F extends string>(
+        options: LookupOptions & { fields: F },
+    ): Promise<ApiResponse<SelectedFields<RequesterAutonomousSystem, F>>>
     async originLookupAsn(
         options?: LookupOptions,
     ): Promise<ApiResponse<RequesterAutonomousSystem>>
@@ -804,6 +826,9 @@ export class IpregistryClient {
      * @param options Optional. Additional options for the lookup operation.
      * @returns A Promise resolving to an ApiResponse containing the RequesterIpInfo.
      */
+    async originLookupIp<const F extends string>(
+        options: LookupOptions & { fields: F },
+    ): Promise<ApiResponse<SelectedFields<RequesterIpInfo, F>>>
     async originLookupIp(
         options?: LookupOptions,
     ): Promise<ApiResponse<RequesterIpInfo>>

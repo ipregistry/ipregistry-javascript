@@ -69,6 +69,48 @@ describe('public type surface', () => {
         >()
     })
 
+    it('narrows the response type to the selected fields', () => {
+        const call = () => client.lookupIp('8.8.8.8', { fields: 'location' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<Pick<IpInfo, 'location'>>
+        >()
+    })
+
+    it('narrows to several selected fields, trimming spaces', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', { fields: 'currency, location' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<Pick<IpInfo, 'currency' | 'location'>>
+        >()
+    })
+
+    it('narrows dotted field paths to their top-level field', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', { fields: 'location.country.code' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<Pick<IpInfo, 'location'>>
+        >()
+    })
+
+    it('keeps the full response type for dynamic fields expressions', () => {
+        const fields: string = 'location'
+        const call = () => client.lookupIp('8.8.8.8', { fields })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<ApiResponse<IpInfo>>()
+    })
+
+    it('narrows batch and ASN lookups by selected fields', () => {
+        const batch = () =>
+            client.batchLookupIps(['8.8.8.8'], { fields: 'security' })
+        expectTypeOf(batch).returns.resolves.toEqualTypeOf<
+            ApiResponse<(Pick<IpInfo, 'security'> | LookupError)[]>
+        >()
+
+        const asn = () => client.lookupAsn(400923, { fields: 'name' })
+        expectTypeOf(asn).returns.resolves.toEqualTypeOf<
+            ApiResponse<Pick<AutonomousSystem, 'name'>>
+        >()
+    })
+
     it('InMemoryCache defaults its value type to IpregistryCacheValue', () => {
         const call = () => new InMemoryCache().get('k')
         expectTypeOf(call).returns.toEqualTypeOf<
