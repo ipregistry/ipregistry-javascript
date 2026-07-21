@@ -17,12 +17,23 @@
 import { ApiError, ClientError } from './errors.js'
 
 interface Options extends RequestInit {
+    fetch?: FetchImplementation
     maxRetries?: number
     retryInterval?: number
     retryOnServerError?: boolean
     retryOnTooManyRequests?: boolean
     timeout?: number
 }
+
+/**
+ * The signature of a `fetch`-compatible implementation. Implementations are
+ * invoked without a receiver, so pass a bound function when the source
+ * requires one (e.g. `window.fetch.bind(window)`).
+ */
+export type FetchImplementation = (
+    input: string | URL | Request,
+    init?: RequestInit,
+) => Promise<Response>
 
 const DEFAULT_OPTIONS = {
     maxRetries: 3,
@@ -53,6 +64,7 @@ export async function customFetch(
     } as Required<Pick<Options, keyof typeof DEFAULT_OPTIONS>> & Options
 
     const callerSignal = providedOptions.signal ?? undefined
+    const fetchImplementation = options.fetch ?? globalThis.fetch
 
     for (let attempt = 0; ; attempt++) {
         if (callerSignal?.aborted) {
@@ -64,7 +76,7 @@ export async function customFetch(
 
         let response: Response
         try {
-            response = await fetch(url, {
+            response = await fetchImplementation(url, {
                 ...options,
                 signal: combineSignals(controller.signal, callerSignal),
             })

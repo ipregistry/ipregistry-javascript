@@ -38,6 +38,7 @@ import {
 } from './options.js'
 
 import { isApiError, LookupError } from './errors.js'
+import { FetchImplementation } from './fetch.js'
 
 /**
  * The maximum number of IP addresses or ASNs the Ipregistry API accepts in a
@@ -108,6 +109,12 @@ export class IpregistryConfig {
     public readonly batchConcurrency: number = 4
 
     /**
+     * The `fetch` implementation used to perform HTTP requests. Defaults to
+     * the global `fetch`.
+     */
+    public readonly fetch?: FetchImplementation
+
+    /**
      * Constructs a new `IpregistryConfig` instance.
      * @param apiKey The API key for authenticating requests.
      * @param baseUrl Optional. The base URL of the Ipregistry API.
@@ -118,6 +125,7 @@ export class IpregistryConfig {
      * @param retryOnTooManyRequests Optional. Whether 429 responses are retried.
      * @param maxBatchSize Optional. The maximum number of values per batch request.
      * @param batchConcurrency Optional. How many batch sub-requests run concurrently.
+     * @param fetch Optional. The `fetch` implementation used for HTTP requests.
      */
     constructor(
         apiKey: string,
@@ -129,6 +137,7 @@ export class IpregistryConfig {
         retryOnTooManyRequests?: boolean,
         maxBatchSize?: number,
         batchConcurrency?: number,
+        fetch?: FetchImplementation,
     ) {
         this.apiKey = apiKey
 
@@ -166,6 +175,10 @@ export class IpregistryConfig {
 
         if (batchConcurrency !== undefined && batchConcurrency > 0) {
             this.batchConcurrency = batchConcurrency
+        }
+
+        if (fetch !== undefined) {
+            this.fetch = fetch
         }
     }
 }
@@ -376,6 +389,15 @@ export interface IpregistryClientOptions {
     cache?: IpregistryCache
 
     /**
+     * The `fetch` implementation used to perform HTTP requests. Defaults to
+     * the global `fetch`. Useful for proxies, instrumentation or testing.
+     * The implementation is invoked without a receiver, so pass a bound
+     * function when the source requires one (e.g.
+     * `window.fetch.bind(window)`).
+     */
+    fetch?: FetchImplementation
+
+    /**
      * A custom handler for API requests.
      */
     requestHandler?: IpregistryRequestHandler
@@ -440,6 +462,7 @@ export class IpregistryClient {
                 options.retryOnTooManyRequests,
                 options.maxBatchSize,
                 options.batchConcurrency,
+                options.fetch,
             )
             cache = options.cache ?? cache
             requestHandler = options.requestHandler ?? requestHandler
@@ -1020,6 +1043,7 @@ export class IpregistryClient {
 
 export * from './cache.js'
 export * from './errors.js'
+export type { FetchImplementation } from './fetch.js'
 export * from './model.js'
 export * from './options.js'
 export * from './request.js'

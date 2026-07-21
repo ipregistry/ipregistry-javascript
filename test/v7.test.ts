@@ -65,6 +65,28 @@ describe('options-object construction', () => {
         expect(captured.headers['authorization']).to.equal('ApiKey my-key')
     })
 
+    it('uses a custom fetch implementation instead of the global fetch', async () => {
+        const urls: string[] = []
+        const customFetch = async (
+            url: string | URL | Request,
+        ): Promise<Response> => {
+            urls.push(String(url))
+            return jsonResponse({ ip: '8.8.8.8' })
+        }
+        globalThis.fetch = (async () => {
+            throw new Error('the global fetch must not be called')
+        }) as typeof fetch
+        const client = new IpregistryClient({
+            apiKey: 'k',
+            fetch: customFetch,
+        })
+
+        const response = await client.lookupIp('8.8.8.8')
+
+        expect(response.data).to.deep.equal({ ip: '8.8.8.8' })
+        expect(urls).to.deep.equal(['https://api.ipregistry.co/8.8.8.8?'])
+    })
+
     it("maps the 'eu' base URL shorthand to the EU endpoint", async () => {
         const captured = capturingFetch()
         const client = new IpregistryClient({ apiKey: 'k', baseUrl: 'eu' })

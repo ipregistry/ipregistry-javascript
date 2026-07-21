@@ -250,6 +250,7 @@ export class DefaultRequestHandler implements IpregistryRequestHandler {
 
     protected getFetchOptions() {
         return {
+            fetch: this.config.fetch,
             maxRetries: this.config.maxRetries,
             retryInterval: this.config.retryInterval,
             retryOnServerError: this.config.retryOnServerError,
