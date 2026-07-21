@@ -23,6 +23,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Update npm
+        # The npm 10 bundled with Node.js 20 and 22 crashes on tsdown's
+        # dependency graph ("Cannot read properties of null (reading
+        # 'edgesOut')"); npm 11 resolves it fine.
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: npm install
 
