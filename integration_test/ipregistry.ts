@@ -30,6 +30,8 @@ import {
 import { describe, it } from 'node:test'
 import { expect } from 'chai'
 
+import { collectDeclaredPaths, collectResponsePaths } from './model-paths.js'
+
 const API_KEY = process.env.IPREGISTRY_API_KEY || 'tryout'
 const API_KEY_THROTTLED = process.env.IPREGISTRY_API_KEY_THROTTLED || 'tryout'
 
@@ -445,5 +447,37 @@ describe('parseUserAgents', () => {
         expect(response.data.length).eq(2)
         expect(response.data[0].name).not.null
         expect(response.data[1].name).not.null
+    })
+})
+
+describe('model drift', () => {
+    it('declares every field returned by a full IP lookup', async () => {
+        const client = new IpregistryClient(API_KEY, new NoCache())
+        const response = await client.lookupIp('8.8.8.8', { hostname: true })
+
+        const declared = collectDeclaredPaths('RequesterIpInfo')
+        const unknown = [...collectResponsePaths(response.data)].filter(
+            path => !declared.has(path),
+        )
+
+        expect(
+            unknown,
+            `fields returned by the API but missing from the model: ${unknown.join(', ')}`,
+        ).to.deep.equal([])
+    })
+
+    it('declares every field returned by a full ASN lookup', async () => {
+        const client = new IpregistryClient(API_KEY, new NoCache())
+        const response = await client.lookupAsn(400923)
+
+        const declared = collectDeclaredPaths('AutonomousSystem')
+        const unknown = [...collectResponsePaths(response.data)].filter(
+            path => !declared.has(path),
+        )
+
+        expect(
+            unknown,
+            `fields returned by the API but missing from the model: ${unknown.join(', ')}`,
+        ).to.deep.equal([])
     })
 })

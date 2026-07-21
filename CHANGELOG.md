@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ApiResponse<Pick<IpInfo, 'location'>>` and accessing unselected fields is
   a compile-time error. Dynamic (non-literal) expressions keep the full
   response type. The new `SelectedFields` utility type is exported.
+- Missing `decimal_separator` and `group_separator` fields in
+  `CurrencyFormat`.
 
 ## [7.0.0]
 

@@ -163,6 +163,10 @@ export interface Currency {
 }
 
 export interface CurrencyFormat {
+    decimal_separator: string | null
+
+    group_separator: string | null
+
     negative: CurrencyFormatPrefixSuffix
 
     positive: CurrencyFormatPrefixSuffix
