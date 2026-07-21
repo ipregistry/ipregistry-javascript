@@ -125,6 +125,64 @@ describe('public type surface', () => {
         >()
     })
 
+    it('merges selections of mixed depths across parents', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', {
+                fields: 'security, location.country.code',
+            })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<{
+                security: IpInfo['security']
+                location: { country: { code: string | null } }
+            }>
+        >()
+    })
+
+    it('resolves overlapping selections to the wider one', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', { fields: 'location, location.city' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<Pick<IpInfo, 'location'>>
+        >()
+    })
+
+    it('ignores unknown path segments in merged selections', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', { fields: 'location,bogus' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<Pick<IpInfo, 'location'>>
+        >()
+    })
+
+    it('narrows origin lookups by selected fields', () => {
+        const call = () => client.originLookupIp({ fields: 'user_agent' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<Pick<RequesterIpInfo, 'user_agent'>>
+        >()
+    })
+
+    it('narrows batch lookups by nested selections', () => {
+        const call = () =>
+            client.batchLookupIps(['8.8.8.8'], { fields: 'location.region' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<({ location: { region: Region } } | LookupError)[]>
+        >()
+    })
+
+    it('rejects access to unselected fields at compile time', () => {
+        const demonstration = async () => {
+            const response = await client.lookupIp('8.8.8.8', {
+                fields: 'location.region',
+            })
+            // @ts-expect-error city is not part of the selection
+            void response.data.location.city
+            // @ts-expect-error currency is not part of the selection
+            void response.data.currency
+            void response.data.location.region.name
+        }
+        expectTypeOf(demonstration).returns.resolves.toBeVoid()
+    })
+
     it('keeps the full response type for dynamic fields expressions', () => {
         const fields: string = 'location'
         const call = () => client.lookupIp('8.8.8.8', { fields })
