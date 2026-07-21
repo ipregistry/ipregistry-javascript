@@ -94,7 +94,7 @@ jobs:
           echo "----------------------------------------"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Lint and build
         run: |
