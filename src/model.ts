@@ -130,6 +130,8 @@ export interface Connection {
 
     domain: string | null
 
+    is_anycast: boolean
+
     organization: string | null
 
     route: string | null

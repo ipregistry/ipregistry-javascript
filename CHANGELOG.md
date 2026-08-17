@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New field `connection.is_anycast` in response model: whether the IP address
+  is announced via anycast, i.e. simultaneously from multiple locations.
+
 ## [7.1.0] - 2026-07-21
 
 ### Added

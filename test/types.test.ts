@@ -101,6 +101,14 @@ describe('public type surface', () => {
         >()
     })
 
+    it('narrows a boolean leaf selection to its declared type', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', { fields: 'connection.is_anycast' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<{ connection: { is_anycast: boolean } }>
+        >()
+    })
+
     it('merges nested selections under a shared parent', () => {
         const call = () =>
             client.lookupIp('8.8.8.8', {
