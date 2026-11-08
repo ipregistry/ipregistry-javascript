@@ -114,11 +114,12 @@ jobs:
           npm run test:integration
 
       - name: Publish to npm
-        # Trusted publishing needs npm 11.5.1+; upgrade in case the bundled npm
-        # is older. Provenance is generated automatically with OIDC.
-        run: |
-          npm install -g npm@latest
-          npm publish --access public
+        # Trusted publishing needs npm 11.5.1+, which Node 26 already bundles.
+        # Do NOT upgrade npm globally here: installing npm@latest over the
+        # toolcache npm corrupts its module tree and the publish fails with
+        # "Cannot find module 'sigstore'". Provenance is generated
+        # automatically with OIDC.
+        run: npm publish --access public
 
       - name: Create tag and GitHub release
         # The default Actions token (GITHUB_TOKEN) is blocked by an organization
