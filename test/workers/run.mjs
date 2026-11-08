@@ -37,7 +37,7 @@ try {
     })
 
     const miniflare = new Miniflare({
-        compatibilityDate: '2026-01-01',
+        compatibilityDate: '2026-08-01',
         modules: true,
         script: await readFile(outFile, 'utf-8'),
     })
