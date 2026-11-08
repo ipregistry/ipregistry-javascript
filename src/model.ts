@@ -282,6 +282,8 @@ export interface Security {
 
     is_relay: boolean
 
+    is_residential_proxy: boolean
+
     is_tor: boolean
 
     is_tor_exit: boolean

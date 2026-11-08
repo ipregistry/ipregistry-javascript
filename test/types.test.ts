@@ -109,6 +109,14 @@ describe('public type surface', () => {
         >()
     })
 
+    it('declares the residential proxy flag', () => {
+        const call = () =>
+            client.lookupIp('8.8.8.8', { fields: 'security.is_residential_proxy' })
+        expectTypeOf(call).returns.resolves.toEqualTypeOf<
+            ApiResponse<{ security: { is_residential_proxy: boolean } }>
+        >()
+    })
+
     it('merges nested selections under a shared parent', () => {
         const call = () =>
             client.lookupIp('8.8.8.8', {

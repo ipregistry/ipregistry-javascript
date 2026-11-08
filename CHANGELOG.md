@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New field `connection.is_anycast` in response model: whether the IP address
   is announced via anycast, i.e. simultaneously from multiple locations.
+- New field `security.is_residential_proxy` in response model: whether the IP
+  address is a node of a residential proxy network.
 
 ## [7.1.0] - 2026-07-21
 
